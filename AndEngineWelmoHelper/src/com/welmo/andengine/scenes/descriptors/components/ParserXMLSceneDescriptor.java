@@ -19,10 +19,12 @@ import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.I
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IDimension;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IOrientation;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IPosition;
-import com.welmo.andengine.scenes.descriptors.events.ComponentModifierDescriptor;
-import com.welmo.andengine.scenes.descriptors.events.EventHandlerDescriptor;
-import com.welmo.andengine.scenes.descriptors.events.SceneActionsSet;
+import com.welmo.andengine.scenes.descriptors.events.BasicModifierDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.ComponentModifierDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.ComponentModifierListDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.ExecutionOrder;
+import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.utility.ScreenDimensionHelper;
 
 
@@ -41,9 +43,9 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	protected SceneDescriptor					pSceneDsc=null;
 	protected MultiViewSceneDescriptor			pMultiViewSceneDsc=null;
 	//Modifier descriptors
-	protected SceneActionsSet					pAction=null;
+	protected SceneActions						pAction=null;
 	protected ComponentModifierDescriptor		pModifier=null;
-	protected ComponentEventHandlerDescriptor	pModifierSet=null;
+	protected ComponentEventHandlerDescriptor	pEventHandler=null;
 	//Object Descriptor
 	protected TextObjectDescriptor				pTextDescriptor=null;
 	protected BackGroundObjectDescriptor		pBackGroundDescriptor=null;
@@ -60,7 +62,9 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	static final int STATUS_PARSE_SCENES		=2;
 	static final int STATUS_PARSE_SCENE			=3;
 	static final int STATUS_PARSE_COMPONENT		=4;
-	static final int STATUS_PARSE_MODIFIER		=5;
+	static final int STATUS_PARSE_EVENT_HANDLER	=5;
+	static final int STATUS_PARSE_ACTITIVY_MODIFIER =6;
+	static final int STATUS_PARSE_ACTITIVY_ACTION =6;
 	//--------------------------------------------------------
 	@Override
 	public void processingInstruction(String target, String data) throws SAXException {
@@ -118,23 +122,32 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		case STATUS_PARSE_COMPONENT:
 			if((newDescriptor = parseComponentDescriptor(localName, attributes)) != null)
 				addComponentDescriptor(newDescriptor);
-			else if((newDescriptor = parseActionDescriptor(localName, attributes)) != null)
+			else if((parseActionDescriptor(localName, attributes)) != null)
 				break;
-			else if((pModifierSet = (ComponentEventHandlerDescriptor)parseComponentEventDescriptor(localName, attributes))!= null){
+			else if((pEventHandler = (ComponentEventHandlerDescriptor)parseComponentEventHandlerDescriptor(localName, attributes))!= null){
 				if(pCurrentDescriptorInProcessing != null)
-					pCurrentDescriptorInProcessing.pEventHandlerList.put(pModifierSet.event, pModifierSet);	
+					pCurrentDescriptorInProcessing.pEventHandlerList.put(pEventHandler.event, pEventHandler);	
 				break;
 			}
 			else
 				throw new NullPointerException("ParserXMLSceneDescriptor error invalid Element");
-		case STATUS_PARSE_MODIFIER:
-			if((newDescriptor = parseComponentModifierDescriptor(localName, attributes))!=null)
-				pModifierSet.ModifiersList.add((ComponentModifierDescriptor) newDescriptor);
+			break;
+		case STATUS_PARSE_EVENT_HANDLER:
+			Log.i(TAG,"\t parse  STATUS_PARSE_EVENT_HANDLER");
+			if((parseComponentEventHandlerDescriptor(localName, attributes))==null)
+				throw new NullPointerException("ParserXMLSceneDescriptor error invalid Element");
+			break;
+		case STATUS_PARSE_ACTITIVY_MODIFIER:
+			ComponentModifierDescriptor modDsc;
+			if((modDsc = parseComponentModifierDescriptor(localName, attributes))!=null)
+				pEventHandler.modifierSet.getIModifierList().getModifiers().add(modDsc);
+			else
+				throw new NullPointerException("ParserXMLSceneDescriptor error invalid Element");
 			break;
 		}
 	}
 	public void addComponentDescriptor(BasicDescriptor newDesciptor){
-		Log.i(TAG,"\t\t\t\t add MOdifier Descriptor in List");
+		Log.i(TAG,"\t\t\t\t add Component Descriptor in List");
 		//Save father descriptor to LIFO
 		if(pCurrentDescriptorInProcessing != null) 
 			pDescriptorsInProcessing.addLast(pCurrentDescriptorInProcessing); 
@@ -162,6 +175,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			return null; 
 	}
 	public BasicDescriptor parseComponentDescriptor(String localName, Attributes attributes){ 
+		Log.i(TAG,"\t parseComponentDescriptor");
 		BasicDescriptor newDescriptor = null;
 
 		if (localName.equalsIgnoreCase(ScnTags.S_SPRITE))
@@ -181,31 +195,62 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		nStatus = STATUS_PARSE_COMPONENT;
 		return newDescriptor;
 	}
-	public BasicDescriptor parseActionDescriptor(String localName, Attributes attributes){ 
-		BasicDescriptor newDescriptor=null;
+	public SceneActions parseActionDescriptor(String localName, Attributes attributes){ 
+		Log.i(TAG,"\t parseActionDescriptor");
+		SceneActions newDescriptor=null;
 		if (localName.equalsIgnoreCase(ScnTags.S_ACTION)) {
 			newDescriptor = readAction(attributes);
 			pEventDscMgr.addAction(pAction.event,pCurrentDescriptorInProcessing,pAction);
 		}
-		nStatus = STATUS_PARSE_MODIFIER;
 		return newDescriptor;
 	}
-	public BasicDescriptor parseComponentEventDescriptor(String localName, Attributes attributes){ 
-		BasicDescriptor newDescriptor=null;
-		if (localName.equalsIgnoreCase(ScnTags.S_EVENT_HANDLER)){
-			newDescriptor = readComponentEventHandlerDescriptor(attributes);
+	public BasicModifierDescriptor parseComponentEventHandlerDescriptor(String localName, Attributes attributes){ 
+		Log.i(TAG,"\t parseComponentEventHandlerDescriptor");
+		BasicModifierDescriptor newDescriptor=null;
+		if (nStatus==STATUS_PARSE_COMPONENT) 
+			if(localName.equalsIgnoreCase(ScnTags.S_EVENT_HANDLER)){
+				newDescriptor = readComponentEventHandlerDescriptor(attributes);
+				nStatus = STATUS_PARSE_EVENT_HANDLER;
+				return newDescriptor;
+			}
+			else
+				return null;
+		if (nStatus==STATUS_PARSE_EVENT_HANDLER){ 
+			if(localName.equalsIgnoreCase(ScnTags.S_MODIFIER_LIST)){
+				Log.i(TAG,"\t\t readComponentModifierListDescriptor " + localName);
+				pEventHandler.modifierSet = readComponentModifierListDescriptor(attributes);
+				nStatus = STATUS_PARSE_ACTITIVY_MODIFIER;
+				return newDescriptor;
+			}
+			else{ 
+				SceneActions newActionDescriptoon = new SceneActions();
+				if(localName.equalsIgnoreCase(ScnTags.S_PRE_MOD_ACTION)){
+					newDescriptor = readComponentActionDescriptor(attributes);
+					pEventHandler.preModAction = newActionDescriptoon;
+				}
+				else if(localName.equalsIgnoreCase(ScnTags.S_POST_MOD_ACTION)){
+					newDescriptor = readComponentActionDescriptor(attributes);
+					pEventHandler.postModAction = newActionDescriptoon;
+				}
+				else if(localName.equalsIgnoreCase(ScnTags.S_PRE_MOD_ACTION)){
+					newDescriptor = readComponentActionDescriptor(attributes);
+					pEventHandler.onModAction = newActionDescriptoon;
+				}
+				else return null;
+
+				nStatus = STATUS_PARSE_ACTITIVY_ACTION;
+				return newDescriptor;
+			}
 		}
-		else if (localName.equalsIgnoreCase(ScnTags.S_MODIFIER)){ 
-			newDescriptor = readModifierDescription(attributes);
-		}
-		nStatus = STATUS_PARSE_MODIFIER;
-		return newDescriptor;
+		return null;
 	}
-	public BasicDescriptor parseComponentModifierDescriptor(String localName, Attributes attributes){ 
-		BasicDescriptor newDescriptor=null;
-		if (localName.equalsIgnoreCase(ScnTags.S_MODIFIER)){
+	
+		
+	public ComponentModifierDescriptor parseComponentModifierDescriptor(String localName, Attributes attributes){ 
+		Log.i(TAG,"\t parseComponentModifierDescriptor");
+		ComponentModifierDescriptor newDescriptor=null;
+		if (localName.equalsIgnoreCase(ScnTags.S_MODIFIER))
 			newDescriptor = readComponentModifierDescriptor(attributes);
-		}
 		return newDescriptor;
 	}
 	//-------------------------------------------------------------------------------------
@@ -253,6 +298,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		pSpriteDsc = new SpriteObjectDescriptor();
 		// Read the sprite
 		pSpriteDsc.ID=Integer.parseInt(attr.getValue(ScnTags.S_A_ID));
+		Log.i(TAG,"\t\t readSpriteDescription ID " + pSpriteDsc.ID);
 		pSpriteDsc.textureName = new String(attr.getValue(ScnTags.S_A_RESOURCE_NAME));
 		pSpriteDsc.type = SpriteObjectDescriptor.SpritesTypes.valueOf(attr.getValue(ScnTags.S_A_TYPE));
 
@@ -305,66 +351,77 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		//create new action
 		ComponentEventHandlerDescriptor pDescriptor = new ComponentEventHandlerDescriptor();
 
-		pDescriptor.event=EventHandlerDescriptor.Events.valueOf(attributes.getValue(ScnTags.S_A_EVENT));
-		pDescriptor.modifierListType=ComponentEventHandlerDescriptor.ModifiersListType.valueOf(attributes.getValue(ScnTags.S_A_TYPE));
+		pDescriptor.event=ComponentEventHandlerDescriptor.Events.valueOf(attributes.getValue(ScnTags.S_A_EVENT));
+		Log.i(TAG,"\t\t readSpriteDescription " + attributes.getValue(ScnTags.S_A_EVENT));
+		//pDescriptor.enExecOrder=ExecutionOrder.valueOf(attributes.getValue(ScnTags.S_A_EXECUTION_ORDER));
 		pDescriptor.ID=Integer.parseInt(attributes.getValue(ScnTags.S_A_ID));
-
+		Log.i(TAG,"\t\t readSpriteDescription " + attributes.getValue(ScnTags.S_A_ID));
 		return pDescriptor;
 	}
 	private ComponentModifierDescriptor readComponentModifierDescriptor(Attributes attributes){
-		Log.i(TAG,"\t\t ComponentEventHandlerDescriptor");
+		Log.i(TAG,"\t\t readComponentModifierDescriptor");
 		//create new action
 		ComponentModifierDescriptor pDescriptor = new ComponentModifierDescriptor();
 
-		pDescriptor.setIsASet(Boolean.parseBoolean(attributes.getValue(ScnTags.S_A_TYPE_SET)));
-		if(!pDescriptor.isASet()){
-			pDescriptor.getIModifier().setType(ComponentModifierDescriptor.ModifierType.valueOf(attributes.getValue(ScnTags.S_A_TYPE)));
-			switch(pDescriptor.getIModifier().getType()){
-			case SCALE:
-				pDescriptor.getIModifier().setScaleBegin(Float.parseFloat(attributes.getValue(ScnTags.S_A_SCALE_BEGIN)));
-				pDescriptor.getIModifier().setScaleEnd(Float.parseFloat(attributes.getValue(ScnTags.S_A_SCALE_END)));
-				break;
-			case SOUND:
-				pDescriptor.getIModifier().setSoundName(attributes.getValue(ScnTags.S_A_NAME));
-				break;
-			}
-		}
-		else{
-			pDescriptor.getIModifierList().setModifierListType(
-					ComponentEventHandlerDescriptor.ModifiersListType.valueOf(attributes.getType(ScnTags.S_A_TYPE)));	
+		pDescriptor.getIModifier().setType(ComponentModifierDescriptor.ModifierType.valueOf(attributes.getValue(ScnTags.S_A_TYPE)));
+		switch(pDescriptor.getIModifier().getType()){
+		case SCALE:
+			pDescriptor.getIModifier().setScaleBegin(Float.parseFloat(attributes.getValue(ScnTags.S_A_SCALE_BEGIN)));
+			pDescriptor.getIModifier().setScaleEnd(Float.parseFloat(attributes.getValue(ScnTags.S_A_SCALE_END)));
+			break;
+		case SOUND:
+			pDescriptor.getIModifier().setSoundName(attributes.getValue(ScnTags.S_A_NAME));
+			break;
 		}
 		return pDescriptor;
+	}
+	public ComponentModifierListDescriptor readComponentModifierListDescriptor(Attributes attributes){ 
+		Log.i(TAG,"\t\t readComponentModifierListDescriptor");
+		ComponentModifierListDescriptor newDescriptor=new ComponentModifierListDescriptor();
+		String tagString = attributes.getValue(ScnTags.S_A_EXECUTION_ORDER);
+		Log.i(TAG,"\t\t readComponentModifierListDescriptor " + tagString);
+		newDescriptor.getIModifierList().setExecOrder(ExecutionOrder.valueOf(
+				(attributes.getValue(ScnTags.S_A_EXECUTION_ORDER))));
+		return newDescriptor;
+	}
+	
+	public SceneActions readComponentActionDescriptor(Attributes attributes){
+		Log.i(TAG,"\t\t readComponentActionDescriptor");
+		SceneActions newActionDsc = new SceneActions();
+		return pAction;
 	}
 	//-------------------------------------------------------------------------------------
 	// Private functions to read the action/modifiers 
 	//-------------------------------------------------------------------------------------
-	private BasicDescriptor readAction(Attributes attr){
-		Log.i(TAG,"\t\t\t readAction");
+	private SceneActions readAction(Attributes attr){
+		Log.i(TAG,"\t\t\t read Action");
 		if(this.pAction != null) //check if new action object descriptor
 			throw new NullPointerException("ParserXMLSceneDescriptor encountered action description with another action description inside");
 		if(this.pSpriteDsc == null && this.pCompoundSpriteDsc == null ) //check if action is part of a sprite
 			throw new NullPointerException("ParserXMLSceneDescriptor encountered acton description not in a sprite or compound sprite");
 
 		//create new action
-		pAction = new SceneActionsSet();
+		pAction = new SceneActions();
 
 		// read type and init the correct parameter as per action type
-		pAction.type=SceneActionsSet.ActionType.valueOf(attr.getValue(ScnTags.S_A_TYPE));
-		switch (SceneActionsSet.ActionType.valueOf(attr.getValue(ScnTags.S_A_TYPE))){
+		pAction.type=SceneActions.ActionType.valueOf(attr.getValue(ScnTags.S_A_TYPE));
+		switch (SceneActions.ActionType.valueOf(attr.getValue(ScnTags.S_A_TYPE))){
 		case CHANGE_SCENE:
 			pAction.NextScene=attr.getValue(ScnTags.S_A_NEXT_SCENE);
 			break;
 		case STICK:	
 			pAction.stick_with=Integer.parseInt(attr.getValue(ScnTags.S_A_STICK_WITH));
 			pAction.stickMode=Stick.StickMode.valueOf(attr.getValue(ScnTags.S_A_STICK_MODE));
+			break;
 		default:
 			break;
 		}
+
 		//the event
-		pAction.event = EventHandlerDescriptor.Events.valueOf(attr.getValue(ScnTags.S_A_EVENT));
+		pAction.event = ComponentEventHandlerDescriptor.Events.valueOf(attr.getValue(ScnTags.S_A_EVENT));
 		return pAction;
 	}
-	private BasicDescriptor readModifierSetDescription(Attributes attr){
+	/*private BasicDescriptor readModifierSetDescription(Attributes attr){
 		Log.i(TAG,"\t\t\t readModifierSetDescription");
 		
 		if(this.pModifierSet != null) //check if a modifer set already exist
@@ -374,9 +431,10 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 
 		pModifierSet = new ComponentEventHandlerDescriptor();
 		pModifierSet.modifierListType = ComponentEventHandlerDescriptor.ModifiersListType.valueOf(attr.getValue(ScnTags.S_A_TYPE));
-		pModifierSet.event = EventHandlerDescriptor.Events.valueOf(attr.getValue(ScnTags.S_A_EVENT));
+		pModifierSet.event = ComponentEventHandlerDescriptor.Events.valueOf(attr.getValue(ScnTags.S_A_EVENT));
 		return pModifierSet;
-	}
+	}*/
+	/*
 	private BasicDescriptor readModifierDescription(Attributes attr){
 		Log.i(TAG,"\t\t\t\t readModifierDescription");
 		if(this.pModifierSet == null ) //check if modifier is declared in a modifier set
@@ -400,9 +458,9 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			break;
 		}
 		pModifier.event = EventDescriptionsManager.Events.valueOf(attr.getValue(ScnTags.S_A_EVENT));
-		*/
+		
 		return pModifier;
-	}
+	}*/
 	//-------------------------------------------------------------------------------------
 	// Specfic private functions to read the attributes
 	//-------------------------------------------------------------------------------------
@@ -530,28 +588,32 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 				removeLastComponentDescriptor();
 				nComponents--;
 			}
+			else if(localName.equalsIgnoreCase(ScnTags.S_ACTION)){
+				Log.i(TAG,"\t\t end Element ACTION");
+				pAction = null;
+			}
 			else
 				throw new NullPointerException("ParserXMLSceneDescriptor error invalid End Element STATUS_PARSE_COMPONENT");
 
 			if(nComponents == 0)
 				nStatus = STATUS_PARSE_SCENE;
 			break;
-		case STATUS_PARSE_MODIFIER:
-			if (localName.equalsIgnoreCase(ScnTags.S_ACTION)){
-				Log.i(TAG,"\t\t\t end Element ACTION");
+		case STATUS_PARSE_EVENT_HANDLER:
+			if (localName.equalsIgnoreCase(ScnTags.S_EVENT_HANDLER)){
+				Log.i(TAG,"\t\t\t end Element EVENT HANDLER");
 				pAction = null; 
 				nStatus = STATUS_PARSE_COMPONENT;
 			}
-			else if (localName.equalsIgnoreCase(ScnTags.S_EVENT_HANDLER)){
-				Log.i(TAG,"\t\t\t end Event Handler");
-				pModifierSet = null;
+			break;
+		case STATUS_PARSE_ACTITIVY_MODIFIER:
+			if (localName.equalsIgnoreCase(ScnTags.S_MODIFIER_LIST)){
+				Log.i(TAG,"\t\t\t end Modifier List");
 				nStatus = STATUS_PARSE_COMPONENT;
 			}
-			else if (localName.equalsIgnoreCase(ScnTags.S_MODIFIER)){
-				break; //nStatus = STATUS_PARSE_COMPONENT;
-			}
 			break;
-		}			
+		default: 
+			break;
+		}
 	}
 	public void removeLastComponentDescriptor(){
 		Log.i(TAG,"\t\t\t\t remove last Descriptor from the List");

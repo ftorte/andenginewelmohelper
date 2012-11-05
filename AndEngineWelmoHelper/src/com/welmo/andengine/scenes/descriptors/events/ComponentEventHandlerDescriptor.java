@@ -4,15 +4,18 @@ import java.util.LinkedList;
 
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 
-
-//inner class to manage modifiers and actions
-public class ComponentEventHandlerDescriptor extends EventHandlerDescriptor{
-	public enum ModifiersListType {
-		PARALLEL, SEQUENCE;
-	}	
-	public Events 							event = Events.NO_EVENT;
-	public ModifiersListType 				modifierListType =  ModifiersListType.SEQUENCE; 
-	public LinkedList<ComponentModifierDescriptor> 	ModifiersList;
+public class ComponentEventHandlerDescriptor extends BasicModifierDescriptor{
+	public static enum Events {
+		NO_EVENT, ON_MOVE, ON_CLICK
+	}
+	public Events 								event;
+	//public ExecutionOrder 						enExecOrder; 
+	
+	public ComponentModifierListDescriptor		modifierSet=null;
+	public SceneActions							preModAction=null;
+	public SceneActions							postModAction=null;
+	public SceneActions							onModAction=null;
+	
 	public int ID;
 	// ========================================================
 	// Constructor	
@@ -20,6 +23,7 @@ public class ComponentEventHandlerDescriptor extends EventHandlerDescriptor{
 	public ComponentEventHandlerDescriptor() {
 		super();
 		ID = -1;
-		ModifiersList = new  LinkedList<ComponentModifierDescriptor>();
+		//enExecOrder = ExecutionOrder.SERIAL;
+		event = Events.NO_EVENT;
 	}
 }

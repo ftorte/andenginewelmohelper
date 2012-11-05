@@ -8,6 +8,7 @@ import java.util.Set;
 import org.andengine.audio.sound.Sound;
 import org.andengine.engine.Engine;
 import org.andengine.entity.modifier.IEntityModifier;
+import org.andengine.entity.modifier.ParallelEntityModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.entity.shape.IAreaShape;
@@ -22,11 +23,10 @@ import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentModifierDescriptor;
-import com.welmo.andengine.scenes.descriptors.events.EventHandlerDescriptor;
-import com.welmo.andengine.scenes.descriptors.events.EventHandlerDescriptor.Events;
-import com.welmo.andengine.scenes.descriptors.events.SceneActionsSet;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
-import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.ModifiersListType;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
+import com.welmo.andengine.scenes.descriptors.events.ExecutionOrder;
+import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.utility.MLOG;
 
 
@@ -96,7 +96,7 @@ public class ClickableSprite extends Sprite {
 			float pTouchAreaLocalX, float pTouchAreaLocalY) {
 		
 		boolean managed = false;
-		List<SceneActionsSet> pActionList = null;
+		List<SceneActions> pActionList = null;
 		List<ComponentEventHandlerDescriptor> pModifierList = null;
 		
 		switch (pSceneTouchEvent.getAction()) {
@@ -105,7 +105,7 @@ public class ClickableSprite extends Sprite {
 			break;
 		case TouchEvent.ACTION_MOVE:
 			if (MLOG.LOG)Log.i(TAG,"onAreaTouched ACTION_MOVE = " + nID);
-			pModifierList = pEDMgr.getModifierList(EventHandlerDescriptor.Events.ON_MOVE,this.getPDescriptor());
+			pModifierList = pEDMgr.getModifierList(ComponentEventHandlerDescriptor.Events.ON_MOVE,this.getPDescriptor());
 			if (pModifierList != null){
 				/*
 				for (SceneComponentModifier mod: pModifierList) {
@@ -123,9 +123,9 @@ public class ClickableSprite extends Sprite {
 				*/
 			}
 			if(mActionListener != null){
-				pActionList = pEDMgr.getActionList(EventHandlerDescriptor.Events.ON_MOVE,this.getPDescriptor());
+				pActionList = pEDMgr.getActionList(ComponentEventHandlerDescriptor.Events.ON_MOVE,this.getPDescriptor());
 				if (pActionList != null){
-					for (SceneActionsSet act: pActionList) {
+					for (SceneActions act: pActionList) {
 						switch(act.type){
 						case STICK:
 							mActionListener.onStick(this, act);
@@ -142,9 +142,9 @@ public class ClickableSprite extends Sprite {
 			if (MLOG.LOG)Log.i(TAG,"onAreaTouched ACTION_UP= " + nID);
 			// [FT] mClickListener.onClick(this.nID);
 			if(mActionListener != null){
-				pActionList = pEDMgr.getActionList(EventHandlerDescriptor.Events.ON_CLICK,this.getPDescriptor());
+				pActionList = pEDMgr.getActionList(ComponentEventHandlerDescriptor.Events.ON_CLICK,this.getPDescriptor());
 				if (pActionList != null){
-					for (SceneActionsSet act: pActionList) {
+					for (SceneActions act: pActionList) {
 						switch(act.type){
 						case CHANGE_SCENE:
 							mActionListener.onActionChangeScene(act.NextScene);
@@ -157,7 +157,7 @@ public class ClickableSprite extends Sprite {
 				}
 			}
 			if(pEntityModifiers != null){
-				IEntityModifier mEntityModifier = pEntityModifiers.get(EventHandlerDescriptor.Events.ON_CLICK);
+				IEntityModifier mEntityModifier = pEntityModifiers.get(ComponentEventHandlerDescriptor.Events.ON_CLICK);
 				if(mEntityModifier != null){
 					mEntityModifier.reset();
 					this.registerEntityModifier(mEntityModifier);
@@ -188,18 +188,18 @@ public class ClickableSprite extends Sprite {
 	public void setPDescriptor(Object pDescriptor) {
 		this.pDescriptor = pDescriptor;
 	}
-	public IEntityModifier setEventsHandler(HashMap<EventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> pEventHandlerDescList){
-		Set<Entry<EventHandlerDescriptor.Events,ComponentEventHandlerDescriptor>> eventHandlersSet;
+	public IEntityModifier setEventsHandler(HashMap<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> pEventHandlerDescList){
+		Set<Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor>> eventHandlersSet;
 		eventHandlersSet = pEventHandlerDescList.entrySet();
-		for (Entry<EventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> entry : eventHandlersSet){
+		for (Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> entry : eventHandlersSet){
 			ComponentEventHandlerDescriptor eventHandler = entry.getValue();
 			Events theEvent = entry.getKey();
-			switch(eventHandler.modifierListType){
-			case SEQUENCE:
+			//switch(eventHandler.enExecOrder){
+			//case SERIAL:
 				IEntityModifier modifers[];
 				int index = 0;
-				modifers = new IEntityModifier[eventHandler.ModifiersList.size()];
-				for(ComponentModifierDescriptor m: eventHandler.ModifiersList){
+				modifers = new IEntityModifier[eventHandler.modifierSet.getIModifierList().getModifiers().size()];
+				for(ComponentModifierDescriptor m: eventHandler.modifierSet.getIModifierList().getModifiers()){
 					IEntityModifier modifier;
 					switch(m.getIModifier().getType()){
 						case SCALE:
@@ -212,12 +212,15 @@ public class ClickableSprite extends Sprite {
 							break;
 					}
 				}
-				IEntityModifier sequence = new SequenceEntityModifier(modifers);
-				this.pEntityModifiers.put(theEvent, sequence);
-				return sequence;
-			case PARALLEL:
-				return null;
-			} 
+				IEntityModifier modifierset; 
+				if(eventHandler.modifierSet.getIModifierList().getExecOrder() == ExecutionOrder.SERIAL){
+					modifierset = new SequenceEntityModifier(modifers);
+				}
+				else
+					modifierset = new ParallelEntityModifier(modifers);
+			
+				this.pEntityModifiers.put(theEvent, modifierset);
+				return modifierset;
 		}
 		return null;
 	}
