@@ -24,9 +24,12 @@ public class ScnTags {
 	
 	//Event handler
 	public final static String S_ACTION 			= "action";
-	public final static String S_MODIFIERS_SET 		= "modifiers_set";
 	public final static String S_EVENT_HANDLER 		= "event_handler";
+	public final static String S_MODIFIER_LIST 		= "modifier_list";
 	public final static String S_MODIFIER 			= "modifier";
+	public final static String S_PRE_MOD_ACTION		= "pre_mod_action";
+	public final static String S_POST_MOD_ACTION	= "post_mod_action";
+	public final static String S_ON_MOD_ACTION		= "on_mod_action";
 	//--------------------------------------------------------
 	//Scene Objects' attributes
 
@@ -72,4 +75,5 @@ public class ScnTags {
 	
 	//event handler
 	public final static String S_A_TYPE_SET 		="typeSet";
+	public final static String S_A_EXECUTION_ORDER	="execution_order";
 }

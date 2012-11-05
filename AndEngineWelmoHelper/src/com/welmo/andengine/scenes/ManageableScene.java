@@ -36,7 +36,7 @@ import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
-import com.welmo.andengine.scenes.descriptors.events.SceneActionsSet;
+import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 
 
 import android.content.Context;
@@ -252,7 +252,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	}
 	@Override
 	public void onStick(IAreaShape currentShapeToStick,
-			SceneActionsSet stickActionDescription) {
+			SceneActions stickActionDescription) {
 		IAreaShape shapeToStickWith = mapOfObjects.get(stickActionDescription.stick_with);
 		// TO DO calculation distance must be from border and not from center & value must be a parameter
 		if (shapeToStickWith != null){

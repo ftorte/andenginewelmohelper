@@ -4,8 +4,8 @@ import com.welmo.andengine.scenes.components.Stick;
 import com.welmo.andengine.scenes.components.Stick.StickMode;
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 
-public class SceneActionsSet extends EventHandlerDescriptor{
-	public SceneActionsSet() {
+public class SceneActions extends ComponentEventHandlerDescriptor{
+	public SceneActions() {
 		super();
 		// TODO Auto-generated constructor stub
 	}

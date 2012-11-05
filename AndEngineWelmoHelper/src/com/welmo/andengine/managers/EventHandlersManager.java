@@ -4,49 +4,49 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.welmo.andengine.scenes.descriptors.events.EventHandlerDescriptor;
-import com.welmo.andengine.scenes.descriptors.events.SceneActionsSet;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 
 public class EventHandlersManager {
 	
 	//Manage list of Modifier per eachi objec per each event
-	private HashMap<EventHandlerDescriptor.Events, HashMap<Object,List<ComponentEventHandlerDescriptor>>> modifiers;
-	private HashMap<EventHandlerDescriptor.Events, HashMap<Object,List<SceneActionsSet>>> actions;
+	private HashMap<ComponentEventHandlerDescriptor.Events, HashMap<Object,List<ComponentEventHandlerDescriptor>>> modifiers;
+	private HashMap<ComponentEventHandlerDescriptor.Events, HashMap<Object,List<SceneActions>>> actions;
 	
 	public EventHandlersManager(){
-		modifiers = new HashMap<EventHandlerDescriptor.Events, HashMap<Object,List<ComponentEventHandlerDescriptor>>>();
-		actions = new HashMap<EventHandlerDescriptor.Events, HashMap<Object,List<SceneActionsSet>>>();
+		modifiers = new HashMap<ComponentEventHandlerDescriptor.Events, HashMap<Object,List<ComponentEventHandlerDescriptor>>>();
+		actions = new HashMap<ComponentEventHandlerDescriptor.Events, HashMap<Object,List<SceneActions>>>();
 	}
 
-	public List<SceneActionsSet> getActionList(EventHandlerDescriptor.Events evt, Object o){
-		HashMap<Object,List<SceneActionsSet>> pObjectEvent = actions.get(evt);
+	public List<SceneActions> getActionList(ComponentEventHandlerDescriptor.Events evt, Object o){
+		HashMap<Object,List<SceneActions>> pObjectEvent = actions.get(evt);
 		if(pObjectEvent == null)
 			return null;
 		return pObjectEvent.get(o);
 	}
-	public List<ComponentEventHandlerDescriptor> getModifierList(EventHandlerDescriptor.Events evt, Object o){
+	public List<ComponentEventHandlerDescriptor> getModifierList(ComponentEventHandlerDescriptor.Events evt, Object o){
 		HashMap<Object,List<ComponentEventHandlerDescriptor>> pObjectEvent = modifiers.get(evt);
 		if(pObjectEvent == null)
 			return null;
 		return pObjectEvent.get(o);
 	}
 	
-	public void addAction(EventHandlerDescriptor.Events evt, Object obj, SceneActionsSet act){
+	public void addAction(ComponentEventHandlerDescriptor.Events evt, Object obj, SceneActions act){
 		//check if event key exist 
-		HashMap<Object,List<SceneActionsSet>> pObjectEvent = actions.get(evt);
+		HashMap<Object,List<SceneActions>> pObjectEvent = actions.get(evt);
 		if(pObjectEvent == null)
-			actions.put(evt, (pObjectEvent = new HashMap<Object,List<SceneActionsSet>>()));
+			actions.put(evt, (pObjectEvent = new HashMap<Object,List<SceneActions>>()));
 		
 		//check if object key exist
-		List<SceneActionsSet> pActions = pObjectEvent.get(obj);
+		List<SceneActions> pActions = pObjectEvent.get(obj);
 		if(pActions == null)
-			pObjectEvent.put(obj, pActions = new ArrayList<SceneActionsSet>());
+			pObjectEvent.put(obj, pActions = new ArrayList<SceneActions>());
 	
 		pActions.add(act);
 	}
 	
-	public void addModifier(EventHandlerDescriptor.Events evt, Object obj, ComponentEventHandlerDescriptor act){
+	public void addModifier(ComponentEventHandlerDescriptor.Events evt, Object obj, ComponentEventHandlerDescriptor act){
 		//check if event key exist 
 		HashMap<Object,List<ComponentEventHandlerDescriptor>> pObjectEvent = modifiers.get(evt);
 		if(pObjectEvent == null)

@@ -11,8 +11,8 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import android.util.Log;
 
 import com.welmo.andengine.managers.EventDescriptionsManager;
-import com.welmo.andengine.scenes.descriptors.events.EventHandlerDescriptor;
-import com.welmo.andengine.scenes.descriptors.events.SceneActionsSet;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.utility.MLOG;
 
@@ -94,7 +94,7 @@ public class CompoundSprite extends Rectangle{
 	public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 			float pTouchAreaLocalX, float pTouchAreaLocalY) {
 		
-		List<SceneActionsSet> pActionList = null;
+		List<SceneActions> pActionList = null;
 		List<ComponentEventHandlerDescriptor> pModifierList = null;
 		
 		
@@ -106,11 +106,11 @@ public class CompoundSprite extends Rectangle{
 		case TouchEvent.ACTION_MOVE:
 			if (MLOG.LOG)Log.i(TAG,"onAreaTouched ACTION_DOWN = " + nID);
 			//Get all action on Event Move attached to object this
-			pActionList = pEDMgr.getActionList(EventHandlerDescriptor.Events.ON_MOVE,this.pDescriptor);
+			pActionList = pEDMgr.getActionList(ComponentEventHandlerDescriptor.Events.ON_MOVE,this.pDescriptor);
 			if (pActionList != null){
 				
 			}
-			pModifierList = pEDMgr.getModifierList(EventHandlerDescriptor.Events.ON_MOVE,this.pDescriptor);
+			pModifierList = pEDMgr.getModifierList(ComponentEventHandlerDescriptor.Events.ON_MOVE,this.pDescriptor);
 			/* FT
 			 if (pModifierList != null){
 			 
@@ -133,9 +133,9 @@ public class CompoundSprite extends Rectangle{
 			if (MLOG.LOG)Log.i(TAG,"onAreaTouched ACTION_DOWN = " + nID);
 			// [FT] mClickListener.onClick(this.nID);
 			if(mActionListener != null){
-				pActionList = pEDMgr.getActionList(EventHandlerDescriptor.Events.ON_CLICK,this.getPDescriptor());
+				pActionList = pEDMgr.getActionList(ComponentEventHandlerDescriptor.Events.ON_CLICK,this.getPDescriptor());
 				if (pActionList != null){
-					for (SceneActionsSet act: pActionList) {
+					for (SceneActions act: pActionList) {
 						switch(act.type){
 						case CHANGE_SCENE:
 							mActionListener.onActionChangeScene(act.NextScene);
