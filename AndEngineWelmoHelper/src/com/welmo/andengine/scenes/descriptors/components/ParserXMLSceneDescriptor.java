@@ -25,6 +25,7 @@ import com.welmo.andengine.scenes.descriptors.events.ComponentModifierDescriptor
 import com.welmo.andengine.scenes.descriptors.events.ComponentModifierListDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ExecutionOrder;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
+import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 import com.welmo.andengine.utility.ScreenDimensionHelper;
 
 
@@ -220,32 +221,32 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 				Log.i(TAG,"\t\t readComponentModifierListDescriptor " + localName);
 				pEventHandler.modifierSet = readComponentModifierListDescriptor(attributes);
 				nStatus = STATUS_PARSE_ACTITIVY_MODIFIER;
-				return newDescriptor;
+				return pEventHandler.modifierSet;
 			}
 			else{ 
+				Log.i(TAG,"\t\t readActionDescriptoon ");
 				SceneActions newActionDescriptoon = new SceneActions();
 				if(localName.equalsIgnoreCase(ScnTags.S_PRE_MOD_ACTION)){
-					newDescriptor = readComponentActionDescriptor(attributes);
+					Log.i(TAG,"\t\t readComponentActionDescriptor PreModifierAction ");
+					newActionDescriptoon = readComponentActionDescriptor(attributes);
 					pEventHandler.preModAction = newActionDescriptoon;
 				}
 				else if(localName.equalsIgnoreCase(ScnTags.S_POST_MOD_ACTION)){
-					newDescriptor = readComponentActionDescriptor(attributes);
+					Log.i(TAG,"\t\t readComponentActionDescriptor PostModifierAction ");
+					newActionDescriptoon = readComponentActionDescriptor(attributes);
 					pEventHandler.postModAction = newActionDescriptoon;
 				}
-				else if(localName.equalsIgnoreCase(ScnTags.S_PRE_MOD_ACTION)){
-					newDescriptor = readComponentActionDescriptor(attributes);
+				else if(localName.equalsIgnoreCase(ScnTags.S_ON_MOD_ACTION)){
+					Log.i(TAG,"\t\t readComponentActionDescriptor OnModifierAction ");
+					newActionDescriptoon = readComponentActionDescriptor(attributes);
 					pEventHandler.onModAction = newActionDescriptoon;
 				}
 				else return null;
-
-				nStatus = STATUS_PARSE_ACTITIVY_ACTION;
-				return newDescriptor;
+				return newActionDescriptoon;
 			}
 		}
 		return null;
-	}
-	
-		
+	}	
 	public ComponentModifierDescriptor parseComponentModifierDescriptor(String localName, Attributes attributes){ 
 		Log.i(TAG,"\t parseComponentModifierDescriptor");
 		ComponentModifierDescriptor newDescriptor=null;
@@ -387,8 +388,19 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	
 	public SceneActions readComponentActionDescriptor(Attributes attributes){
 		Log.i(TAG,"\t\t readComponentActionDescriptor");
-		SceneActions newActionDsc = new SceneActions();
-		return pAction;
+		SceneActions newAction = new SceneActions();
+		newAction.type = ActionType.valueOf(attributes.getValue(ScnTags.S_A_TYPE));
+		switch(newAction.type){
+		case PLAY_SOUND:
+			newAction.resourceName = new String(attributes.getValue(ScnTags.S_A_RESOURCE_NAME));
+			break;
+		case CHANGE_SCENE:
+			newAction.NextScene = new String(attributes.getValue(ScnTags.S_A_NEXT_SCENE));
+			break;
+		default:
+			break;
+		}
+		return newAction;
 	}
 	//-------------------------------------------------------------------------------------
 	// Private functions to read the action/modifiers 
@@ -608,7 +620,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		case STATUS_PARSE_ACTITIVY_MODIFIER:
 			if (localName.equalsIgnoreCase(ScnTags.S_MODIFIER_LIST)){
 				Log.i(TAG,"\t\t\t end Modifier List");
-				nStatus = STATUS_PARSE_COMPONENT;
+				nStatus = STATUS_PARSE_EVENT_HANDLER;
 			}
 			break;
 		default: 

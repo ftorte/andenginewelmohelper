@@ -111,23 +111,6 @@ public class CompoundSprite extends Rectangle{
 				
 			}
 			pModifierList = pEDMgr.getModifierList(ComponentEventHandlerDescriptor.Events.ON_MOVE,this.pDescriptor);
-			/* FT
-			 if (pModifierList != null){
-			 
-				for (SceneComponentModifier mod: pModifierList) {
-					switch(mod.type){
-					case MOVE: 
-						this.setPosition(pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight() / 2);	
-						break;
-					case SCALE:
-						break;
-					default:
-						break;
-					}
-				}
-				return true;
-			}
-			*/
 			break;
 		case TouchEvent.ACTION_UP:
 			if (MLOG.LOG)Log.i(TAG,"onAreaTouched ACTION_DOWN = " + nID);
