@@ -7,7 +7,9 @@ import java.util.Set;
 
 import org.andengine.audio.sound.Sound;
 import org.andengine.engine.Engine;
+import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.IEntityModifier;
+import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.entity.modifier.ParallelEntityModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
@@ -16,12 +18,13 @@ import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.util.modifier.IModifier;
+
 import android.util.Log;
 
 import com.welmo.andengine.managers.EventDescriptionsManager;
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentModifierDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
@@ -30,7 +33,7 @@ import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.utility.MLOG;
 
 
-public class ClickableSprite extends Sprite {
+public class ClickableSprite extends Sprite implements IEntityModifierListener,  IActionOnSceneListener{
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -39,12 +42,17 @@ public class ClickableSprite extends Sprite {
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	private IActionOnSceneListener mActionListener			=null;
+	private IActionOnSceneListener   mActionListener		=null;
 	private int nID											=-1;
 	private EventDescriptionsManager pEDMgr					=null;
 	private Object					 pDescriptor			=null;
 	//Fields to manage modifiers & actions
-	HashMap<Events,IEntityModifier>	 pEntityModifiers		=null;							
+	HashMap<Events,IEntityModifier>	 hmEntityModifiers		=null;	
+	HashMap<Events,SceneActions>	 hmPreModifierAction	=null;
+	HashMap<Events,SceneActions>	 hmPostModifierAction	=null;
+	HashMap<Events,SceneActions>	 hmOnModifierAction		=null;
+	HashMap<Events,ComponentDefaultEventHandler> hmEventHandlers = null;
+	
 	
 	// ===========================================================
 	// Constructors
@@ -67,12 +75,17 @@ public class ClickableSprite extends Sprite {
 	// private member function
 	// ===========================================================	
 	private void init(){
-		pEDMgr = EventDescriptionsManager.getInstance();
-		pEntityModifiers = new HashMap<Events,IEntityModifier>();	
+		pEDMgr 					= EventDescriptionsManager.getInstance();
+		hmEntityModifiers 		= new HashMap<Events,IEntityModifier>();	
+		hmPreModifierAction		= new HashMap<Events,SceneActions>();
+		hmPostModifierAction	= new HashMap<Events,SceneActions>();
+		hmOnModifierAction		= new HashMap<Events,SceneActions>();
+		hmEventHandlers			= new HashMap<Events,ComponentDefaultEventHandler>();
 	}
 	// ===========================================================
 	// public member function
 	// ===========================================================	
+	
 	public void configure(SpriteObjectDescriptor spDsc){
 		ResourcesManager pRM = ResourcesManager.getInstance();
 		setID(spDsc.getID());
@@ -107,20 +120,6 @@ public class ClickableSprite extends Sprite {
 			if (MLOG.LOG)Log.i(TAG,"onAreaTouched ACTION_MOVE = " + nID);
 			pModifierList = pEDMgr.getModifierList(ComponentEventHandlerDescriptor.Events.ON_MOVE,this.getPDescriptor());
 			if (pModifierList != null){
-				/*
-				for (SceneComponentModifier mod: pModifierList) {
-					switch(mod.type){
-					case MOVE: 
-						this.setPosition(pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight() / 2);	
-						managed = true;
-						break;
-					case SCALE:
-						break;
-					default:
-						break;
-					}
-				}
-				*/
 			}
 			if(mActionListener != null){
 				pActionList = pEDMgr.getActionList(ComponentEventHandlerDescriptor.Events.ON_MOVE,this.getPDescriptor());
@@ -156,19 +155,39 @@ public class ClickableSprite extends Sprite {
 					}
 				}
 			}
-			if(pEntityModifiers != null){
-				IEntityModifier mEntityModifier = pEntityModifiers.get(ComponentEventHandlerDescriptor.Events.ON_CLICK);
+			if(hmEntityModifiers != null){
+				IEntityModifier mEntityModifier = hmEntityModifiers.get(ComponentEventHandlerDescriptor.Events.ON_CLICK);
 				if(mEntityModifier != null){
 					mEntityModifier.reset();
 					this.registerEntityModifier(mEntityModifier);
 				}
-				ResourcesManager rMgr = ResourcesManager.getInstance();
-				Sound snd = rMgr.getSound("Animal1");
-				snd.play();
+				SceneActions scAction;
+				if((scAction = hmOnModifierAction.get(ComponentEventHandlerDescriptor.Events.ON_CLICK)) != null)
+					Execute(scAction);
+			}
+			if(hmEventHandlers != null){
+				Log.i(TAG,"\t launch event handler trough object control");
+				ComponentDefaultEventHandler handlerEvent = hmEventHandlers.get(ComponentEventHandlerDescriptor.Events.ON_CLICK);
+				if(handlerEvent != null){
+					Log.i(TAG,"\t launch event handler trough object found");
+					//handlerEvent.modifierSet.reset();
+					//this.registerEntityModifier(handlerEvent.modifierSet);
+					handlerEvent.handleEvent(this);
+				}
 			}
 			break;
 		}
 		return managed;
+	}
+	public void Execute(SceneActions scAction){
+		ResourcesManager rMgr = ResourcesManager.getInstance();
+		switch(scAction.type){
+		case PLAY_SOUND:
+			Log.i(TAG,"\t PLAY_SOUND");
+			Sound snd = rMgr.getSound(scAction.resourceName);
+			snd.setVolume(1000);
+			snd.play();
+		}
 	}
 	public int getID() {
 		return nID;
@@ -182,46 +201,107 @@ public class ClickableSprite extends Sprite {
 	public void setActionOnSceneListener(IActionOnSceneListener actionLeastner) {
 		this.mActionListener=actionLeastner;
 	}
+	public IActionOnSceneListener getActionOnSceneListener(){
+		return mActionListener;
+	}
+
 	public Object getPDescriptor() {
 		return pDescriptor;
 	}
 	public void setPDescriptor(Object pDescriptor) {
 		this.pDescriptor = pDescriptor;
 	}
-	public IEntityModifier setEventsHandler(HashMap<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> pEventHandlerDescList){
+	public void setEventsHandler(HashMap<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> pEventHandlerDescList){
 		Set<Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor>> eventHandlersSet;
 		eventHandlersSet = pEventHandlerDescList.entrySet();
 		for (Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> entry : eventHandlersSet){
 			ComponentEventHandlerDescriptor eventHandler = entry.getValue();
 			Events theEvent = entry.getKey();
-			//switch(eventHandler.enExecOrder){
-			//case SERIAL:
+			//Setup Modifier if defined
+			if(eventHandler.modifierSet != null){
 				IEntityModifier modifers[];
 				int index = 0;
 				modifers = new IEntityModifier[eventHandler.modifierSet.getIModifierList().getModifiers().size()];
 				for(ComponentModifierDescriptor m: eventHandler.modifierSet.getIModifierList().getModifiers()){
 					IEntityModifier modifier;
 					switch(m.getIModifier().getType()){
-						case SCALE:
-							modifier = new ScaleModifier(1,m.getIModifier().getScaleBegin(),m.getIModifier().getScaleEnd());
-							modifers[index++] = modifier;
-							break;
-						case SOUND:
-							modifers[index++] = null;
-						default:
-							break;
+					case SCALE:
+						modifier = new ScaleModifier(1,m.getIModifier().getScaleBegin(),m.getIModifier().getScaleEnd(),new IEntityModifierListener(){
+							@Override
+					        public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+								Log.i(TAG,"\t onModifierStarted A");
+					        }
+					        @Override
+					        public void onModifierFinished(IModifier<IEntity> pModifier, final IEntity pItem) {
+					        	Log.i(TAG,"\t onModifierFinished A");
+					        }
+						});
+						modifers[index++] = modifier;
+						break;
+					default:
+						break;
 					}
 				}
 				IEntityModifier modifierset; 
 				if(eventHandler.modifierSet.getIModifierList().getExecOrder() == ExecutionOrder.SERIAL){
-					modifierset = new SequenceEntityModifier(modifers);
+					modifierset = new SequenceEntityModifier(new IEntityModifierListener(){
+						@Override 
+				        public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+							Log.i(TAG,"\t onModifierStarted B");
+				        }
+						@Override
+				        public void onModifierFinished(IModifier<IEntity> pModifier, final IEntity pItem) {
+				        	Log.i(TAG,"\t onModifierFinished B");
+				        }
+					}
+				 ,modifers);
 				}
 				else
-					modifierset = new ParallelEntityModifier(modifers);
-			
-				this.pEntityModifiers.put(theEvent, modifierset);
-				return modifierset;
+					modifierset = new ParallelEntityModifier((IEntityModifierListener)this,modifers);
+				this.hmEntityModifiers.put(theEvent, modifierset);
+			}
+			if(eventHandler.postModAction != null)
+				hmPostModifierAction.put(theEvent, eventHandler.postModAction);
+
+			if(eventHandler.preModAction != null)
+				hmPreModifierAction.put(theEvent, eventHandler.preModAction);
+
+			if(eventHandler.onModAction != null)
+				hmOnModifierAction.put(theEvent, eventHandler.onModAction);
 		}
-		return null;
+	}
+	
+	public void addEventsHandler(HashMap<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> pEventHandlerDescList){
+		Set<Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor>> eventHandlersSet;
+		eventHandlersSet = pEventHandlerDescList.entrySet();
+	
+		for (Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> entry : eventHandlersSet){
+			ComponentEventHandlerDescriptor eventHandler = entry.getValue();
+			Events theEvent = entry.getKey();
+			
+			ComponentDefaultEventHandler oCmpDefEventHandler =  new ComponentDefaultEventHandler();
+			oCmpDefEventHandler.setEventsHandler(eventHandler);
+			
+			hmEventHandlers.put(theEvent, oCmpDefEventHandler);
+		}
+	}
+	@Override
+	public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+		Log.i(TAG,"\t onModifierStarted C");
+	}
+	@Override
+	public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+		Log.i(TAG,"\t onModifierFinished C");
+	}
+	@Override
+	public boolean onActionChangeScene(String nextSceneName) {
+		// TODO Auto-generated method stub
+		return this.mActionListener.onActionChangeScene(nextSceneName);
+	}
+	@Override
+	public void onStick(IAreaShape currentShapeToStick,
+			SceneActions stickActionDescription) {
+		this.mActionListener.onStick(currentShapeToStick, stickActionDescription);
+		
 	}
 }

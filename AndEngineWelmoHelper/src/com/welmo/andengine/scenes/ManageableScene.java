@@ -190,7 +190,8 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		
 		
 		newClickableSprite.setActionOnSceneListener(this);
-		newClickableSprite.setEventsHandler(spDsc.pEventHandlerList);
+		//newClickableSprite.setEventsHandler(spDsc.pEventHandlerList);
+		newClickableSprite.addEventsHandler(spDsc.pEventHandlerList);
 		return newClickableSprite;
 	}
 	// ===========================================================
