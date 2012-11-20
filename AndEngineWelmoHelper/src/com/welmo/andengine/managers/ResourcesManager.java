@@ -282,13 +282,13 @@ public class ResourcesManager {
 		//return the texture region that has just been loaded
 		return mapTiledTextureRegions.get(tiledTextureRegionName);
 	}
-	public ITiledTextureRegion getTiledTexture(String tiledTextureRegionName){
-		ITiledTextureRegion theTiledTexture = this.mapTiledTextureRegions.get(tiledTextureRegionName);
+	public ITiledTextureRegion getTiledTextureRegion(String tiledTextureRegionName){
+		ITiledTextureRegion theTiledTextureRegion = this.mapTiledTextureRegions.get(tiledTextureRegionName);
 		//if the texture region is not already loaded in the resource manager load it
-		if(theTiledTexture==null) 
-			theTiledTexture = loadTiledTextureRegion(tiledTextureRegionName);
+		if(theTiledTextureRegion==null) 
+			theTiledTextureRegion = loadTiledTextureRegion(tiledTextureRegionName);
 		//return the found or loaded texture region
-		return theTiledTexture;
+		return theTiledTextureRegion;
 	}
 	public Music loadMusic(String musicName){
 		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();

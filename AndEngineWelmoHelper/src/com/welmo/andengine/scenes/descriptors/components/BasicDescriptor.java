@@ -9,6 +9,7 @@ import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescri
 public class BasicDescriptor {
 	public LinkedList<BasicDescriptor> pChild;
 	public HashMap<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> pEventHandlerList;
+	protected String className="";
 	// ***************************************************
 	// Constructor
 	// ***************************************************
@@ -16,5 +17,10 @@ public class BasicDescriptor {
 		pChild = new LinkedList<BasicDescriptor>();
 		pEventHandlerList = new HashMap<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor>();
 	}
-	
+	public String getClassName() {
+		return className;
+	}
+	public void setClassName(String className) {
+		this.className = className;
+	}
 }

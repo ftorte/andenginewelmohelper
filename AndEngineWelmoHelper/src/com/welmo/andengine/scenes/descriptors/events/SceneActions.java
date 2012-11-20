@@ -11,7 +11,7 @@ public class SceneActions extends BasicModifierDescriptor{
 		// TODO Auto-generated constructor stub
 	}
 	public enum ActionType {
-		NO_ACTION, CHANGE_SCENE,STICK,PLAY_SOUND,PLAY_MUSIC
+		NO_ACTION, CHANGE_SCENE,STICK,PLAY_SOUND,PLAY_MUSIC,CHANGE_Z_ORDER,FLIP
 	}
 	public enum ActionMode {
 		NO_MODE, STICK_MERGE, 
@@ -24,4 +24,8 @@ public class SceneActions extends BasicModifierDescriptor{
 	public int stick_with=0;
 	public StickMode stickMode = Stick.StickMode.NO_STICK;
 	public Events event;
+	public int ZIndex;
+	public int sideA;
+	public int sideB;
+	
 }

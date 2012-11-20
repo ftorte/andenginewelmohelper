@@ -1,5 +1,8 @@
 package com.welmo.andengine.scenes.descriptors.components;
 
+import java.util.LinkedList;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
+
 public class SceneDescriptor extends BasicObjectDescriptor {
 	// ===========================================================
 	// Constants
@@ -10,7 +13,8 @@ public class SceneDescriptor extends BasicObjectDescriptor {
 	// ===========================================================
 	String sceneName="";
 	String sceneFather="";
-	String className="";
+	public LinkedList<ComponentEventHandlerDescriptor> pGlobalEventHandlerList;
+	
 	// ===========================================================
 	// Getters & Setters
 	// ===========================================================
@@ -20,15 +24,8 @@ public class SceneDescriptor extends BasicObjectDescriptor {
 	public String getSceneFather() {
 		return sceneFather;
 	}
-	public String getClassName() {
-		return className;
-	}
-
 	public void setSceneName(String sceneName) {
 		this.sceneName = sceneName;
-	}
-	public void setClassName(String className) {
-		this.className = className;
 	}
 	public void setSceneFather(String scene) {
 		sceneFather=scene;
@@ -38,5 +35,10 @@ public class SceneDescriptor extends BasicObjectDescriptor {
 	// ===========================================================
 	@SuppressWarnings("static-access")
 	public SceneDescriptor() {
+		pGlobalEventHandlerList = new LinkedList<ComponentEventHandlerDescriptor> ();
+	}
+	public int getMemodyLevel() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }
