@@ -25,6 +25,7 @@ public class ScnTags {
 	//Event handler
 	public final static String S_ACTION 			= "action";
 	public final static String S_EVENT_HANDLER 		= "event_handler";
+	public final static String S_CLONED_EVENT_HANDLER = "cloned_event_handler";
 	public final static String S_MODIFIER_LIST 		= "modifier_list";
 	public final static String S_MODIFIER 			= "modifier";
 	public final static String S_PRE_MOD_ACTION		= "pre_mod_action";
@@ -64,6 +65,8 @@ public class ScnTags {
 	public final static int S_A_WIDTH_IDX			= 1;
 	public final static int S_A_POSITION_X_IDX		= 2;
 	public final static int S_A_POSITION_Y_IDX		= 3;
+	public final static String S_A_SIDEA			= "sideA";
+	public final static String S_A_SIDEB			= "sideB";
 	
 	//Font
 	public final static String S_A_MESSAGE 			= "message";
@@ -76,4 +79,9 @@ public class ScnTags {
 	//event handler
 	public final static String S_A_TYPE_SET 		="typeSet";
 	public final static String S_A_EXECUTION_ORDER	="execution_order";
+	public final static String S_A_CLONEID			="cloneID";
+	public final static String S_A_USE_WITH_PRE_ID 	="use_with_pre_mod_ID";
+	public final static String S_A_USE_WITH_POST_ID ="use_with_post_mod_ID";
+	public final static String S_A_USE_WITH_ON_ID 	="use_with_on_mod_ID";
+	public final static String S_A_USE_WITH_MOD_ID 	="use_with_mod_ID";		
 }

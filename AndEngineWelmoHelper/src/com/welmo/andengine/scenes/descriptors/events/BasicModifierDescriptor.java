@@ -28,11 +28,12 @@ public abstract class BasicModifierDescriptor {
 		public ExecutionOrder getExecOrder();
 		public void setExecOrder(ExecutionOrder mt);
 	}
-
+	
 	// ========================================================
 	// Private Members	
 	// ========================================================
 	protected boolean 	isAList=false;
+	protected int 		ID=-1;
 
 	// ========================================================
 	// Constructor	
@@ -51,5 +52,13 @@ public abstract class BasicModifierDescriptor {
 	}
 	public IModifierList getIModifierList(){
 		return null;
+	}
+	public int getID() {
+		return ID;
+	}
+	public void setID(int iD) {
+		if(iD<0)
+			throw new IllegalArgumentException("Negative value for ID is not accepted");
+		ID = iD;
 	}
 }

@@ -56,16 +56,18 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	protected LinkedList<BasicDescriptor> 		pDescriptorsInProcessing=null;
 	protected BasicDescriptor 					pCurrentDescriptorInProcessing=null;
 	//List to manage parser status chain
-	protected int								nStatus=0;
+	protected int								nStatus=STATUS_BEGIN;
+	protected int								nStatusPrec=STATUS_BEGIN;
 	protected int								nComponents=0;
 	protected int								nModifiers=0;
-	static final int STATUS_BEGIN				=1;
-	static final int STATUS_PARSE_SCENES		=2;
-	static final int STATUS_PARSE_SCENE			=3;
-	static final int STATUS_PARSE_COMPONENT		=4;
-	static final int STATUS_PARSE_EVENT_HANDLER	=5;
-	static final int STATUS_PARSE_ACTITIVY_MODIFIER =6;
-	static final int STATUS_PARSE_ACTITIVY_ACTION =6;
+	static final int STATUS_BEGIN						=1;
+	static final int STATUS_PARSE_SCENES				=2;
+	static final int STATUS_PARSE_SCENE					=3;
+	static final int STATUS_PARSE_COMPONENT				=4;
+	static final int STATUS_PARSE_EVENT_HANDLER			=5;
+	static final int STATUS_PARSE_ACTITIVY_MODIFIER 	=6;
+	static final int STATUS_PARSE_ACTITIVY_ACTION 		=6;
+
 	//--------------------------------------------------------
 	@Override
 	public void processingInstruction(String target, String data) throws SAXException {
@@ -117,6 +119,12 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		case STATUS_PARSE_SCENE:
 			if((newDescriptor = parseComponentDescriptor(localName, attributes)) != null)
 				addComponentDescriptor(newDescriptor);
+			else if((pEventHandler = (ComponentEventHandlerDescriptor)parseComponentEventHandlerDescriptor(localName, attributes))!= null){
+				if(pCurrentDescriptorInProcessing != null)
+					((SceneDescriptor)pCurrentDescriptorInProcessing).pGlobalEventHandlerList.add(pEventHandler);
+				else
+					break;
+				}
 			else
 				throw new NullPointerException("ParserXMLSceneDescriptor error invalid Element");
 			break;
@@ -137,7 +145,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			Log.i(TAG,"\t parse  STATUS_PARSE_EVENT_HANDLER");
 			if((parseComponentEventHandlerDescriptor(localName, attributes))==null)
 				throw new NullPointerException("ParserXMLSceneDescriptor error invalid Element");
-			break;
+			break;	
 		case STATUS_PARSE_ACTITIVY_MODIFIER:
 			ComponentModifierDescriptor modDsc;
 			if((modDsc = parseComponentModifierDescriptor(localName, attributes))!=null)
@@ -208,10 +216,22 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	public BasicModifierDescriptor parseComponentEventHandlerDescriptor(String localName, Attributes attributes){ 
 		Log.i(TAG,"\t parseComponentEventHandlerDescriptor");
 		BasicModifierDescriptor newDescriptor=null;
+		
+		if (nStatus==STATUS_PARSE_SCENE){
+			if(localName.equalsIgnoreCase(ScnTags.S_EVENT_HANDLER)){
+				newDescriptor = readComponentEventHandlerDescriptor(attributes);
+				nStatus = STATUS_PARSE_EVENT_HANDLER;
+				nStatusPrec=STATUS_PARSE_SCENE;
+				return newDescriptor;
+			}
+			else
+				return null;
+		}
 		if (nStatus==STATUS_PARSE_COMPONENT) 
 			if(localName.equalsIgnoreCase(ScnTags.S_EVENT_HANDLER)){
 				newDescriptor = readComponentEventHandlerDescriptor(attributes);
 				nStatus = STATUS_PARSE_EVENT_HANDLER;
+				nStatusPrec=STATUS_PARSE_COMPONENT;
 				return newDescriptor;
 			}
 			else
@@ -229,17 +249,17 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 				if(localName.equalsIgnoreCase(ScnTags.S_PRE_MOD_ACTION)){
 					Log.i(TAG,"\t\t readComponentActionDescriptor PreModifierAction ");
 					newActionDescriptoon = readComponentActionDescriptor(attributes);
-					pEventHandler.preModAction = newActionDescriptoon;
+					pEventHandler.preModAction.add(newActionDescriptoon);
 				}
 				else if(localName.equalsIgnoreCase(ScnTags.S_POST_MOD_ACTION)){
 					Log.i(TAG,"\t\t readComponentActionDescriptor PostModifierAction ");
 					newActionDescriptoon = readComponentActionDescriptor(attributes);
-					pEventHandler.postModAction = newActionDescriptoon;
+					pEventHandler.postModAction.add(newActionDescriptoon);
 				}
 				else if(localName.equalsIgnoreCase(ScnTags.S_ON_MOD_ACTION)){
 					Log.i(TAG,"\t\t readComponentActionDescriptor OnModifierAction ");
 					newActionDescriptoon = readComponentActionDescriptor(attributes);
-					pEventHandler.onModAction = newActionDescriptoon;
+					pEventHandler.onModAction.add(newActionDescriptoon);
 				}
 				else return null;
 				return newActionDescriptoon;
@@ -254,6 +274,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			newDescriptor = readComponentModifierDescriptor(attributes);
 		return newDescriptor;
 	}
+	
+	
 	//-------------------------------------------------------------------------------------
 	// Private functions to read the elements 
 	//-------------------------------------------------------------------------------------
@@ -309,6 +331,18 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		this.parseAttributesOrientation(pSpriteDsc.getIOriantation(),attr);
 		this.parseAttributesCharacteristics(pSpriteDsc.getICharacteristis(),attr);
 	
+		if(attr.getValue(ScnTags.S_CLASS_NAME)!= null)
+			pSpriteDsc.className = new String(attr.getValue(ScnTags.S_CLASS_NAME));
+		
+		if((attr.getValue(ScnTags.S_A_SIDEA)!= null) && (attr.getValue(ScnTags.S_A_SIDEB) != null)){
+			pSpriteDsc.nSideATile = Integer.parseInt(attr.getValue(ScnTags.S_A_SIDEA));
+			pSpriteDsc.nSideBTile = Integer.parseInt(attr.getValue(ScnTags.S_A_SIDEB));
+		}
+		
+		if(attr.getValue(ScnTags.S_CLASS_NAME)!= null)
+			pSpriteDsc.className = new String(attr.getValue(ScnTags.S_CLASS_NAME));
+		
+		
 		return pSpriteDsc;
 	}	
 	private SpriteObjectDescriptor readCupondSprite(Attributes attr){
@@ -352,10 +386,16 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		//create new action
 		ComponentEventHandlerDescriptor pDescriptor = new ComponentEventHandlerDescriptor();
 
+		if(attributes.getValue(ScnTags.S_A_ID) != null)
+			pDescriptor.setID(Integer.parseInt(attributes.getValue(ScnTags.S_A_ID)));
+		
+		if(attributes.getValue(ScnTags.S_A_CLONEID) != null)
+			pDescriptor.setCloneID(Integer.parseInt(attributes.getValue(ScnTags.S_A_CLONEID)));
+		
 		pDescriptor.event=ComponentEventHandlerDescriptor.Events.valueOf(attributes.getValue(ScnTags.S_A_EVENT));
 		Log.i(TAG,"\t\t readSpriteDescription " + attributes.getValue(ScnTags.S_A_EVENT));
 		//pDescriptor.enExecOrder=ExecutionOrder.valueOf(attributes.getValue(ScnTags.S_A_EXECUTION_ORDER));
-		pDescriptor.ID=Integer.parseInt(attributes.getValue(ScnTags.S_A_ID));
+		//pDescriptor.ID=Integer.parseInt(attributes.getValue(ScnTags.S_A_ID));
 		Log.i(TAG,"\t\t readSpriteDescription " + attributes.getValue(ScnTags.S_A_ID));
 		return pDescriptor;
 	}
@@ -396,6 +436,11 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			break;
 		case CHANGE_SCENE:
 			newAction.NextScene = new String(attributes.getValue(ScnTags.S_A_NEXT_SCENE));
+			break;
+		case CHANGE_Z_ORDER:
+			newAction.ZIndex = Integer.parseInt(attributes.getValue(ScnTags.S_A_Z_ORDER));
+			break;
+		case FLIP:
 			break;
 		default:
 			break;
@@ -614,7 +659,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			if (localName.equalsIgnoreCase(ScnTags.S_EVENT_HANDLER)){
 				Log.i(TAG,"\t\t\t end Element EVENT HANDLER");
 				pAction = null; 
-				nStatus = STATUS_PARSE_COMPONENT;
+				nStatus = this.nStatusPrec;
 			}
 			break;
 		case STATUS_PARSE_ACTITIVY_MODIFIER:

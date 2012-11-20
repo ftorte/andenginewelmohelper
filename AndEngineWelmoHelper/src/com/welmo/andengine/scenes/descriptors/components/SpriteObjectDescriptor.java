@@ -9,6 +9,8 @@ public class SpriteObjectDescriptor extends BasicObjectDescriptor{
 	
 	protected SpritesTypes type;
 	protected String textureName;
+	protected int nSideATile =0;
+	protected int nSideBTile =0;
 	
 	public SpritesTypes getType() {
 		return type;
@@ -26,5 +28,15 @@ public class SpriteObjectDescriptor extends BasicObjectDescriptor{
 		super();
 		this.type=SpritesTypes.NO_TYPE;
 		this.textureName=new String("");
+	}
+	public void setSidesTiles(int sideA, int sideB){
+		nSideATile = sideA;
+		nSideBTile = sideB;
+	}
+	public int getSidesA(){
+		return nSideATile;
+	}
+	public int getSidesB(){
+		return nSideBTile;
 	}
 }
