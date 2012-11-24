@@ -1,7 +1,6 @@
 package com.welmo.andengine.scenes;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -20,26 +19,22 @@ import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
-import org.andengine.entity.text.Text;
-import org.andengine.entity.text.TextOptions;
-import org.andengine.util.HorizontalAlign;
+import org.andengine.ui.activity.BaseGameActivity;
 
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.managers.SceneDescriptorsManager;
 import com.welmo.andengine.managers.SceneManager;
-import com.welmo.andengine.scenes.components.CardinalSplineMoveAndRotateModifier;
-import com.welmo.andengine.scenes.components.ClickableSprite;
-import com.welmo.andengine.scenes.components.ComponentDefaultEventHandler;
-import com.welmo.andengine.scenes.components.CompoundSprite;
-import com.welmo.andengine.scenes.components.IActionOnSceneListener;
-import com.welmo.andengine.scenes.components.IClickableSprite;
-import com.welmo.andengine.scenes.components.IComponentEventHandler;
-import com.welmo.andengine.scenes.components.PositionHelper;
-import com.welmo.andengine.scenes.components.Stick;
-import com.welmo.andengine.scenes.components.TextComponent;
+import com.welmo.andengine.scenes.components2.CardinalSplineMoveAndRotateModifier;
+import com.welmo.andengine.scenes.components2.ClickableSprite;
+import com.welmo.andengine.scenes.components2.ComponentDefaultEventHandler;
+import com.welmo.andengine.scenes.components2.CompoundSprite;
+import com.welmo.andengine.scenes.components2.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components2.IClickableSprite;
+import com.welmo.andengine.scenes.components2.IComponentEventHandler;
+import com.welmo.andengine.scenes.components2.Stick;
+import com.welmo.andengine.scenes.components2.TextComponent;
+import com.welmo.andengine.scenes.components2.CardSprite.CardSide;
 import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
@@ -64,6 +59,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	protected HashMap<Integer, IAreaShape> 					mapOfObjects;
 	protected SceneDescriptor 								pSCDescriptor;
 	protected HashMap<Integer, IComponentEventHandler> 		hmEventHandlers;
+	protected BaseGameActivity								mActivity;
 	
 	// ===========================================================================================
 	// Constructor
@@ -305,9 +301,10 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		animatedObject.animate(50);
 		return animatedObject;
 	}
-	public void init(Engine theEngine, Context ctx) {
+	public void init(Engine theEngine, Context ctx, BaseGameActivity activity) {
 		mEngine = theEngine;
 		mContext = ctx;
+		mActivity = activity;
 	}
 	public void resetScene(){
 		
@@ -320,7 +317,8 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	public boolean onActionChangeScene(String nextScene) {
 		ManageableScene psc = (ManageableScene) pSM.getScene(nextScene);
 		if(psc != null){
-			mEngine.setScene(pSM.getScene(nextScene));
+			psc.resetScene();
+			mEngine.setScene(psc);
 			return true;
 		}
 		else
@@ -352,5 +350,10 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	@Override
 	public String getFatherScene() {
 		return this.pSCDescriptor.getSceneFather();
+	}
+	@Override
+	public void onFlipCard(int CardID, CardSide CardSide) {
+		// TODO Auto-generated method stub
+		
 	}
 }

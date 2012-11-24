@@ -11,8 +11,9 @@ public class SceneDescriptor extends BasicObjectDescriptor {
 	// ===========================================================
 	// Member Variables
 	// ===========================================================
-	String sceneName="";
-	String sceneFather="";
+	String 		sceneName="";
+	String 		sceneFather="";
+	GameLevel	gameLevel=GameLevel.EASY;
 	public LinkedList<ComponentEventHandlerDescriptor> pGlobalEventHandlerList;
 	
 	// ===========================================================
@@ -37,8 +38,10 @@ public class SceneDescriptor extends BasicObjectDescriptor {
 	public SceneDescriptor() {
 		pGlobalEventHandlerList = new LinkedList<ComponentEventHandlerDescriptor> ();
 	}
-	public int getMemodyLevel() {
-		// TODO Auto-generated method stub
-		return 0;
+	public GameLevel getGameLevel() {
+		return gameLevel;
+	}
+	public void setGameLevel(GameLevel newGameLevel) {
+		gameLevel=newGameLevel;
 	}
 }
