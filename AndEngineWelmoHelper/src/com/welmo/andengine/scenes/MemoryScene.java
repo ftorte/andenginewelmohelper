@@ -12,10 +12,10 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.ui.activity.BaseGameActivity;
 
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.scenes.components2.CardSprite;
-import com.welmo.andengine.scenes.components2.ComponentDefaultEventHandler;
-import com.welmo.andengine.scenes.components2.IComponentEventHandler;
-import com.welmo.andengine.scenes.components2.CardSprite.CardSide;
+import com.welmo.andengine.scenes.components.CardSprite;
+import com.welmo.andengine.scenes.components.ComponentDefaultEventHandler;
+import com.welmo.andengine.scenes.components.IComponentEventHandler;
+import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.SceneDescriptor;

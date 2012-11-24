@@ -1,4 +1,4 @@
-package com.welmo.andengine.scenes.component;
+package com.welmo.andengine.scenes.components;
 
 //import org.andengine.engine.Engine;
 
@@ -22,7 +22,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import com.welmo.andengine.managers.EventDescriptionsManager;
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.scenes.components2.CardSprite.CardSide;
+import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;

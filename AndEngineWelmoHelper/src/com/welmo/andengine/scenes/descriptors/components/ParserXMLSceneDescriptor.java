@@ -13,7 +13,7 @@ import android.util.Log;
 
 import com.welmo.andengine.managers.EventDescriptionsManager;
 import com.welmo.andengine.managers.SceneDescriptorsManager;
-import com.welmo.andengine.scenes.components2.Stick;
+import com.welmo.andengine.scenes.components.Stick;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.Alignment;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.ICharacteristics;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IDimension;

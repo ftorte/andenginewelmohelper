@@ -1,4 +1,4 @@
-package com.welmo.andengine.scenes.component;
+package com.welmo.andengine.scenes.components;
 
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 

@@ -1,7 +1,7 @@
 package com.welmo.andengine.scenes.descriptors.events;
 
-import com.welmo.andengine.scenes.components2.Stick;
-import com.welmo.andengine.scenes.components2.Stick.StickMode;
+import com.welmo.andengine.scenes.components.Stick;
+import com.welmo.andengine.scenes.components.Stick.StickMode;
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 
