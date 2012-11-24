@@ -1,9 +1,8 @@
-package com.welmo.andengine.scenes.component;
+package com.welmo.andengine.scenes.components;
 
 import org.andengine.engine.Engine;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.CardinalSplineMoveModifier;
-import org.andengine.entity.primitive.Line;
 import org.andengine.entity.scene.Scene;
 
 import android.util.Log;

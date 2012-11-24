@@ -1,4 +1,4 @@
-package com.welmo.andengine.scenes.component;
+package com.welmo.andengine.scenes.components;
 
 import org.andengine.engine.Engine;
 import org.andengine.entity.shape.IAreaShape;

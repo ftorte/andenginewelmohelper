@@ -1,4 +1,4 @@
-package com.welmo.andengine.scenes.component;
+package com.welmo.andengine.scenes.components;
 
 import java.util.List;
 

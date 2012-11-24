@@ -1,9 +1,9 @@
-package com.welmo.andengine.scenes.component;
+package com.welmo.andengine.scenes.components;
 
 import org.andengine.entity.shape.IAreaShape;
 
 
-import com.welmo.andengine.scenes.components2.CardSprite.CardSide;
+import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 
 public interface IActionOnSceneListener {
