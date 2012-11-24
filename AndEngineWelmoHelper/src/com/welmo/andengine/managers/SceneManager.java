@@ -3,6 +3,7 @@ package com.welmo.andengine.managers;
 import java.util.HashMap;
 import org.andengine.engine.Engine;
 import org.andengine.entity.scene.Scene;
+import org.andengine.ui.activity.BaseGameActivity;
 
 import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.ManageableScene;
@@ -26,12 +27,14 @@ public class SceneManager {
 	HashMap<String, IManageableScene> 		mapScenes =null;
 	protected SceneDescriptorsManager 		pSDM;
 	boolean 								initialized = false;
+	BaseGameActivity						theApplication; 
 
 
 	//final Scene scene = new Scene();
 	// ===========================================================
-	public SceneManager() {  
+	public SceneManager(BaseGameActivity application) {  
 		mapScenes = new HashMap<String, IManageableScene>();
+		theApplication = application;
 	}  
 
 
@@ -56,7 +59,7 @@ public class SceneManager {
 	}
 	
 	//crete scene and add to the map with name strSceneName
-	public void BuildScenes(String strSceneName){
+	public void BuildScenes(String strSceneName, BaseGameActivity activity){
 		if((mEngine == null) | (mContext == null)){ 
 			throw new NullPointerException("Scene Manager not initialized: mEngine &/or mContext are null"); 
 		}
@@ -84,7 +87,7 @@ public class SceneManager {
 		}
 
 		if(iManageableScene != null){
-			iManageableScene.init(mEngine, mContext);
+			iManageableScene.init(mEngine, mContext,theApplication);
 			iManageableScene.loadScene(pSCDercriptor);
 			iManageableScene.setSceneManager(this);
 			mapScenes.put(strSceneName, iManageableScene);
