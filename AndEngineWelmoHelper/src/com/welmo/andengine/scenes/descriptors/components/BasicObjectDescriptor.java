@@ -166,4 +166,19 @@ public abstract class BasicObjectDescriptor extends BasicDescriptor{
 	public int getID(){
 		return ID;
 	}
+	public void copyFrom(SpriteObjectDescriptor copyfrom) {
+		// TODO Auto-generated method stub
+		ID 			= copyfrom.ID;
+		pX 			= copyfrom.pX;
+		pY 			= copyfrom.pY;
+		pZOrder 	= copyfrom.pZOrder;
+		width		= copyfrom.width;
+		height		= copyfrom.height;
+		rX			= copyfrom.rX;
+		rY			= copyfrom.rY;
+		orientation	= copyfrom.orientation;
+		colorName	= copyfrom.colorName;
+		horizzontalAlignment 	= copyfrom.horizzontalAlignment; 
+		verticalAlignment		= copyfrom.verticalAlignment;
+	}
 }

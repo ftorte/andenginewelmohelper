@@ -4,6 +4,9 @@ package com.welmo.andengine.scenes.descriptors.components;
 import java.util.LinkedList;
 
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -14,11 +17,14 @@ import android.util.Log;
 import com.welmo.andengine.managers.EventDescriptionsManager;
 import com.welmo.andengine.managers.SceneDescriptorsManager;
 import com.welmo.andengine.scenes.components.Stick;
+import com.welmo.andengine.scenes.descriptors.SceneType;
+import com.welmo.andengine.scenes.descriptors.MemorySceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.Alignment;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.ICharacteristics;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IDimension;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IOrientation;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IPosition;
+import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor.SpritesTypes;
 import com.welmo.andengine.scenes.descriptors.events.BasicModifierDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentModifierDescriptor;
@@ -284,19 +290,154 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		if(this.pSceneDsc != null)
 			throw new NullPointerException("ParserXMLSceneDescriptor encountered scene description with another scene description inside");
 
-		pSceneDsc = new SceneDescriptor();
+		if(attr.getValue(ScnTags.S_A_TYPE)!=null){
+			switch(SceneType.valueOf(attr.getValue(ScnTags.S_A_TYPE))){
+			case MEMORY:
+				pSceneDsc = ReadMemorySeceneDescriptor(new MemorySceneDescriptor(),attr);
+				pSceneDsc.setSceneType(SceneType.MEMORY);
+				break;
+			case DEFAULT:
+				pSceneDsc = ReadDefaultSceneDescriptor(new SceneDescriptor(),attr);
+				pSceneDsc.setSceneType(SceneType.DEFAULT);
+				break;
+			default:
+				pSceneDsc = ReadDefaultSceneDescriptor(new SceneDescriptor(),attr);
+				pSceneDsc.setSceneType(SceneType.DEFAULT);
+				break;
+			}
+		}
+		else{
+			pSceneDsc = ReadDefaultSceneDescriptor(new SceneDescriptor(),attr);
+		}
+		
 
-		// Read scene description
-		pSceneDsc.sceneName = new String(attr.getValue(ScnTags.S_A_NAME));
-		if(attr.getValue(ScnTags.S_FATHER)!= null)
-			pSceneDsc.sceneFather = new String(attr.getValue(ScnTags.S_FATHER));
-		
-		if(attr.getValue(ScnTags.S_CLASS_NAME)!= null)
-			pSceneDsc.className = new String(attr.getValue(ScnTags.S_CLASS_NAME));
-		
 		pSceneDescManager.addScene(pSceneDsc.sceneName, pSceneDsc);
-
 		return pSceneDsc;
+	}
+	
+	private MemorySceneDescriptor ReadMemorySeceneDescriptor(MemorySceneDescriptor pScene, Attributes attr){
+		
+		// Read default values
+		ReadDefaultSceneDescriptor(pScene,attr);
+		int stdCardH=0;
+		int stdCardW=0;
+		String resourceName="";
+		
+		
+		if(attr.getValue(ScnTags.S_A_MAX_LEVELS)!= null)
+			pScene.setMaxLevelAllowed(Integer.parseInt(attr.getValue(ScnTags.S_A_MAX_LEVELS)));
+		if(attr.getValue(ScnTags.S_A_TOPBOTTOMBORDER)!= null)
+			pScene.setTopBottomBorder(Integer.parseInt(attr.getValue(ScnTags.S_A_TOPBOTTOMBORDER)));
+		if(attr.getValue(ScnTags.S_A_LEFTRIGHTBORDER)!= null)
+			pScene.setLeftRightBorder(Integer.parseInt(attr.getValue(ScnTags.S_A_LEFTRIGHTBORDER)));
+		if(attr.getValue(ScnTags.S_A_VINTREBORDER)!= null)
+			pScene.setVIntraBorder(Integer.parseInt(attr.getValue(ScnTags.S_A_VINTREBORDER)));
+		if(attr.getValue(ScnTags.S_A_HINTREBORDER)!= null)
+			pScene.setHIntraBorder(Integer.parseInt(attr.getValue(ScnTags.S_A_HINTREBORDER)));
+		if(attr.getValue(ScnTags.S_A_MAXNBOFSYMBOLS)!= null)
+			pScene.setMaxNbOfSymbols(Integer.parseInt(attr.getValue(ScnTags.S_A_MAXNBOFSYMBOLS)));
+		if(attr.getValue(ScnTags.S_A_STDCARDHEIGHT)!= null){
+			stdCardH=Integer.parseInt(attr.getValue(ScnTags.S_A_STDCARDHEIGHT));
+			pScene.setStdCardHeight(stdCardH);
+		}
+		if(attr.getValue(ScnTags.S_A_STDCARDWIDTH)!= null){
+			stdCardW=Integer.parseInt(attr.getValue(ScnTags.S_A_STDCARDWIDTH));
+			pScene.setStdCardWidth(stdCardW);
+		}
+		if(attr.getValue(ScnTags.S_A_RESOURCES)!= null){
+			resourceName = attr.getValue(ScnTags.S_A_RESOURCES);
+			pScene.setResouceName(resourceName);
+		}
+		
+		//Parse JSON strings
+		JSONObject jObject;
+		//Geometry
+		try {
+			//Parse Geometry
+			if(attr.getValue(ScnTags.S_A_GEOMETRY)!= null){
+				jObject = new JSONObject(attr.getValue(ScnTags.S_A_GEOMETRY));
+				JSONArray geometries = jObject.getJSONArray(ScnTags.S_A_GEOMETRY);
+
+				if(pScene.getMaxLevelAllowed() > geometries.length())
+					pScene.setMaxLevelAllowed(geometries.length());
+
+				//create array will contians the geometry
+				int[][] geometryArray = new int[geometries.length()][MemorySceneDescriptor.GEOMETRY_DSC_NBCOL];
+
+				//parse the array
+				for (int i=0; i<geometries.length(); i++){
+					JSONArray currLine = (JSONArray)geometries.get(i);
+					for (int j=0; j<MemorySceneDescriptor.GEOMETRY_DSC_NBCOL; j++){
+						geometryArray[i][j]=currLine.getInt(j);
+					}
+					pScene.setMemoryStructure(geometryArray);
+				} 
+			}
+			//Parse tiles Maps
+			if(attr.getValue(ScnTags.S_A_MAPCARDTILES)!= null){
+				jObject = new JSONObject(attr.getValue(ScnTags.S_A_MAPCARDTILES));
+				JSONArray mapOfTiles = jObject.getJSONArray(ScnTags.S_A_MAPCARDTILES);
+
+				if(pScene.getMaxNbOfSymbols() > mapOfTiles.length())
+					pScene.setMaxNbOfSymbols(mapOfTiles.length());
+
+				//create array will contains the geometry
+				int[][] mapOfCardTiles = new int[mapOfTiles.length()][3];
+
+				//parse the array
+				for (int i=0; i<mapOfTiles.length(); i++){
+					JSONArray currLine = (JSONArray)mapOfTiles.get(i);
+					mapOfCardTiles[i][0]=currLine.getInt(0);	//set card ID
+					mapOfCardTiles[i][1]=currLine.getInt(1);	//set side A tile
+					mapOfCardTiles[i][2]=currLine.getInt(2);	//set side B tile
+					
+					//create a sprite descriptor
+					SpriteObjectDescriptor oCardDsc  = new SpriteObjectDescriptor();
+					oCardDsc.setClassName("com.welmo.andengine.scenes.components.CardSprite");
+					oCardDsc.ID = currLine.getInt(0);
+					oCardDsc.setSidesTiles(currLine.getInt(1), currLine.getInt(2));
+					oCardDsc.getIDimension().setHeight(stdCardH);
+					oCardDsc.getIDimension().setWidth(stdCardW);
+					oCardDsc.getIPosition().setX(0);
+					oCardDsc.getIPosition().setY(0);
+					oCardDsc.getIPosition().setZorder(0);
+					oCardDsc.setTextureName(resourceName);
+					oCardDsc.setType(SpritesTypes.CLICKABLE);
+					pScene.pChild.add(oCardDsc);
+					
+					//duplicate the sprite descriptor (cards are always double)
+					SpriteObjectDescriptor oCardDscII  = new SpriteObjectDescriptor();
+					oCardDscII.copyFrom(oCardDsc);
+					oCardDscII.ID = oCardDsc.ID + pScene.getMaxNbOfSymbols();
+					pScene.pChild.add(oCardDscII);
+					/*
+					<event_handler ID ="1000" event="ON_CLICK">
+						<pre_mod_action ID="1" type="FLIP"/>
+						<pre_mod_action ID="2"  type="PLAY_SOUND" resourceName="b"/> 
+					</event_handler>
+					</sprite>
+					*/
+						    
+				}
+				pScene.setMemoryMapOfCardsTiles(mapOfCardTiles);
+			} 
+		}
+		catch (JSONException e) {
+		}
+
+		//public final static String S_A_MAPCARDTILES		="mapCardTiles";
+		//public final static String S_A_MAPCARDSOUND  	="mapCardSound";*/
+		
+		return pScene;
+	}
+	private SceneDescriptor ReadDefaultSceneDescriptor(SceneDescriptor pScene, Attributes attr){
+		// Read scene description	
+		pScene.sceneName = new String(attr.getValue(ScnTags.S_A_NAME));
+		if(attr.getValue(ScnTags.S_FATHER)!= null)
+			pScene.sceneFather = new String(attr.getValue(ScnTags.S_FATHER));
+		if(attr.getValue(ScnTags.S_CLASS_NAME)!= null)
+			pScene.className = new String(attr.getValue(ScnTags.S_CLASS_NAME));
+		return pScene;
 	}
 	private BackGroundObjectDescriptor readBackGroudDescription(Attributes attributes){
 		Log.i(TAG,"\t\t readBackGroudDescription");
@@ -339,10 +480,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			pSpriteDsc.nSideBTile = Integer.parseInt(attr.getValue(ScnTags.S_A_SIDEB));
 		}
 		
-		if(attr.getValue(ScnTags.S_CLASS_NAME)!= null)
-			pSpriteDsc.className = new String(attr.getValue(ScnTags.S_CLASS_NAME));
-		
-		
+	
 		return pSpriteDsc;
 	}	
 	private SpriteObjectDescriptor readCupondSprite(Attributes attr){
@@ -478,46 +616,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		pAction.event = ComponentEventHandlerDescriptor.Events.valueOf(attr.getValue(ScnTags.S_A_EVENT));
 		return pAction;
 	}
-	/*private BasicDescriptor readModifierSetDescription(Attributes attr){
-		Log.i(TAG,"\t\t\t readModifierSetDescription");
-		
-		if(this.pModifierSet != null) //check if a modifer set already exist
-			throw new NullPointerException("ParserXMLSceneDescriptor encountered modifier set description within another modifer set");
-		if(this.pSpriteDsc == null && this.pCompoundSpriteDsc == null ) //check if a modifier is attached toa sprite
-			throw new NullPointerException("ParserXMLSceneDescriptor encountered modifier set dsc. not in a sprite or compound sprite");
-
-		pModifierSet = new ComponentEventHandlerDescriptor();
-		pModifierSet.modifierListType = ComponentEventHandlerDescriptor.ModifiersListType.valueOf(attr.getValue(ScnTags.S_A_TYPE));
-		pModifierSet.event = ComponentEventHandlerDescriptor.Events.valueOf(attr.getValue(ScnTags.S_A_EVENT));
-		return pModifierSet;
-	}*/
-	/*
-	private BasicDescriptor readModifierDescription(Attributes attr){
-		Log.i(TAG,"\t\t\t\t readModifierDescription");
-		if(this.pModifierSet == null ) //check if modifier is declared in a modifier set
-			throw new NullPointerException("ParserXMLSceneDescriptor encountered modifier description not in a modiferset");
-
-		//create new action description
-		//pModifier = new SceneComponentModifier();
-
-		//****************************************************
-		//FT ERRORS
-		/*
-		pModifier.type=SceneComponentModifier.ModifierType.valueOf(attr.getValue(ScnTags.S_A_TYPE));
-		switch (SceneComponentModifier.ModifierType.valueOf(attr.getValue(ScnTags.S_A_TYPE))){
-		case MOVE:
-			pModifier.fMoveFactor=Float.parseFloat(attr.getValue(ScnTags.S_A_MOVE_FACTOR));
-			break;
-		case SCALE:
-			pModifier.fScaleFactor=Float.parseFloat(attr.getValue(ScnTags.S_A_SCALE_FACTOR));
-			break;
-		default:
-			break;
-		}
-		pModifier.event = EventDescriptionsManager.Events.valueOf(attr.getValue(ScnTags.S_A_EVENT));
-		
-		return pModifier;
-	}*/
+	
 	//-------------------------------------------------------------------------------------
 	// Specfic private functions to read the attributes
 	//-------------------------------------------------------------------------------------

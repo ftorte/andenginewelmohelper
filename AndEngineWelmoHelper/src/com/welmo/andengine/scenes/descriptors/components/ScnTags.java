@@ -83,5 +83,21 @@ public class ScnTags {
 	public final static String S_A_USE_WITH_PRE_ID 	="use_with_pre_mod_ID";
 	public final static String S_A_USE_WITH_POST_ID ="use_with_post_mod_ID";
 	public final static String S_A_USE_WITH_ON_ID 	="use_with_on_mod_ID";
-	public final static String S_A_USE_WITH_MOD_ID 	="use_with_mod_ID";		
-}
+	public final static String S_A_USE_WITH_MOD_ID 	="use_with_mod_ID";	
+	
+	//memory
+	public final static String S_A_MAX_LEVELS		="maxLevels";
+	public final static String S_A_TOPBOTTOMBORDER  ="TopBottomBorder";
+	public final static String S_A_LEFTRIGHTBORDER  ="LeftRightBorder";
+	public final static String S_A_VINTREBORDER  	="VIntraBorder";
+	public final static String S_A_HINTREBORDER  	="nHIntraBorder";
+	public final static String S_A_STDCARDHEIGHT	="StdCardHeight";
+	public final static String S_A_STDCARDWIDTH 	="StdCardWidth";
+	public final static String S_A_GEOMETRY  		="geometry";
+	
+	public final static String S_A_MAXNBOFSYMBOLS  	="MaxNumberOfSymbols";
+	public final static String S_A_RESOURCES		="resource";
+	public final static String S_A_MAPCARDTILES		="mapCardTiles";
+	public final static String S_A_MAPCARDSOUND  	="mapCardSound";
+
+}	

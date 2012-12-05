@@ -39,4 +39,15 @@ public class SpriteObjectDescriptor extends BasicObjectDescriptor{
 	public int getSidesB(){
 		return nSideBTile;
 	}
+	
+	//@Override
+	public void copyFrom(SpriteObjectDescriptor copyfrom){
+		
+		super.copyFrom(copyfrom);
+		
+		type = copyfrom.type;
+		textureName = copyfrom.textureName;
+		nSideATile = copyfrom.nSideATile;
+		nSideBTile = copyfrom.nSideBTile;
+	}
 }
