@@ -1,6 +1,8 @@
 package com.welmo.andengine.scenes.descriptors.components;
 
 import java.util.LinkedList;
+
+import com.welmo.andengine.scenes.descriptors.SceneType;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 
 public class SceneDescriptor extends BasicObjectDescriptor {
@@ -14,6 +16,14 @@ public class SceneDescriptor extends BasicObjectDescriptor {
 	String 		sceneName="";
 	String 		sceneFather="";
 	GameLevel	gameLevel=GameLevel.EASY;
+	protected SceneType	sceneType=SceneType.DEFAULT;
+	
+	public SceneType getSceneType() {
+		return sceneType;
+	}
+	public void setSceneType(SceneType sceneType) {
+		this.sceneType = sceneType;
+	}
 	public LinkedList<ComponentEventHandlerDescriptor> pGlobalEventHandlerList;
 	
 	// ===========================================================
