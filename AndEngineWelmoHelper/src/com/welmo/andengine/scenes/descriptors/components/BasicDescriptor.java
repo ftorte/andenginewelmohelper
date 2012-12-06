@@ -23,4 +23,7 @@ public class BasicDescriptor {
 	public void setClassName(String className) {
 		this.className = className;
 	}
+	public void copyFrom(BasicDescriptor copyfrom) {
+		className 	= new String(copyfrom.className);
+	}
 }
