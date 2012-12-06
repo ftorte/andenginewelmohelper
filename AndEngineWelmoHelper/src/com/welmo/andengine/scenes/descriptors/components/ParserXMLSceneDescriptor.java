@@ -387,10 +387,6 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 				//parse the array
 				for (int i=0; i<mapOfTiles.length(); i++){
 					JSONArray currLine = (JSONArray)mapOfTiles.get(i);
-					mapOfCardTiles[i][0]=currLine.getInt(0);	//set card ID
-					mapOfCardTiles[i][1]=currLine.getInt(1);	//set side A tile
-					mapOfCardTiles[i][2]=currLine.getInt(2);	//set side B tile
-					
 					//create a sprite descriptor
 					SpriteObjectDescriptor oCardDsc  = new SpriteObjectDescriptor();
 					oCardDsc.setClassName("com.welmo.andengine.scenes.components.CardSprite");
@@ -401,7 +397,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 					oCardDsc.getIPosition().setX(0);
 					oCardDsc.getIPosition().setY(0);
 					oCardDsc.getIPosition().setZorder(0);
-					oCardDsc.setTextureName(resourceName);
+					oCardDsc.textureName = new String(resourceName);
 					oCardDsc.setType(SpritesTypes.CLICKABLE);
 					pScene.pChild.add(oCardDsc);
 					
@@ -415,8 +411,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 						<pre_mod_action ID="1" type="FLIP"/>
 						<pre_mod_action ID="2"  type="PLAY_SOUND" resourceName="b"/> 
 					</event_handler>
-					</sprite>
-					*/
+					</sprite>*/
+					
 						    
 				}
 				pScene.setMemoryMapOfCardsTiles(mapOfCardTiles);

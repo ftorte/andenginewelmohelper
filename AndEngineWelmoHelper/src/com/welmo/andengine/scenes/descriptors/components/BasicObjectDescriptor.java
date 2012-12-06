@@ -166,8 +166,8 @@ public abstract class BasicObjectDescriptor extends BasicDescriptor{
 	public int getID(){
 		return ID;
 	}
-	public void copyFrom(SpriteObjectDescriptor copyfrom) {
-		// TODO Auto-generated method stub
+	public void copyFrom(BasicObjectDescriptor copyfrom) {
+		super.copyFrom(copyfrom);
 		ID 			= copyfrom.ID;
 		pX 			= copyfrom.pX;
 		pY 			= copyfrom.pY;
