@@ -259,12 +259,12 @@ public class MemoryScene extends ManageableScene {
 		
 		//Init simbot of cards
 		for (int i = 0; i < nMaxNbOfSymbols; i++){
-			//[FT] not necessary since done in the configuration((CardSprite)allCards.get(i)).setSidesTiles(i, nMaxNbOfSymbols);
+			((CardSprite)allCards.get(i)).setSidesTiles(i, nMaxNbOfSymbols);
 			((CardSprite)allCards.get(i)).setSideB();
-			//[FT] not necessary since done in the configuration ((CardSprite)allCards.get(i)).setID(i);
-			//[FT] not necessary since done in the configuration((CardSprite)allCards.get(i+nMaxNbOfSymbols)).setSidesTiles(i, nMaxNbOfSymbols);
+			((CardSprite)allCards.get(i)).setID(i);
+			((CardSprite)allCards.get(i+nMaxNbOfSymbols)).setSidesTiles(i, nMaxNbOfSymbols);
 			((CardSprite)allCards.get(i+nMaxNbOfSymbols)).setSideB();
-			//[FT] not necessary since done in the configuration((CardSprite)allCards.get(i+nMaxNbOfSymbols)).setID(i+nMaxNbOfSymbols);
+			((CardSprite)allCards.get(i+nMaxNbOfSymbols)).setID(i+nMaxNbOfSymbols);
 		}
 
 		RestartGame();
