@@ -2,10 +2,9 @@ package com.welmo.andengine.scenes;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
-
-
 
 import org.andengine.engine.Engine;
 import org.andengine.entity.IEntity;
@@ -19,9 +18,11 @@ import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.input.touch.TouchEvent;
 import org.andengine.ui.activity.BaseGameActivity;
 
 import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.managers.ResourcesManager.SoundType;
 import com.welmo.andengine.managers.SceneManager;
 import com.welmo.andengine.scenes.components.CardinalSplineMoveAndRotateModifier;
 import com.welmo.andengine.scenes.components.ClickableSprite;
@@ -32,7 +33,6 @@ import com.welmo.andengine.scenes.components.IClickableSprite;
 import com.welmo.andengine.scenes.components.IComponentEventHandler;
 import com.welmo.andengine.scenes.components.Stick;
 import com.welmo.andengine.scenes.components.TextComponent;
-import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SceneDescriptor;
@@ -41,9 +41,12 @@ import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
+import com.welmo.andengine.utility.SoundSequence;
+
 
 
 import android.content.Context;
+import android.util.Log;
 
 
 public class ManageableScene extends Scene implements IManageableScene, IActionOnSceneListener{
@@ -51,15 +54,20 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	// Variables
 	//------------------------------------------------------------------------------------------
 	private static final String 							TAG  = "ManageableScene";
+	public static enum soundtype {SOUND, PAUSE, PARAMETRABLE_SOUND};
+	
 	
 	protected Engine 										mEngine;
 	protected Context 										mContext;
 	protected ResourcesManager								pRM;
 	protected SceneManager									pSM;
 	protected HashMap<Integer, IAreaShape> 					mapOfObjects;
+	protected HashMap<String, SoundSequence> 				mapOfPhrases;
+	
 	protected SceneDescriptor 								pSCDescriptor;
 	protected HashMap<Integer, IComponentEventHandler> 		hmEventHandlers;
 	protected BaseGameActivity								mActivity;
+	protected int											nLockTouch=0;
 	
 	// ===========================================================================================
 	// Constructor
@@ -69,6 +77,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		pRM = ResourcesManager.getInstance();
 		mapOfObjects = new HashMap<Integer, IAreaShape>();
 		hmEventHandlers = new HashMap<Integer, IComponentEventHandler>();
+		mapOfPhrases = new HashMap<String, SoundSequence>(); 	
 	}
 	// ===========================================================================================
 	// Load the scene
@@ -86,9 +95,37 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 			loadComponent(scObjDsc, this);
 		}
 		
-		//Enable audio option
-		mEngine.getEngineOptions().getAudioOptions().setNeedsMusic(true);
-		mEngine.getEngineOptions().getAudioOptions().setNeedsSound(true);
+		loadScenePhrases(pSCDescriptor);
+	}
+	public void loadScenePhrases(SceneDescriptor sceneDescriptor) {
+		HashMap<String, String[]> phrases = sceneDescriptor.getPhrasesMap();
+		
+		ResourcesManager rMgr = ResourcesManager.getInstance();
+		
+		Iterator<Entry<String, String[]>> it = phrases.entrySet().iterator();
+	    while (it.hasNext()){
+	    	Entry<String, String[]> entry = it.next();
+	    	String key = entry.getKey();
+	    	String[] config = entry.getValue();
+	    	//count nb of parameters
+	    	
+	    	//create array of sound
+	    	SoundSequence phraseSounds = new SoundSequence(config.length);
+	    	for(int indexX=0; indexX < config.length; indexX++){
+	    		if(config[indexX].startsWith("#")){
+	    			phraseSounds.getSequence()[indexX] = rMgr.new SoundContainer();
+	    			phraseSounds.getSequence()[indexX].setType(SoundType.PAUSE);
+	    			phraseSounds.getSequence()[indexX].setDuration(Integer.parseInt(config[indexX].substring(1)));
+	    		}
+	    		else if (config[indexX].startsWith("%")){
+	    			phraseSounds.addParameter(indexX);
+	    		}
+	    		else{
+	    			phraseSounds.getSequence()[indexX] = rMgr.getSound(config[indexX]);
+	    		}	
+	    	}
+	    	mapOfPhrases.put(key,phraseSounds);
+	    }
 	}
 	
 	// ===========================================================
@@ -242,6 +279,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		
 		newClickableSprite.setActionOnSceneListener(this);
 		
+		newClickableSprite.setID(spDsc.getID());
 		//Create events handler
 
 		Set<Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor>> eventHandlersSet;
@@ -305,13 +343,41 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		mEngine = theEngine;
 		mContext = ctx;
 		mActivity = activity;
+		//Enable audio option
+		mEngine.getEngineOptions().getAudioOptions().setNeedsMusic(true);
+		mEngine.getEngineOptions().getAudioOptions().setNeedsSound(true);
 	}
 	public void resetScene(){
-		
+		//reset values
+		nLockTouch = 0;
 	}	
+	protected void ClearScene(){
+		
+		//Detach all scene's child
+		for (int i=this.getChildCount() - 1;  i >= 0; i--){
+			IEntity tmpEntity = this.getChildByIndex(i);
+			if(tmpEntity instanceof IAreaShape )
+				this.unregisterTouchArea((IAreaShape)tmpEntity);
+			if(tmpEntity != null)
+				this.detachChild(tmpEntity);
+		}
+		//clear event handler
+		this.hmEventHandlers.clear();
+	}
 	// ===========================================================
 	// Dummy Class implementing IClickLeastener of ClicableSprite object
 	// ===========================================================
+	// Scene methods override
+	@Override
+	public boolean onSceneTouchEvent(TouchEvent pSceneTouchEvent) {
+		Log.i(TAG,"Touch " + nLockTouch);
+		if(nLockTouch > 0){
+			return Boolean.TRUE;
+		}
+		else
+			return super.onSceneTouchEvent(pSceneTouchEvent);
+	}
+	
 	//Default Implementation of IActionOnSceneListener interface
 	@Override
 	public boolean onActionChangeScene(String nextScene) {
@@ -352,8 +418,21 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		return this.pSCDescriptor.getSceneFather();
 	}
 	@Override
-	public void onFlipCard(int CardID, CardSide CardSide) {
+	public void onFlipCard(int CardID) {
 		// TODO Auto-generated method stub
 		
+	}
+	@Override
+	public void lockTouch(){
+		nLockTouch++;
+		Log.i(TAG,"\t locked Touch = " + nLockTouch);
+	}
+	@Override
+	public void unLockTouch() {
+		nLockTouch--;
+		
+		if(nLockTouch < 0)
+			nLockTouch=0;
+		Log.i(TAG,"\t unLocked Touch = " + nLockTouch);
 	}
 }

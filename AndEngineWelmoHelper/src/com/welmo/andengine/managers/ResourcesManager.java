@@ -8,6 +8,7 @@ import org.andengine.audio.music.MusicFactory;
 import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
+import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.extension.svg.opengl.texture.atlas.bitmap.SVGBitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
@@ -38,6 +39,10 @@ import com.welmo.andengine.resources.descriptors.components.TextureRegionDescrip
 import com.welmo.andengine.resources.descriptors.components.TiledTextureRegionDescriptor;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
+import android.util.Log;
 
 
 
@@ -45,11 +50,16 @@ public class ResourcesManager {
 	// ===========================================================
 	// Constants
 	// ===========================================================
+	final static String TAG = "ResourcesManager";
+	
 	final String FONTHBASEPATH = "font/";
 	final String TEXTUREBASEPATH = "gfx/";
 	final String MUSICBASEPATH	= "musics/";
 	final String SOUNDBASEPATH	= "sounds/";
 	
+	public enum SoundType { 
+		SOUND, PAUSE,
+	}
 
 	// ===========================================================
 	// Variables
@@ -65,11 +75,48 @@ public class ResourcesManager {
 	private HashMap<String, BuildableBitmapTextureAtlas> 	mapBuildablBitmapTexturesAtlas;
 	private HashMap<String, ITiledTextureRegion>  			mapTiledTextureRegions;
 	private HashMap<String, Music> 							mapMusics;
-	private HashMap<String, Sound>  						mapSound;
+	private HashMap<String, SoundContainer>  				mapSound;
 	
 	// singleton Instance
 	private static ResourcesManager 	mInstance=null;
+	
+	// -----------------------------------------------------------------
+	// Inner class SoundExtended
+	public class SoundContainer{
+	
+		private Sound theSound  = null;
+		private int duration	= 0;
+		private SoundType type	= SoundType.SOUND;
+		
+		public SoundContainer() {
+		}
+		public Sound getTheSound() {
+			return theSound;
+		}
 
+		protected void createFromAsset(String asset, int duration) {
+			try {
+				this.theSound = SoundFactory.createSoundFromAsset(mEngine.getSoundManager(), mCtx, asset);
+				this.duration = duration;
+			} 
+			catch (IllegalArgumentException e) {    } 
+			catch (IllegalStateException e) { } 
+			catch (IOException e) { } 
+		}
+		public int getDuration() {
+			return duration;
+		}
+		public void setDuration(int duration) {
+			this.duration = duration;
+		}
+		public SoundType getType() {
+			return type;
+		}
+		public void setType(SoundType type) {
+			this.type = type;
+		}
+	}
+	
 	//--------------------------------------------------------
 	// Constructors
 	//--------------------------------------------------------
@@ -81,7 +128,7 @@ public class ResourcesManager {
 		mapBuildablBitmapTexturesAtlas = new HashMap<String, BuildableBitmapTextureAtlas>();
 		mapTiledTextureRegions = new HashMap<String, ITiledTextureRegion>();
 		mapMusics = new HashMap<String, Music>();
-		mapSound = new HashMap<String, Sound>();
+		mapSound = new HashMap<String, SoundContainer>();
 		initialized = false;
 	}
 	@method
@@ -92,6 +139,21 @@ public class ResourcesManager {
 	}
 		
 	// ===========================================================
+	public void PauseGame(){
+		Log.i(TAG, "PauseGame In");
+		for (SoundContainer value : mapSound.values()) {
+			if(!value.theSound.isReleased())
+				value.theSound.pause();
+				Log.i(TAG, "PauseGame In " + value.theSound.getSoundID());
+		}
+		mapSound.clear();
+		Log.i(TAG, "PauseGame Out");
+	}
+	public void ResumeGame(){
+		for (SoundContainer value : mapSound.values())
+				value.theSound.resume();
+	}
+	
 
 	public void init(Context ctx, Engine eng){
 		//if init called for already initilized manager but with different context and engine throw an exception
@@ -149,6 +211,12 @@ public class ResourcesManager {
 					pTRDsc.Parameters[ResTags.R_A_POSITION_X_IDX], pTRDsc.Parameters[ResTags.R_A_POSITION_Y_IDX]));
 		}
 				
+		
+		mEngine.getTextureManager().loadTexture(pTextureAtlas);
+		
+		//for(String key:mapBitmapTexturesAtlas.keySet())
+		//	textureManager.loadTexture(mapBitmapTexturesAtlas.get(key));
+	
 		return pTextureAtlas;
 	}
 	
@@ -320,30 +388,21 @@ public class ResourcesManager {
 		//return the found or loaded texture region
 		return theMusic;
 	}
-	public Sound loadSound(String soundName){
+	public SoundContainer loadSound(String soundName){
+		Log.d(TAG,"loadSound " + soundName);
 		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
 		SoundDescriptor pSoundDsc = pResDscMng.getSoundDescriptor(soundName);
 		if(pSoundDsc == null)
-			throw new IllegalArgumentException("In LoadTiledTextureRegion: there is no description for the requested texture = " + soundName);
+			throw new IllegalArgumentException("In LoadSound: there is no sound description for the requested sound = " + soundName);
 
 		//To load a texture region the manager load the texture and all child regions
-		Sound newSound = null;
-		try {
-			newSound = SoundFactory.createSoundFromAsset(mEngine.getSoundManager(), mCtx, 
-					pSoundDsc.filename);
-			this.mapSound.put(soundName, newSound);
-			//return the texture region that has just been loaded
-			return newSound;
-		} catch (IllegalStateException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+		SoundContainer newSound = new SoundContainer();
+		newSound.createFromAsset(pSoundDsc.filename, pSoundDsc.duration);
+		this.mapSound.put(soundName, newSound);
+		return newSound;
 	}
-	public Sound getSound(String soundName){
-		Sound theSound = this.mapSound.get(soundName);
+	public SoundContainer getSound(String soundName){
+		SoundContainer theSound = this.mapSound.get(soundName);
 		//if the texture region is not already loaded in the resource manager load it
 		if(theSound==null) 
 			theSound = loadSound(soundName);

@@ -213,6 +213,8 @@ public class ParserXMLResourcesDescriptor extends DefaultHandler {
 			pSoundDsc.ID=0;
 			pSoundDsc.Name = new String(attributes.getValue(ResTags.R_A_NAME));
 			pSoundDsc.filename = new String(attributes.getValue(ResTags.R_A_FILE_NAME));
+			if(attributes.getValue(ResTags.R_A_DURATION)!=null)
+				pSoundDsc.duration = Integer.parseInt(attributes.getValue(ResTags.R_A_DURATION));
 			pResDescManager.addSoundDescriptor(pSoundDsc.Name, pSoundDsc);
 		}
 	}

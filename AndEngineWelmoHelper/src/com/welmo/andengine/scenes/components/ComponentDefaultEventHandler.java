@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.andengine.audio.music.Music;
 import org.andengine.audio.sound.Sound;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.IEntityModifier;
@@ -18,6 +19,7 @@ import org.andengine.util.modifier.IModifier;
 import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.managers.ResourcesManager.SoundContainer;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentModifierDescriptor;
@@ -34,6 +36,7 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 	//Log & Debug
 	private static final String TAG = "ComponentDefaultEventHandler";
 	private int							nID=-1;	
+	private RotationModifier			onFlipModifier			= null;	//  used to take trace of flip modifier
 	public IEntityModifier 				modifierSet				= null; //	contains the modifier set
 	public IEntityModifier	 			iEntityModifiers[] 		= null; //  contains the list of modifiers in the modifier set
 	public LinkedList<SceneActions>	 	oPreModifierAction		= null; //  contains the action to be launched before the modifiers;
@@ -54,6 +57,10 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 	@Override
 	public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
 		Log.i(TAG,"\t onModifierFinished");
+		if(onFlipModifier == pModifier)
+			if(pItem instanceof IActionOnSceneListener)
+				((IActionOnSceneListener)pItem).onFlipCard(((CardSprite)pItem).getID());
+		
 		if(oPostModifierAction != null)
 			for(SceneActions action:oPostModifierAction){ 
 				ExecuteAction(action,pItem);
@@ -99,8 +106,6 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		if(modifierSet != null){
 			Log.i(TAG,"\t Execute Modifier");
 			modifierSet.reset();
-			//pItem.registerEntityModifier(modifierSet);
-			//pItem.registerEntityModifier(modifierSet.deepCopy()); it seams that with deepCopy listener is not called
 			IEntityModifier m = modifierSet.deepCopy();
 			m.addModifierListener(this);
 			pItem.registerEntityModifier(m);
@@ -179,12 +184,19 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 			executePlaySound(action, pItem);
 			break;
 		case PLAY_MUSIC:
+			executePlayMusic(action, pItem);
 			break;
 		case FLIP:
 			executeFlip(action, pItem);
 			break;
 		case CHANGE_Z_ORDER:
 			executeChangeZOrder(action, pItem);
+			break;
+		case DISABLE_SCENE_TOUCH:
+			disableTouch(pItem);
+			break;
+		case ENABLE_SCENE_TOUCH:
+			enableTouch(pItem);
 			break;
 		default:
 			break;
@@ -201,9 +213,16 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 	protected void executePlaySound(SceneActions action, IEntity pItem){
 		Log.i(TAG,"\t PLay Music");
 		ResourcesManager rMgr = ResourcesManager.getInstance();
-		Sound snd = rMgr.getSound(action.resourceName);
+		Sound snd = rMgr.getSound(action.resourceName).getTheSound();
 		snd.setVolume(1000);
 		snd.play();
+	}
+	protected void executePlayMusic(SceneActions action, IEntity pItem){
+		Log.i(TAG,"\t PLay Music");
+		ResourcesManager rMgr = ResourcesManager.getInstance();
+		Music msc = rMgr.getMusic(action.resourceName);
+		msc.setVolume(1000);
+		msc.play();
 	}
 	protected void executeChangeZOrder(SceneActions action, IEntity pItem){
 		Log.i(TAG,"\t Change Z Order");
@@ -216,16 +235,24 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		Log.i(TAG,"\t executeFlip from rotation" + rotation);
 		if(rotation <=90){
 			Log.i(TAG,"\t executeFlip flip 1");
-			pItem.registerEntityModifier(new RotationModifier(1,0,180));
-			if(pItem instanceof IActionOnSceneListener)
-				((IActionOnSceneListener)pItem).onFlipCard(((CardSprite)pItem).getID(),CardSide.A);
+			onFlipModifier = new RotationModifier(1.0f,0,180,this);
+			pItem.registerEntityModifier(onFlipModifier);
 		}
 		else{
 			Log.i(TAG,"\t executeFlip flip 2");
-			pItem.registerEntityModifier(new RotationModifier(1,180,0));
-			if(pItem instanceof IActionOnSceneListener)
-				((IActionOnSceneListener)pItem).onFlipCard(((CardSprite)pItem).getID(),CardSide.B);
+			onFlipModifier = new RotationModifier(1.0f,180,0,this);
+			pItem.registerEntityModifier(onFlipModifier);
 		}
+	}
+	protected void enableTouch(IEntity pItem){
+		Log.i(TAG,"\t Enable scene touch ");
+		if(pItem instanceof IActionOnSceneListener)
+			((IActionOnSceneListener)pItem).unLockTouch();
+	}
+	protected void disableTouch(IEntity pItem){
+		Log.i(TAG,"\t Disable scene touch ");
+		if(pItem instanceof IActionOnSceneListener)
+			((IActionOnSceneListener)pItem).lockTouch();
 	}
 
 }

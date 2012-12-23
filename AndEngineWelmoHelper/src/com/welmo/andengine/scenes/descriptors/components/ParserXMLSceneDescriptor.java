@@ -27,6 +27,7 @@ import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.I
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor.SpritesTypes;
 import com.welmo.andengine.scenes.descriptors.events.BasicModifierDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.ComponentModifierDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentModifierListDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ExecutionOrder;
@@ -293,7 +294,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		if(attr.getValue(ScnTags.S_A_TYPE)!=null){
 			switch(SceneType.valueOf(attr.getValue(ScnTags.S_A_TYPE))){
 			case MEMORY:
-				pSceneDsc = ReadMemorySeceneDescriptor(new MemorySceneDescriptor(),attr);
+				pSceneDsc = readMemorySeceneDescriptor(new MemorySceneDescriptor(),attr);
 				pSceneDsc.setSceneType(SceneType.MEMORY);
 				break;
 			case DEFAULT:
@@ -309,13 +310,36 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		else{
 			pSceneDsc = ReadDefaultSceneDescriptor(new SceneDescriptor(),attr);
 		}
+		//Parse JSON strings
+		JSONObject jObject;
 		
+		//Parse phrases
+		if(attr.getValue(ScnTags.S_A_SCENE_PHRASES)!= null){
+			try {
+				jObject = new JSONObject(attr.getValue(ScnTags.S_A_SCENE_PHRASES));
+				
+				JSONArray names = jObject.names();
 
+				for (int indexI = 0; indexI < names.length(); indexI++){
+					JSONArray currentarray= jObject.getJSONArray(names.getString(indexI));
+					//create array will contians the phrase
+					String[] phrase = new String [currentarray.length()];
+					for(int indexJ=0; indexJ < currentarray.length(); indexJ++){
+						phrase[indexJ]= new String(currentarray.getString(indexJ));
+					}
+					this.pSceneDsc.getPhrasesMap().put(names.getString(indexI), phrase);
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		pSceneDescManager.addScene(pSceneDsc.sceneName, pSceneDsc);
 		return pSceneDsc;
 	}
 	
-	private MemorySceneDescriptor ReadMemorySeceneDescriptor(MemorySceneDescriptor pScene, Attributes attr){
+	private MemorySceneDescriptor readMemorySeceneDescriptor(MemorySceneDescriptor pScene, Attributes attr){
 		
 		// Read default values
 		ReadDefaultSceneDescriptor(pScene,attr);
@@ -325,7 +349,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		
 		
 		if(attr.getValue(ScnTags.S_A_MAX_LEVELS)!= null)
-			pScene.setMaxLevelAllowed(Integer.parseInt(attr.getValue(ScnTags.S_A_MAX_LEVELS)));
+			pScene.setMaxLevelAllowed(GameLevel.valueOf(attr.getValue(ScnTags.S_A_MAX_LEVELS)));
 		if(attr.getValue(ScnTags.S_A_TOPBOTTOMBORDER)!= null)
 			pScene.setTopBottomBorder(Integer.parseInt(attr.getValue(ScnTags.S_A_TOPBOTTOMBORDER)));
 		if(attr.getValue(ScnTags.S_A_LEFTRIGHTBORDER)!= null)
@@ -358,8 +382,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 				jObject = new JSONObject(attr.getValue(ScnTags.S_A_GEOMETRY));
 				JSONArray geometries = jObject.getJSONArray(ScnTags.S_A_GEOMETRY);
 
-				if(pScene.getMaxLevelAllowed() > geometries.length())
-					pScene.setMaxLevelAllowed(geometries.length());
+				if((pScene.getMaxLevelAllowed()).ordinal() > geometries.length())
+					pScene.setMaxLevelAllowed(GameLevel.fromOrdinal(geometries.length()));
 
 				//create array will contians the geometry
 				int[][] geometryArray = new int[geometries.length()][MemorySceneDescriptor.GEOMETRY_DSC_NBCOL];
@@ -387,6 +411,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 				//parse the array
 				for (int i=0; i<mapOfTiles.length(); i++){
 					JSONArray currLine = (JSONArray)mapOfTiles.get(i);
+					
 					//create a sprite descriptor
 					SpriteObjectDescriptor oCardDsc  = new SpriteObjectDescriptor();
 					oCardDsc.setClassName("com.welmo.andengine.scenes.components.CardSprite");
@@ -398,21 +423,39 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 					oCardDsc.getIPosition().setY(0);
 					oCardDsc.getIPosition().setZorder(0);
 					oCardDsc.textureName = new String(resourceName);
+					oCardDsc.setSoundName(currLine.getString(3));
 					oCardDsc.setType(SpritesTypes.CLICKABLE);
 					pScene.pChild.add(oCardDsc);
+	
+					ComponentEventHandlerDescriptor pNewEvent = new ComponentEventHandlerDescriptor();
 					
-					//duplicate the sprite descriptor (cards are always double)
-					SpriteObjectDescriptor oCardDscII  = new SpriteObjectDescriptor();
-					oCardDscII.copyFrom(oCardDsc);
-					oCardDscII.ID = oCardDsc.ID + pScene.getMaxNbOfSymbols();
-					pScene.pChild.add(oCardDscII);
-					/*
-					<event_handler ID ="1000" event="ON_CLICK">
-						<pre_mod_action ID="1" type="FLIP"/>
-						<pre_mod_action ID="2"  type="PLAY_SOUND" resourceName="b"/> 
-					</event_handler>
-					</sprite>*/
+					//create card event actions & modifiers
+					pNewEvent.event = Events.ON_CLICK;
+					pNewEvent.setID(0);
 					
+					//flip action 
+					SceneActions action1 = new SceneActions();
+					//Disable
+					action1.type = ActionType.DISABLE_SCENE_TOUCH;
+					pNewEvent.preModAction.add(action1);
+					//Flip
+					SceneActions action2 = new SceneActions();
+					action2.type = ActionType.FLIP;
+					pNewEvent.preModAction.add(action2);
+
+					//sound on going  
+					SceneActions action3 = new SceneActions();
+					action3.type = ActionType.PLAY_SOUND;
+					action3.resourceName = currLine.getString(3);
+					pNewEvent.preModAction.add(action3);
+					
+					//Disable
+					SceneActions action4 = new SceneActions();
+					action4.type = ActionType.ENABLE_SCENE_TOUCH;
+					pNewEvent.postModAction.add(action4);
+				
+					oCardDsc.pEventHandlerList.put(pNewEvent.event, pNewEvent);
+					//oCardDscII.pEventHandlerList.put(pNewEvent.event, pNewEvent);
 						    
 				}
 				pScene.setMemoryMapOfCardsTiles(mapOfCardTiles);
@@ -527,10 +570,6 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			pDescriptor.setCloneID(Integer.parseInt(attributes.getValue(ScnTags.S_A_CLONEID)));
 		
 		pDescriptor.event=ComponentEventHandlerDescriptor.Events.valueOf(attributes.getValue(ScnTags.S_A_EVENT));
-		Log.i(TAG,"\t\t readSpriteDescription " + attributes.getValue(ScnTags.S_A_EVENT));
-		//pDescriptor.enExecOrder=ExecutionOrder.valueOf(attributes.getValue(ScnTags.S_A_EXECUTION_ORDER));
-		//pDescriptor.ID=Integer.parseInt(attributes.getValue(ScnTags.S_A_ID));
-		Log.i(TAG,"\t\t readSpriteDescription " + attributes.getValue(ScnTags.S_A_ID));
 		return pDescriptor;
 	}
 	private ComponentModifierDescriptor readComponentModifierDescriptor(Attributes attributes){

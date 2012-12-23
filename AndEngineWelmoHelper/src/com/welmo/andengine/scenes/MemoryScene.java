@@ -1,9 +1,17 @@
 package com.welmo.andengine.scenes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+
+import org.andengine.audio.music.Music;
+import org.andengine.audio.sound.Sound;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.input.touch.TouchEvent;
+
+import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.managers.ResourcesManager.SoundContainer;
 import com.welmo.andengine.scenes.components.CardSprite;
 import com.welmo.andengine.scenes.components.ComponentDefaultEventHandler;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
@@ -13,6 +21,9 @@ import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
+import com.welmo.andengine.utility.SoundSequence;
+import com.welmo.andengine.utility.SoundTaskPoolSequence;
+
 import android.util.Log;
 
 public class MemoryScene extends ManageableScene {
@@ -29,10 +40,10 @@ public class MemoryScene extends ManageableScene {
 	// Game configuration
 	// -----------------------------------------------------------
 	// Structure of memory grid (default)
-	protected int[][]			memoryStructure = {{0,3,5,7},{1,3,6,8},{2,5,8,18},{3,6,10,30}};
+	protected int[][]						memoryStructure = {{0,3,5,7},{1,3,6,8},{2,5,8,18},{3,6,10,30}};
 	// -----------------------------------------------------------
 	// Card Deck characteristic
-	protected int							nMaxLevelAllowed 	= MemorySceneDescriptor.EASY;
+	protected GameLevel						nMaxLevelAllowed 	= GameLevel.EASY;
 	protected int							nMaxNbOfSymbols 	= 30;
 	protected int							nTopBottomBorder 	= 40;
 	protected int							nLeftRightBorder 	= 40;
@@ -43,27 +54,26 @@ public class MemoryScene extends ManageableScene {
 	
 	// ===========================================================
 	// Dinamic variables
+	// Manage Cards
 	protected int							nNbOfCardsLastLine;
-	protected ArrayList<Integer>			memoryDeck = null;
-	protected ArrayList<Integer>			alSymbolIDList = null;
+	protected ArrayList<Integer>			memoryDeck 			= null;		//contains the current deck of cards
+	protected ArrayList<Integer>			alSymbolIDList		= null;		//contains all available symbols to buld the deck
+	protected HashMap<Integer,IEntity>		allCards;					//Map of Cards 
+	
 	//Table geometry in pixel
 	protected int							nNbOfCards;	
-	protected int							nMemoryLevel 		= MemorySceneDescriptor.EASY;
+	protected GameLevel						nMemoryLevel 		= GameLevel.EASY;
 	protected int							nDeltaBorderX		= 0;
 	protected int							nDeltaBorderY		= 0;
 	//Card Dimension
 	protected int							nCardWidth			= 0;
 	protected int							nCardHeight			= 0;
 	
-	//Card ArrayList
-	protected ArrayList<IEntity>			allCards;
-	
 	//GameStatus
-	protected int 							nStatus					= STAUS_NOSELCTION;
-	public static final int 				STAUS_NOSELCTION		= 1;
-	public static final int 				STAUS_ONE_CARD_SELECTED	= 2;
-	public static final int 				STAUS_TWO_CARD_SELECTED	= 3;
-	protected boolean 						disableEvent			= false;
+	protected int 							nStatus					= STATUS_NOSELCTION;
+	public static final int 				STATUS_NOSELCTION		= 1;
+	public static final int 				STATUS_ONE_CARD_SELECTED= 2;
+	public static final int 				STATUS_TWO_CARD_SELECTED= 3;
 	
 	protected int							nFistCard			= -1; // if no card is selected
 	protected int							nSecondCard			= -1;
@@ -79,16 +89,11 @@ public class MemoryScene extends ManageableScene {
 		super();
 		Log.i(TAG,"Default Constructor");
 		//create the symbol list
-		allCards		= new ArrayList<IEntity>();
+		allCards		= new HashMap<Integer,IEntity>();
 		alSymbolIDList 	= new ArrayList<Integer>();
 		memoryDeck 		= new ArrayList<Integer>();
 		nNbOfCards	= 0;
-		nMaxNbOfSymbols = 30;
-		for(int i = 0; i < nMaxNbOfSymbols; i++)
-		{
-			alSymbolIDList.add(i);
-		}
-		InitCardDeck();
+		nMaxNbOfSymbols = 0;
 	}
 
 	// ===========================================================
@@ -110,6 +115,13 @@ public class MemoryScene extends ManageableScene {
 		memoryStructure 	= pdsc.getMemoryStructure();
 	}
 	
+	protected void ResetSymbolList(){
+		alSymbolIDList.clear();
+		for(int i = 0; i < nMaxNbOfSymbols; i++)
+		{
+			alSymbolIDList.add(i);
+		}
+	}
 	/**
 	 * InitCardDeck: 	create a memory deck containing 2 equal card per available symbol. 
 	 * 					Shuffle the memory deck
@@ -117,32 +129,44 @@ public class MemoryScene extends ManageableScene {
 	 */
 	protected void InitCardDeck(){
 		Log.i(TAG,"InitCardDeck");
+		
 		//shuffle the symbols to be used
 		java.util.Collections.shuffle(alSymbolIDList);
-		memoryDeck.clear();
-		//select only the first N symbols depending on memory level & add it to the card deck
+		
+		//select only the first N symbols depending on game level & add it to the card deck
 		//symbols are added two times
-		for (int i = 0; i < memoryStructure[nMemoryLevel][MemorySceneDescriptor.NB_SYMBOLS];  i++){
-			memoryDeck.add(alSymbolIDList.get(i));
-			memoryDeck.add(alSymbolIDList.get(i)+ nMaxNbOfSymbols);
+		memoryDeck.clear();
+		for (int i = 0; i < memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.NB_SYMBOLS];  i++){
+			memoryDeck.add(alSymbolIDList.get(i));					//Create element
+			memoryDeck.add(alSymbolIDList.get(i)+ nMaxNbOfSymbols); //Create element copy
 		}
-		nNbOfCards = 2*memoryStructure[nMemoryLevel][MemorySceneDescriptor.NB_SYMBOLS];
-		nNbOfCardsLastLine = nNbOfCards - ((memoryStructure[nMemoryLevel][MemorySceneDescriptor.HEIGHT]-1)
-				*memoryStructure[nMemoryLevel][MemorySceneDescriptor.WIDTH]);
 		
 		//shuffle the memory deck
 		java.util.Collections.shuffle(memoryDeck);
-			
+		
+		//reset the nb of cards
+		nNbOfCards = 2*memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.NB_SYMBOLS];
+		nNbOfCardsLastLine = nNbOfCards - ((memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.HEIGHT]-1)*memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.WIDTH]);
+		
 	}
+	/**
+	 * Reset the came using the same Game level and same symbol list
+	 */
 	protected void RestartGame(){
 		Log.i(TAG,"RestartGame");
-		InitCardDeck();
 		
-		//set all cards as not visible and unregister area touch
+		//reset game status
+		nStatus	= STATUS_NOSELCTION;
+		nLockTouch = 0;
+		
+		//set all cards as not visible and unregister all area touch
 		for (int i = 0; i < 2*nMaxNbOfSymbols; i++){
 			((CardSprite)allCards.get(i)).setVisible(false);
 			this.unregisterTouchArea((IAreaShape)allCards.get(i));
 		}
+		
+		//shuffle card and create a new deck of cards
+		InitCardDeck();
 		
 		//  set cards in current deck visible
 		//  register touch area & ensure orientation & side are 180° side B
@@ -151,11 +175,12 @@ public class MemoryScene extends ManageableScene {
 			tmpCard.setVisible(true);
 			tmpCard.setRotation(180);
 			tmpCard.setSideB();
-			this.registerTouchArea((IAreaShape)allCards.get(memoryDeck.get(i)));
+			this.registerTouchArea(tmpCard);
 		}
 		
-		int nRow = memoryStructure[nMemoryLevel][MemorySceneDescriptor.HEIGHT];
-		int nCol = memoryStructure[nMemoryLevel][MemorySceneDescriptor.WIDTH];
+		//Set position of cards in the screen
+		int nRow = memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.HEIGHT];
+		int nCol = memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.WIDTH];
 		
 		int px = 0;
 		int py = nTopBottomBorder + nDeltaBorderY/2;
@@ -192,9 +217,9 @@ public class MemoryScene extends ManageableScene {
 		
 		//calculate maximal width & height allowed by the geometry for a card
 		float cardMaxWidth = ((camera_width - 2*nLeftRightBorder
-				- nVIntraBorder*(memoryStructure[nMemoryLevel][MemorySceneDescriptor.WIDTH]-1) )/memoryStructure[nMemoryLevel][MemorySceneDescriptor.WIDTH]);
+				- nVIntraBorder*(memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.WIDTH]-1) )/memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.WIDTH]);
 		float cardMaxHeight = ((camera_height - 2*nTopBottomBorder 
-				- nHIntraBorder*(memoryStructure[nMemoryLevel][MemorySceneDescriptor.HEIGHT]-1))/memoryStructure[nMemoryLevel][MemorySceneDescriptor.HEIGHT]);
+				- nHIntraBorder*(memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.HEIGHT]-1))/memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.HEIGHT]);
 
 		Log.i(TAG,"Geometry cardMaxWidth, cardMaxHeight = " + cardMaxWidth + " " + cardMaxHeight );
 		
@@ -212,15 +237,43 @@ public class MemoryScene extends ManageableScene {
 		Log.i(TAG,"Cards Height & width = " + nCardHeight + " " + nCardWidth);
 		
 		//adjust border
-		nDeltaBorderX = (int)((camera_width - nLeftRightBorder*2  - nCardWidth *memoryStructure[nMemoryLevel][MemorySceneDescriptor.WIDTH] 
-				- (nVIntraBorder*(memoryStructure[nMemoryLevel][MemorySceneDescriptor.WIDTH] -1)))/(memoryStructure[nMemoryLevel][MemorySceneDescriptor.WIDTH]));
+		nDeltaBorderX = (int)((camera_width - nLeftRightBorder*2  - nCardWidth *memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.WIDTH] 
+				- (nVIntraBorder*(memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.WIDTH] -1)))/(memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.WIDTH]));
 		
-		nDeltaBorderY = (int)((camera_height - nTopBottomBorder*2 - nCardHeight*memoryStructure[nMemoryLevel][MemorySceneDescriptor.HEIGHT] 
-				- (nHIntraBorder*(memoryStructure[nMemoryLevel][MemorySceneDescriptor.HEIGHT] -1)))/(memoryStructure[nMemoryLevel][MemorySceneDescriptor.HEIGHT]));
+		nDeltaBorderY = (int)((camera_height - nTopBottomBorder*2 - nCardHeight*memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.HEIGHT] 
+				- (nHIntraBorder*(memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.HEIGHT] -1)))/(memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.HEIGHT]));
 		
 		Log.i(TAG,"Border Delta X & DealtY = " + nDeltaBorderX + " " + nDeltaBorderY);
 		
-	}		
+	}	
+	
+	void InitializeEventHandler(){
+
+		//initialize Scene Event Handlers
+		for (ComponentEventHandlerDescriptor ehDsc:pSCDescriptor.pGlobalEventHandlerList){
+			ComponentDefaultEventHandler newEventHandler= new ComponentDefaultEventHandler();
+			newEventHandler.setUpEventsHandler(ehDsc);
+			this.hmEventHandlers.put(ehDsc.getID(), newEventHandler);
+		}
+	}
+
+	void InitializeCards(){
+
+			for(BasicDescriptor scObjDsc:pSCDescriptor.pChild){
+				//reset dimension to fit memory layout
+				if(scObjDsc instanceof SpriteObjectDescriptor){
+					((SpriteObjectDescriptor) scObjDsc).getIDimension().setHeight(nCardHeight);
+					((SpriteObjectDescriptor) scObjDsc).getIDimension().setWidth(nCardWidth);
+				}
+				IEntity newEntity = loadComponent(scObjDsc, this);
+				if(newEntity instanceof CardSprite){
+					allCards.put(((CardSprite) newEntity).getID(),newEntity);
+					((CardSprite) newEntity).setSidesTiles(((SpriteObjectDescriptor) scObjDsc).getSidesA(),((SpriteObjectDescriptor) scObjDsc).getSidesB());	
+				
+				}
+			}
+	}
+			
 	// ===========================================================
 	// Interfaces & Superclass
 	// ===========================================================
@@ -228,132 +281,145 @@ public class MemoryScene extends ManageableScene {
 	public void loadScene(SceneDescriptor sceneDescriptor) {
 		
 		configureMemory((MemorySceneDescriptor)sceneDescriptor);
-		nMemoryLevel = GameDifficultConvertInt(sceneDescriptor.getGameLevel());
+		nMemoryLevel = sceneDescriptor.getGameLevel();
 		pSCDescriptor = sceneDescriptor;
-
+				
 		//Clear the scene
 		ClearScene();
 		
+		//Reset symbol list
+		ResetSymbolList();
+		
+		//Init Card Deck
+		InitCardDeck();
+				
 		//reset geometry
 		ResetGeometry();
+				
+		//Create Event Handlers
+		InitializeEventHandler();
 		
-		//initialize Event Handlers
-		for (ComponentEventHandlerDescriptor ehDsc:pSCDescriptor.pGlobalEventHandlerList){
-			ComponentDefaultEventHandler newEventHandler= new ComponentDefaultEventHandler();
-			newEventHandler.setUpEventsHandler(ehDsc);
-			this.hmEventHandlers.put(ehDsc.getID(), newEventHandler);
-		}
-
-		//initialize Objects
-		for(BasicDescriptor scObjDsc:pSCDescriptor.pChild){
-			
-			//reset dimension to fit memory layout
-			if(scObjDsc instanceof SpriteObjectDescriptor){
-				((SpriteObjectDescriptor) scObjDsc).getIDimension().setHeight(nCardHeight);
-				((SpriteObjectDescriptor) scObjDsc).getIDimension().setWidth(nCardWidth);
-			}
-			IEntity newEntity = loadComponent(scObjDsc, this);
-			if(newEntity instanceof CardSprite)
-				allCards.add(newEntity);
-		}
+		//Create All card sprites
+		InitializeCards();
 		
-		//Init simbot of cards
-		for (int i = 0; i < nMaxNbOfSymbols; i++){
-			((CardSprite)allCards.get(i)).setSidesTiles(i, nMaxNbOfSymbols);
-			((CardSprite)allCards.get(i)).setSideB();
-			((CardSprite)allCards.get(i)).setID(i);
-			((CardSprite)allCards.get(i+nMaxNbOfSymbols)).setSidesTiles(i, nMaxNbOfSymbols);
-			((CardSprite)allCards.get(i+nMaxNbOfSymbols)).setSideB();
-			((CardSprite)allCards.get(i+nMaxNbOfSymbols)).setID(i+nMaxNbOfSymbols);
-		}
-
+		//Restart the Game
 		RestartGame();
+	
 		
-		//Enable audio option
-		mEngine.getEngineOptions().getAudioOptions().setNeedsMusic(true);
-		mEngine.getEngineOptions().getAudioOptions().setNeedsSound(true);
+		nStatus = this.STATUS_NOSELCTION;
+		loadScenePhrases(pSCDescriptor);
 	}
 	@Override
 	public void resetScene(){
 		Log.i(TAG,"resetScene");
+		super.resetScene();
+		RestartGame();
+		nStatus = this.STATUS_NOSELCTION;
+	}
+	public void resetScene(GameLevel newLevel){
+		Log.i(TAG,"resetScene with new game level = " + newLevel);
+		
+		super.resetScene();
+		this.pSCDescriptor.setGameLevel(newLevel); 		//change game level
+		this.nMemoryLevel = pSCDescriptor.getGameLevel();
+	
+		//loadScene(pSCDescriptor);	
+
+		//Clear the scene
+		ClearScene();
+
+		//Init Card Deck
+		InitCardDeck();
+
+		//reset geometry
+		ResetGeometry();
+
+		//Create Event Handlers
+		InitializeEventHandler();
+
+		//Create All card sprites
+		InitializeCards();
+
+		//Restart the Game
 		RestartGame();
 	}
+
 	// ===========================================================
 	// Interface IOnActionSceneLeastener
 	@Override
-	public void onFlipCard(int CardID, CardSide CardSide){
+	public void onFlipCard(int CardID){
 		switch(nStatus){
-		case STAUS_NOSELCTION:
-			Log.i(TAG,"Current status = STAUS_NOSELCTION selected card" + CardID);
-			nStatus = STAUS_ONE_CARD_SELECTED;
+		case STATUS_NOSELCTION:
+			Log.i(TAG,"Current status = STAUS_NOSELCTION selected card" + CardID + "new STATU = STATUS_ONE_CARD_SELECTED");
+			nStatus = STATUS_ONE_CARD_SELECTED;
 			nFistCard = CardID;
 			break;
-		case STAUS_ONE_CARD_SELECTED:
+		case STATUS_ONE_CARD_SELECTED:
 			Log.i(TAG,"Current status = STAUS_ONE_CARD_SELECTED selected card" + CardID);
 			if(CardID != nFistCard){
-				nStatus = STAUS_NOSELCTION;
+				nStatus = STATUS_ONE_CARD_SELECTED;
 				nSecondCard = CardID;
 				CheckSelection();
 			}
+			else
+				nStatus = STATUS_NOSELCTION; 
 			break;
-		case STAUS_TWO_CARD_SELECTED:
+		case STATUS_TWO_CARD_SELECTED:
 			break;
 		
 		}
 	}
-
-	private void ClearScene(){
+	@Override
+	protected void ClearScene(){
 		//clear scene
-		this.clearTouchAreas();
-		//Detach child cards
-		for (int i=this.getChildCount() - 1;  i >= 0; i--){
-			IEntity tmpEntity = this.getChildByIndex(i);
-			if(tmpEntity != null)
-				this.detachChild(tmpEntity);
-		}
-		//clear event handler
-		this.hmEventHandlers.clear();
+		super.ClearScene();
 		//Clear all cards
 		allCards.clear();
 	}
 	private void CheckSelection(){
-		this.disableEvent = true;
-		this.mActivity.runOnUiThread(new Runnable(){ 
-			public void run(){
+		Log.i(TAG,"\t Disable scene touch ");
+		lockTouch();
+		
+		new Thread(new Runnable() {
+			public void run() {
 				try {
-					Thread.sleep(3000);
-					if (Math.abs(nFistCard - nSecondCard) == nMaxNbOfSymbols)
-						hideCards(Math.min(nFistCard,nSecondCard));
-					else{
-						((CardSprite)allCards.get(nFistCard)).setSideB();
-						((CardSprite)allCards.get(nFistCard)).setRotation(180);
-						((CardSprite)allCards.get(nSecondCard)).setSideB();
-						((CardSprite)allCards.get(nSecondCard)).setRotation(180);
-					}
-				} 
-				catch (InterruptedException e) {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					Log.i(TAG,"\t Enable scene touch ");
+					unLockTouch();
 					e.printStackTrace();
 				}
-				disableEvent = false; 
-				nStatus = STAUS_NOSELCTION;
-			}});
+				if (Math.abs(nFistCard - nSecondCard) == nMaxNbOfSymbols)
+					hideCards(Math.min(nFistCard,nSecondCard));
+				else{
+					((CardSprite)allCards.get(nFistCard)).setSideB();
+					((CardSprite)allCards.get(nFistCard)).setRotation(180);
+					((CardSprite)allCards.get(nSecondCard)).setSideB();
+					((CardSprite)allCards.get(nSecondCard)).setRotation(180);
+				}
+				nStatus = STATUS_NOSELCTION;
+				Log.i(TAG,"\t Enable scene touch ");
+				unLockTouch();
+			}
+		}).start();
 	}
 	protected void hideCards(int cardID) {
 		((CardSprite)allCards.get(cardID)).setVisible(false);
 		this.unregisterTouchArea((IAreaShape)allCards.get(cardID));
 		((CardSprite)allCards.get(cardID + nMaxNbOfSymbols)).setVisible(false);
 		this.unregisterTouchArea((IAreaShape)allCards.get(cardID +nMaxNbOfSymbols));
-	}
-
-	@Override
-	public boolean onSceneTouchEvent(TouchEvent pSceneTouchEvent) {
-		// TODO Auto-generated method stub
-		if(this.disableEvent){
-			return false;
-		}
-		else
-			return super.onSceneTouchEvent(pSceneTouchEvent);
 		
+		//Build Sound sequence
+		ResourcesManager rMgr = ResourcesManager.getInstance();
+		SoundSequence sequence = this.mapOfPhrases.get("twocardmathsphrase");
+		if(sequence != null){
+			sequence.getSequence()[sequence.getParameter(0)] = rMgr.getSound(((CardSprite)allCards.get(cardID)).getSoundName());
+			sequence.getSequence()[sequence.getParameter(1)]  =rMgr.getSound(((CardSprite)allCards.get(cardID + nMaxNbOfSymbols)).getSoundName());
+
+			SoundTaskPoolSequence playsequence = new SoundTaskPoolSequence();
+			playsequence.setup(sequence.getSequence());
+			playsequence.start();   
+		}
 	}
 	// ===========================================================		
 	// ===========================================================
@@ -361,37 +427,21 @@ public class MemoryScene extends ManageableScene {
 	// ===========================================================
 	public void changeDifficulty(GameLevel newLevel){
 		switch(newLevel){
-		case EASY: nMemoryLevel = MemorySceneDescriptor.EASY; break;
-		case MEDIUM: nMemoryLevel = MemorySceneDescriptor.MEDIUM; break;
-		case DIFFICULT: nMemoryLevel = MemorySceneDescriptor.DIFFICULT; break;
-		case HARD: nMemoryLevel = MemorySceneDescriptor.HARD; break;
-		default: nMemoryLevel = MemorySceneDescriptor.EASY; break;
+		case EASY: 
+			nMemoryLevel = GameLevel.EASY; 
+			break;
+		case MEDIUM:
+			nMemoryLevel = GameLevel.MEDIUM; 
+			break;
+		case DIFFICULT: 
+			nMemoryLevel = GameLevel.DIFFICULT; 
+			break;
+		case HARD: 
+			nMemoryLevel = GameLevel.HARD; 
+			break;
+		default: 
+			nMemoryLevel = GameLevel.EASY; 
+			break;
 		}
-	}
-	
-	/**
-	 * Convert value of game level to correct value and limot it to max difficulty allowed
-	 * @param newLevel = the new level we want set up
-	 * @return the value in int limited to max level allowed
-	 */
-	private int GameDifficultConvertInt(GameLevel newLevel){
-		int newdifficulty = MemorySceneDescriptor.EASY;
-		switch(newLevel){
-		case EASY: newdifficulty = MemorySceneDescriptor.EASY; break;
-		case MEDIUM:newdifficulty = MemorySceneDescriptor.MEDIUM; break;
-		case DIFFICULT:newdifficulty = MemorySceneDescriptor.DIFFICULT; break;
-		case HARD:newdifficulty = MemorySceneDescriptor.HARD; break;
-		default:return MemorySceneDescriptor.EASY; 
-		}
-		if (newdifficulty > nMaxLevelAllowed)
-			newdifficulty = nMaxLevelAllowed;
-		return newdifficulty;
-	}
-	public void ReLoadScene(){
-		loadScene(this.pSCDescriptor);
-	}
-	public void ReLoadGame(GameLevel newLevel){
-		this.pSCDescriptor.setGameLevel(newLevel);
-		loadScene(this.pSCDescriptor);
 	}
 }

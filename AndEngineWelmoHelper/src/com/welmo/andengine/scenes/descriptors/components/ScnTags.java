@@ -76,6 +76,9 @@ public class ScnTags {
 	public final static String S_A_H_ALIGNEMENT 	= "h_alignment";
 	public final static String S_A_V_ALIGNEMENT 	= "v_alignment";
 	
+	//Duration
+	public final static String S_A_DURATION  		="duration";
+	
 	//event handler
 	public final static String S_A_TYPE_SET 		="typeSet";
 	public final static String S_A_EXECUTION_ORDER	="execution_order";
@@ -99,5 +102,5 @@ public class ScnTags {
 	public final static String S_A_RESOURCES		="resource";
 	public final static String S_A_MAPCARDTILES		="mapCardTiles";
 	public final static String S_A_MAPCARDSOUND  	="mapCardSound";
-
+	public final static String S_A_SCENE_PHRASES  	="phrases";
 }	
