@@ -58,8 +58,9 @@ public class SceneManager {
 		this.pSDM = pSDM;
 	}
 	
-	//crete scene and add to the map with name strSceneName
-	public void BuildScenes(String strSceneName, BaseGameActivity activity){
+	//create scene and add to the map with name strSceneName
+	//public void BuildScenes(String strSceneName, BaseGameActivity activity){
+	public void BuildScenes(String strSceneName){
 		if((mEngine == null) | (mContext == null)){ 
 			throw new NullPointerException("Scene Manager not initialized: mEngine &/or mContext are null"); 
 		}
@@ -99,6 +100,10 @@ public class SceneManager {
 
 	// Get the scene strSceneName
 	public Scene getScene(String strSceneName){
+		Scene theScene = (Scene)mapScenes.get(strSceneName);
+		if(theScene == null)
+			this.BuildScenes(strSceneName);
+		
 		return (Scene) mapScenes.get(strSceneName);
 	}
 

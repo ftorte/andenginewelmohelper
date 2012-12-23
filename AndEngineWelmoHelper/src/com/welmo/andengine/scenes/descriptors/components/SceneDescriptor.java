@@ -1,5 +1,6 @@
 package com.welmo.andengine.scenes.descriptors.components;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import com.welmo.andengine.scenes.descriptors.SceneType;
@@ -13,9 +14,17 @@ public class SceneDescriptor extends BasicObjectDescriptor {
 	// ===========================================================
 	// Member Variables
 	// ===========================================================
-	String 		sceneName="";
-	String 		sceneFather="";
-	GameLevel	gameLevel=GameLevel.EASY;
+	protected String 					sceneName="";
+	protected String 					sceneFather="";
+	protected GameLevel					gameLevel=GameLevel.EASY;
+	protected HashMap<String,String[]> 	phrasesMap;
+	
+	public HashMap<String, String[]> getPhrasesMap() {
+		return phrasesMap;
+	}
+	public void setPhrasesMap(HashMap<String, String[]> phrasesMap) {
+		this.phrasesMap = phrasesMap;
+	}
 	protected SceneType	sceneType=SceneType.DEFAULT;
 	
 	public SceneType getSceneType() {
@@ -47,6 +56,7 @@ public class SceneDescriptor extends BasicObjectDescriptor {
 	@SuppressWarnings("static-access")
 	public SceneDescriptor() {
 		pGlobalEventHandlerList = new LinkedList<ComponentEventHandlerDescriptor> ();
+		phrasesMap				= new HashMap<String,String[]>();
 	}
 	public GameLevel getGameLevel() {
 		return gameLevel;

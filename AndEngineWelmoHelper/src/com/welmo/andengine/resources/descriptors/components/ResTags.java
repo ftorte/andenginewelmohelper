@@ -35,6 +35,9 @@ public class ResTags {
 	public final static int R_A_POSITION_X_IDX			= 2;
 	public final static int R_A_POSITION_Y_IDX			= 3;
 	
+	public final static String R_A_DURATION  		="duration";
+	
+	
 	//--------------------------------------------------------
 	//Color resource
 	public final static String COLOR				= "color";

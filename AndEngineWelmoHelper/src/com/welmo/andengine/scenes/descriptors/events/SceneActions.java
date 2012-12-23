@@ -11,7 +11,7 @@ public class SceneActions extends BasicModifierDescriptor{
 		// TODO Auto-generated constructor stub
 	}
 	public enum ActionType {
-		NO_ACTION, CHANGE_SCENE,STICK,PLAY_SOUND,PLAY_MUSIC,CHANGE_Z_ORDER,FLIP
+		NO_ACTION, CHANGE_SCENE,STICK,PLAY_SOUND,PLAY_MUSIC,CHANGE_Z_ORDER,FLIP,DISABLE_SCENE_TOUCH,ENABLE_SCENE_TOUCH
 	}
 	public enum ActionMode {
 		NO_MODE, STICK_MERGE, 

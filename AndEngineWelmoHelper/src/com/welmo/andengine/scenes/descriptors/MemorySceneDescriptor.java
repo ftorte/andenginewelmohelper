@@ -1,5 +1,6 @@
 package com.welmo.andengine.scenes.descriptors;
 
+import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.SceneDescriptor;
 
 public class MemorySceneDescriptor extends SceneDescriptor{
@@ -7,10 +8,10 @@ public class MemorySceneDescriptor extends SceneDescriptor{
 	//  ========================================================
 	//  Value of difficulties (are row index in memoryeStructure}
 	//  =========================================================		
-	public static final int 				EASY 		= 0;
-	public static final int 				MEDIUM 		= 1;
-	public static final int 				DIFFICULT 	= 2;
-	public static final int 				HARD 		= 3;
+	//public static final int 				EASY 		= 0;
+	//public static final int 				MEDIUM 		= 1;
+	//public static final int 				DIFFICULT 	= 2;
+	//public static final int 				HARD 		= 3;
 	//Value of parameter (are column index in memoryeStructure}
 	public static final int 				DIFFICULTY 	= 0;
 	public static final int 				HEIGHT 		= 1;
@@ -18,17 +19,17 @@ public class MemorySceneDescriptor extends SceneDescriptor{
 	public static final int 				NB_SYMBOLS 	= 3;
 	public static final int					GEOMETRY_DSC_NBCOL = 4;
 	
-	protected int	nMaxLevelAllowed;
-	protected int	nTopBottomBorder;
-	protected int	nLeftRightBorder;
-	protected int	nVIntraBorder;
-	protected int	nHIntraBorder;
-	protected int	nStdCardHeight;
-	protected int	nStdCardWidth;
-	protected String resouceName;
-	protected int  	nMaxNbOfSymbols;
-	protected int[][]	memoryStructure = {{0,3,5,7},{1,2,4,4},{2,5,8,18},{3,6,10,30}};
-	protected int[][]	memoryMapOfCardsTiles;
+	protected GameLevel						nMaxLevelAllowed;
+	protected int							nTopBottomBorder;
+	protected int							nLeftRightBorder;
+	protected int							nVIntraBorder;
+	protected int							nHIntraBorder;
+	protected int							nStdCardHeight;
+	protected int							nStdCardWidth;
+	protected String 						resouceName;
+	protected int  							nMaxNbOfSymbols;
+	protected int[][]						memoryStructure = {{0,3,5,7},{1,2,4,4},{2,5,8,18},{3,6,10,30}};
+	protected int[][]						memoryMapOfCardsTiles;
 	
 	public int[][] getMemoryMapOfCardsTiles() {
 		return memoryMapOfCardsTiles;
@@ -55,7 +56,7 @@ public class MemorySceneDescriptor extends SceneDescriptor{
 	//  ========================================================
 	//  Getter & Setters
 	//  =========================================================	
-	public int getMaxLevelAllowed() {
+	public GameLevel getMaxLevelAllowed() {
 		return nMaxLevelAllowed;
 	}
 	public int getTopBottomBorder() {
@@ -81,7 +82,7 @@ public class MemorySceneDescriptor extends SceneDescriptor{
 	}
 	
 	
-	public void setMaxLevelAllowed(int nMaxLevelAllowed) {
+	public void setMaxLevelAllowed(GameLevel nMaxLevelAllowed) {
 		this.nMaxLevelAllowed = nMaxLevelAllowed;
 	}
 	public void setTopBottomBorder(int nTopBottomBorder) {
@@ -105,7 +106,7 @@ public class MemorySceneDescriptor extends SceneDescriptor{
 	
 	public MemorySceneDescriptor(){
 		//Default Values
-		nMaxLevelAllowed 	= HARD;
+		nMaxLevelAllowed 	= GameLevel.HARD;
 		nTopBottomBorder 	= 40;
 		nLeftRightBorder 	= 40;
 		nVIntraBorder 		= 10;

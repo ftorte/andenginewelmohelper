@@ -127,8 +127,16 @@ public class ClickableSprite extends Sprite implements IClickableSprite, IAction
 		
 	}
 	@Override
-	public void onFlipCard(int CardID, CardSide CardSide) {
+	public void onFlipCard(int CardID) {
 		// TODO Auto-generated method stub
 		
+	}
+	@Override
+	public void lockTouch() {
+		this.mActionListener.lockTouch();
+	}
+	@Override
+	public void unLockTouch() {
+		this.mActionListener.unLockTouch();
 	}
 }

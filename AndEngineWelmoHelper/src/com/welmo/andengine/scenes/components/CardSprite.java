@@ -55,6 +55,7 @@ public class CardSprite extends TiledSprite implements IClickableSprite, IAction
 	private IActionOnSceneListener   					mActionListener	= null;
 	private int 										nSideATileNb	= 0;
 	private int 										nSideBTileNb	= 0;
+	private String										sSoundNAme		= "";
 	
 
 	/*
@@ -108,6 +109,7 @@ public class CardSprite extends TiledSprite implements IClickableSprite, IAction
 			this.setColor(pRM.getColor(theColor));
 		
 		setSidesTiles(spDsc.getSidesA(), spDsc.getSidesB());
+		this.setSoundName(spDsc.getSoundName());
 	}
 	public void setSideA(){
 		setCurrentTileIndex(nSideATileNb);
@@ -165,9 +167,17 @@ public class CardSprite extends TiledSprite implements IClickableSprite, IAction
 
 	}
 	@Override
-	public void onFlipCard(int CardID, CardSide CardSide) {
-		this.mActionListener.onFlipCard(CardID,CardSide);	
+	public void onFlipCard(int CardID) {
+		this.mActionListener.onFlipCard(CardID);	
 	}	
+	@Override
+	public void lockTouch() {
+		this.mActionListener.lockTouch();
+	}
+	@Override
+	public void unLockTouch() {
+		this.mActionListener.unLockTouch();
+	}
 	// ===========================================================		
 	// ====== SuperClass methods ==== 	
 	@Override
@@ -229,6 +239,12 @@ public class CardSprite extends TiledSprite implements IClickableSprite, IAction
 			Log.i(TAG,"\t launch event handler trough object found");
 			handlerEvent.handleEvent(this);
 		}
+	}
+	public String getSoundName() {
+		return sSoundNAme;
+	}
+	public void setSoundName(String sSound) {
+		this.sSoundNAme = sSound;
 	}
 }
 

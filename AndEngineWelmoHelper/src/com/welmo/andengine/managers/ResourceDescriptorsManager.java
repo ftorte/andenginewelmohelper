@@ -4,6 +4,8 @@ package com.welmo.andengine.managers;
 
 import java.util.HashMap;
 
+import android.util.Log;
+
 import com.welmo.andengine.resources.descriptors.components.BuildableTextureDescriptor;
 import com.welmo.andengine.resources.descriptors.components.ColorDescriptor;
 import com.welmo.andengine.resources.descriptors.components.FontDescriptor;
@@ -19,6 +21,7 @@ import com.welmo.andengine.scenes.descriptors.components.SceneDescriptor;
 
 public class ResourceDescriptorsManager {
 		
+	private static final String TAG ="ResourceDescriptorsManager";
 	//--------------------------------------------------------
 	// Variables
 	//--------------------------------------------------------
@@ -187,6 +190,7 @@ public class ResourceDescriptorsManager {
 	public SoundDescriptor getSoundDescriptor(String name){
 		if (hmSoundDscMap == null)
 			throw new NullPointerException("ResurceDescriptorsManager not initialized correctly"); 
+		Log.d(TAG,"getSoundDescriptor : hasmaps size = " + hmSoundDscMap.size());
 		return hmSoundDscMap.get(name);
 	}
 }
