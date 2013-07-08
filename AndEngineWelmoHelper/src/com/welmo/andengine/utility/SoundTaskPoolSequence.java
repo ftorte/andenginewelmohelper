@@ -14,7 +14,8 @@ public class SoundTaskPoolSequence extends Thread
 {
 	private static String TAG="SoundTaskPoolSequence";
 	
-	protected SoundContainer[] params;
+	protected SoundContainer[] 	params;
+	protected ICallBack 		mCallBack;
 	
 	public SoundTaskPoolSequence(){
 		params=null;
@@ -22,9 +23,17 @@ public class SoundTaskPoolSequence extends Thread
 	public void setup(SoundContainer...sounds){
 		params = sounds;
 	}
+	public void setup(ICallBack CallBack,SoundContainer...sounds){
+		params = sounds;
+		if (CallBack instanceof ICallBack)
+			mCallBack = CallBack;
+	}
 	@Override
 	public void run(){
 		try {     
+			if (mCallBack instanceof ICallBack)
+				mCallBack.onPreExecution();
+			
 			if(params != null){
 				for(int index=0; index < params.length; index++){
 					//TODO add configurable management of volume
@@ -44,6 +53,10 @@ public class SoundTaskPoolSequence extends Thread
 					}
 				}
 			}
+			
+			if (mCallBack instanceof ICallBack)
+				mCallBack.onPostExecution();
+			
 		} catch (IllegalStateException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {

@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.andengine.engine.Engine;
+import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.LoopEntityModifier;
 import org.andengine.entity.modifier.CardinalSplineMoveModifier.CardinalSplineMoveModifierConfig;
@@ -29,15 +30,18 @@ import com.welmo.andengine.scenes.components.ClickableSprite;
 import com.welmo.andengine.scenes.components.ComponentDefaultEventHandler;
 import com.welmo.andengine.scenes.components.CompoundSprite;
 import com.welmo.andengine.scenes.components.IActionOnSceneListener;
-import com.welmo.andengine.scenes.components.IClickableSprite;
+import com.welmo.andengine.scenes.components.IClickable;
 import com.welmo.andengine.scenes.components.IComponentEventHandler;
+import com.welmo.andengine.scenes.components.PuzzleSprites;
 import com.welmo.andengine.scenes.components.Stick;
 import com.welmo.andengine.scenes.components.TextComponent;
+import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
@@ -135,6 +139,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		IEntity newEntity = null;
 		if(scObjDsc instanceof BackGroundObjectDescriptor){
 			this.setBackground(createBackground((BackGroundObjectDescriptor)scObjDsc));
+			//no childrens
 			return newEntity;
 		}
 		if(scObjDsc instanceof SpriteObjectDescriptor){
@@ -159,6 +164,9 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		}
 		if(scObjDsc instanceof TextObjectDescriptor){
 			newEntity = createText((TextObjectDescriptor)scObjDsc,pEntityFather);
+		}
+		if(scObjDsc instanceof PuzzleObjectDescriptor){
+			newEntity = createPuzzle((PuzzleObjectDescriptor)scObjDsc,pEntityFather);
 		}
 		//handle children
 		if(newEntity != null)
@@ -212,7 +220,17 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		mapOfObjects.put(spDsc.getID(), newCompound); 
 		return newCompound;
 	}
-	
+	protected IEntity createPuzzle(PuzzleObjectDescriptor spDsc,IEntity pEntityFather){
+		
+		IEntity newEntity = null;
+		PuzzleSprites puzzle= new PuzzleSprites();	
+		puzzle.setResourceName(spDsc.getTextureName());
+		puzzle.createPuzzle(this.mEngine, spDsc);
+		//mapOfObjects.put(spDsc.getID(), (Entity) puzzle); 
+		newEntity=puzzle;
+		pEntityFather.attachChild(newEntity);
+		return newEntity;
+	}
 	// ===========================================================
 	// Create component Text
 	// ===========================================================
@@ -238,23 +256,23 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 			
 		//ClickableSprite newClickableSprite = new ClickableSprite (spDsc,pRM,mEngine);
 		
-		IClickableSprite newClickableSprite = null;
+		IClickable newClickableSprite = null;
 		String className = spDsc.getClassName();
 		try {
 			if(!className.equals("")){
 				// Get the class of className
-				Class classe = Class.forName (className);
+				Class<?> classe = Class.forName (className);
 				
 				// Get the constructor
-				Constructor constructor = 
+				Constructor<?> constructor = 
 						classe.getConstructor (new Class [] {Class.forName ("com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor"),
 								Class.forName ("com.welmo.andengine.managers.ResourcesManager"),
 								Class.forName ("org.andengine.engine.Engine")});
 				
 	
-				newClickableSprite = (IClickableSprite) constructor.newInstance (new Object [] {spDsc,pRM,mEngine});
+				newClickableSprite = (IClickable) constructor.newInstance (new Object [] {spDsc,pRM,mEngine});
 		}
-			else newClickableSprite = (IClickableSprite) new ClickableSprite (spDsc,pRM,mEngine);
+			else newClickableSprite = (IClickable) new ClickableSprite (spDsc,pRM,mEngine);
 				
 		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
@@ -313,30 +331,8 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		final AnimatedSprite animatedObject = new AnimatedSprite(100,100, 
 				pRM.getTiledTextureRegion(spDsc.getTextureName()), 
 				this.mEngine.getVertexBufferObjectManager());
-		
-		final Path path = new Path(5).to(10, 10).to(10, 480 - 74).to(800 - 58, 480 - 74).to(800 - 58, 10).to(10, 10);
 
-		/* Add the proper animation when a waypoint of the path is passed. */
-		CardinalSplineMoveModifierConfig splineModifierConfig= new CardinalSplineMoveModifierConfig(8,0.4f);
-		
-		splineModifierConfig.setControlPoint(0, 233f, 88f);
-		splineModifierConfig.setControlPoint(1, 182f, 238f);
-		splineModifierConfig.setControlPoint(2, 68f,  194f);
-		splineModifierConfig.setControlPoint(3, 109f, 376f);
-		splineModifierConfig.setControlPoint(4, 290f, 357f);
-		splineModifierConfig.setControlPoint(5, 346f, 141f);
-		splineModifierConfig.setControlPoint(6, 259f, 154f);
-		splineModifierConfig.setControlPoint(7, 233f, 88f);
-		
-		CardinalSplineMoveAndRotateModifier splineModifier = new CardinalSplineMoveAndRotateModifier(10,splineModifierConfig);
-		
-		splineModifier.pEngine = this.mEngine;
-		splineModifier.pScene = this;
-		
-		
-		animatedObject.registerEntityModifier(new LoopEntityModifier(splineModifier));
-		
-		animatedObject.animate(50);
+		animatedObject.animate(100);
 		return animatedObject;
 	}
 	public void init(Engine theEngine, Context ctx, BaseGameActivity activity) {
@@ -418,10 +414,8 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		return this.pSCDescriptor.getSceneFather();
 	}
 	@Override
-	public void onFlipCard(int CardID) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void onFlipCard(int CardID, CardSide currentSide) {
+	}	
 	@Override
 	public void lockTouch(){
 		nLockTouch++;

@@ -32,18 +32,22 @@ import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.IModifier.IModifierListener;
+import org.andengine.util.progress.IProgressListener;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SceneManager;
 import com.welmo.andengine.resources.descriptors.components.ParserXMLResourcesDescriptor;
 import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.MemoryScene;
+import com.welmo.andengine.scenes.ProgressDialogScene;
+import com.welmo.andengine.scenes.components.CardSprite;
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.ParserXMLSceneDescriptor;
 import com.welmo.andengine.utility.AsyncResourcesScenesLoader;
@@ -54,16 +58,25 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	private static final String TAG = "SplashScreen";
+	private static final String TAG = "SimpleWelmoActivity";
 
-	private static final int 		CAMERA_WIDTH = 800;
-	private static final int 		CAMERA_HEIGHT = 480;
+	//default values
+	//private static final int 		CAMERA_WIDTH 	= 800;
+	//private static final int 		CAMERA_HEIGHT 	= 480;
+	final String 					FONTHBASEPATH 	= "font/";
+	final String 					TEXTUREBASEPATH = "gfx/";
+	
+	private enum RESOURCETYPE{
+		TEXTURES, SOUNDS, MUSICS,TILEDTEXTURES,
+	}
 	// ===========================================================
 	// ===========================================================
 	// Fields
 	// ===========================================================	
 	BitmapTextureAtlas 	pTextureAtals;
 	ITextureRegion		pTextureRegion;
+	int 				nCameraWidth	= 800;
+	int					nCameraHeight 	= 480;
 	
 	// ===========================================================
 	// Fields
@@ -71,23 +84,46 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 	protected SceneManager 					mSceneManager;
 	protected ResourcesManager 				mResourceManager;
 	protected Camera 						mCamera;
+	protected IProgressListener 			progressDialog=null;
+	protected int							progressDone=0;
 	protected boolean						bIsOnBackgroundLoading=false;
 	
+	//field for the first scene displayed at the beginning
+	protected Scene							mFirstScene=null;
 	protected String						mFirstSceneName="";
+	protected int							mFirstSceneDuration=0;
+	
+	//field for the thanks scene displayed after the first scene
+	protected Scene							mThanksScene=null;
 	protected String						mThanksSceneName="";
+	protected int							mThanksSceneDuration=0;
+	
+	protected Scene							mLoadingScene=null;
 	protected String						mLoadingSceneName="";
+	
+	//field for the main scene displayed after the thank scene
 	protected String						mMainSceneName="";
 	protected String[]						mStartResourceDscFile=null;
 	protected String[]						mStartSceneDscFile=null;
 	
-
-	final String FONTHBASEPATH = "font/";
-	final String TEXTUREBASEPATH = "gfx/";
-	
 	// ===========================================================
-	// Configurables resources/scene file and lists
+	// Configures resources/scene file and lists
 	// ===========================================================
-
+	public void setStartResourceDscFiles(String strFileResouce){
+		mStartResourceDscFile 		= new String[1];
+		mStartResourceDscFile[0] 	= new String(strFileResouce);
+	}
+	public void setStartSceneDscFile(String strFileScenes){
+		mStartSceneDscFile 		= new String[1];
+		mStartSceneDscFile[0] 	= new String(strFileScenes);
+	}
+	public void setMainSceneName(String strMainScene){
+		mMainSceneName = new String(strMainScene);
+	}
+	public void setFirstSceneName(String firstScene){
+		this.mFirstSceneName 		= new String(firstScene);
+		
+	}
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -95,7 +131,18 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-
+	public int getCameraWidth() {
+		return nCameraWidth;
+	}
+	public void setCameraWidth(int nCameraWidth) {
+		this.nCameraWidth = nCameraWidth;
+	}
+	public int getCameraHeight() {
+		return nCameraHeight;
+	}
+	public void setCameraHeight(int nCameraHeight) {
+		this.nCameraHeight = nCameraHeight;
+	}
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
@@ -104,11 +151,13 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 	@Override
 	public EngineOptions onCreateEngineOptions() {
 		
-		this.mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
+		this.mCamera = new Camera(0, 0, nCameraWidth, nCameraHeight);
+		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, 
+				new RatioResolutionPolicy(nCameraWidth, nCameraHeight), mCamera);
 
-		//Enable audio option
+		//Enable Z depth to +- 1000px
 		mCamera.setZClippingPlanes(-1000, 1000);
+		//Enable audio option for both music and sound effects
 		engineOptions.getAudioOptions().setNeedsMusic(true);
 		engineOptions.getAudioOptions().setNeedsSound(true);
 		return engineOptions;
@@ -121,10 +170,21 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 		mResourceManager = ResourcesManager.getInstance();
 		mResourceManager.init(this, this.mEngine);
 
+		//read descriptors for the resources necessaries for the first scene, the thanks scene  
 		readResourceDescriptions(mStartResourceDscFile);
+		//read descriptors for the first scene and the thanks scene  
 		readScenesDescriptions(mStartSceneDscFile);		
 	}
 
+	public void gameToast(final String msg) {
+		this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(SimpleWelmoActivity.this, msg, Toast.LENGTH_SHORT).show();
+			}
+		});
+	}
+		    
 	@Override
 	public Scene onCreateScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
@@ -133,25 +193,51 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 		mSceneManager = new SceneManager(this);
 		mSceneManager.init(this.getEngine(), this);
 		
-		Scene sceneStart = null;
-		Scene thanksScene = null;
-		Scene loadingSecene = null;
+		//get the first scene
+		if((mFirstScene = mSceneManager.getScene(mFirstSceneName)) == null){
+			gameToast("Not Start Up Scene Created");
+			this.mFirstScene = new Scene();
+		}
 		
-		//Get default scenes 
-		if(mFirstSceneName.length() > 0){
-			sceneStart = mSceneManager.getScene(mFirstSceneName);
-		}
-		else{
-			sceneStart = new Scene();
-		}
-		if(mThanksSceneName.length() > 0){
-			thanksScene = mSceneManager.getScene(mThanksSceneName);
-		}
+		//get the thank scene
+		if(mThanksSceneName.length() > 0)
+			if((mThanksScene = mSceneManager.getScene(mThanksSceneName))== null){
+				gameToast("Wrong ThankScene Configuration");
+			}
+
 		if(mLoadingSceneName.length() > 0){
-			loadingSecene = mSceneManager.getScene(mLoadingSceneName);
+			this.mLoadingScene = mSceneManager.getScene(mLoadingSceneName);
+			if(mLoadingScene instanceof IProgressListener)
+				progressDialog = (IProgressListener)mLoadingScene;
 		}
 		
+		lauchResourceSceneBackGroundLoading();
 		
+		new Thread(new Runnable() {
+			public void run(){
+				try {
+					if(mFirstSceneDuration > 0) 
+						Thread.sleep(mFirstSceneDuration);
+
+					if(mThanksScene !=  null){
+						mEngine.setScene(mThanksScene);
+						Thread.sleep(mThanksSceneDuration);
+					}
+					if(mLoadingScene != null){
+						mEngine.setScene(mLoadingScene);
+						if(mLoadingScene instanceof IProgressListener)
+							progressDialog = (IProgressListener)mLoadingScene;
+
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+		
+		return mFirstScene;
+	}
+	private void lauchResourceSceneBackGroundLoading(){
 		IAsyncCallBack callback = new IAsyncCallBack() {
             @Override
             public void workToDo() {
@@ -175,16 +261,10 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
         AsyncResourcesScenesLoader loadingTask = new AsyncResourcesScenesLoader();
         loadingTask.setupTaskToLoadResource(callback);
         loadingTask.start();
-        
-		Log.i(TAG,"Load Splash Screen");
-        
-		return sceneStart;
-		
 	}
 
-
 	// ===========================================================
-	// Methods to overrides in child class
+	// Methods must be overrides in child classes
 	// ===========================================================
 	protected void onLoadResourcesDescriptionsInBackGround() 
 	{ 
@@ -215,6 +295,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 			xr.setContentHandler(resourceDescriptionHandler); 
 			if(filesNames != null){
 				for (String filename:filesNames ){
+					Log.i(TAG,"Read Resource Description => " + filename);
 					xr.parse(new InputSource(this.getAssets().open(filename))); 
 				}
 			}
@@ -238,6 +319,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 			xr.setContentHandler(resourceDescriptionHandler); 
 			if(filesNames != null){
 				for (String filename:filesNames ){
+					Log.i(TAG,"Read Scene Description => " + filename);
 					xr.parse(new InputSource(this.getAssets().open(filename))); 
 				}
 			}
@@ -249,32 +331,59 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 			Log.e("SAX XML", "sax parse io error", ioe); 
 		} 
 	}
-	protected final void loadScenes(String[] Scenes) {
+	protected final void loadScenes(String[] Scenes,int pctWorkLoad) {
 		for (String sceneName:Scenes ){
 			mSceneManager.BuildScenes(sceneName); 
 		}
 		Log.i(TAG,"Scenes Loaded");
 	}
 	
-	protected final void loadTextures(String[] textures) {
-		for (String textureRegionName:textures ){
-			mResourceManager.getTextureRegion(textureRegionName); 
+	
+	private final void loadResource(RESOURCETYPE type, String[] resources, int pctWorkLoad){
+		//if list is null make the progress = to pctWorkLoad
+		if(resources.length <= 0){
+			if(pctWorkLoad>0)
+				progressDone += pctWorkLoad;
+			
+			if(progressDialog != null)
+				progressDialog.onProgressChanged(pctWorkLoad);
+			
+			return;
 		}
+		for (String resourceName:resources ){
+			switch(type){
+			case TEXTURES: 
+				mResourceManager.getTextureRegion(resourceName); 
+				break;
+			case SOUNDS:
+				mResourceManager.getSound(resourceName); 
+				break;
+			case MUSICS:
+				mResourceManager.getMusic(resourceName);
+				break;
+			case TILEDTEXTURES:
+				mResourceManager.getTiledTextureRegion(resourceName); 
+				break;
+			default:
+				break;
+			}
+			progressDone += pctWorkLoad;
+			if(progressDialog != null)
+				progressDialog.onProgressChanged(progressDone);
+		}
+		
 	}
-	protected final void loadTiledTextures(String[] tiledTextures) {
-		for (String tiledTextureRegionName:tiledTextures ){
-			mResourceManager.getTiledTextureRegion(tiledTextureRegionName); 
-		}
+	protected final void loadTextures(String[] textures, int pctWorkLoad) { 
+		loadResource(RESOURCETYPE.TEXTURES, textures, pctWorkLoad);
 	}
-	protected final void loadSounds(String[] sounds) {
-		for (String soundName:sounds ){
-			mResourceManager.getSound(soundName); 
-		}
+	protected final void loadTiledTextures(String[] tiledTextures, int pctWorkLoad) {
+		loadResource(RESOURCETYPE.TILEDTEXTURES, tiledTextures, pctWorkLoad);
 	}
-	protected final void loadMusics(String[] musics) {
-		for (String musicName:musics ){
-			mResourceManager.getMusic(musicName); 
-		}
+	protected final void loadSounds(String[] sounds,int pctWorkLoad) {
+		loadResource(RESOURCETYPE.SOUNDS, sounds, pctWorkLoad);
+	}
+	protected final void loadMusics(String[] musics,int pctWorkLoad) {
+		loadResource(RESOURCETYPE.MUSICS, musics, pctWorkLoad);
 	}
 	
 	// ===========================================================

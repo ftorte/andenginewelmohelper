@@ -21,6 +21,7 @@ public class ScnTags {
 	public final static String S_COMPOUND_SPRITE 	= "compound_sprite";
 	public final static String S_TEXT 				= "text";
 	public final static String S_BACKGROUND 		= "background";
+	public final static String S_PUZZLE_SPRITE		= "puzzle_sprite";
 	
 	//Event handler
 	public final static String S_ACTION 			= "action";
@@ -103,4 +104,12 @@ public class ScnTags {
 	public final static String S_A_MAPCARDTILES		="mapCardTiles";
 	public final static String S_A_MAPCARDSOUND  	="mapCardSound";
 	public final static String S_A_SCENE_PHRASES  	="phrases";
+	public final static String S_A_FLIP_TIME  		="FlipTime";
+	public final static String S_A_WAIT_BACK_FLIP	="WaitBackFlip";
+	
+	//puzzles
+	public final static String S_A_NBCOLS			="nbOfColumns"; 
+	public final static String S_A_NBROWS			="nbOfRows";
+	
+	
 }	

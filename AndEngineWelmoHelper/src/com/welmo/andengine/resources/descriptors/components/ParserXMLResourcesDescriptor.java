@@ -133,6 +133,12 @@ public class ParserXMLResourcesDescriptor extends DefaultHandler {
 			pTextureRegionDsc.ID=0;
 			pTextureRegionDsc.Name = new String(attributes.getValue(ResTags.R_A_NAME));
 			pTextureRegionDsc.filename = new String(attributes.getValue(ResTags.R_A_FILE_NAME));
+		
+			//parse type
+			if(attributes.getValue(ResTags.R_A_TYPE) != null)
+					pTextureRegionDsc.type = TextureRegionDescriptor.TEXTURETYPE.valueOf(new String(attributes.getValue(ResTags.R_A_TYPE)));
+			
+			//parse geometry
 			pTextureRegionDsc.Parameters[ResTags.R_A_HEIGHT_IDX]=dimHelper.parsLenght(ScreenDimensionHelper.H,attributes.getValue(ResTags.R_A_HEIGHT));
 			pTextureRegionDsc.Parameters[ResTags.R_A_WIDTH_IDX]=dimHelper.parsLenght(ScreenDimensionHelper.W,attributes.getValue(ResTags.R_A_WIDTH));
 			pTextureRegionDsc.Parameters[ResTags.R_A_POSITION_X_IDX]=dimHelper.parsPosition(ScreenDimensionHelper.X,attributes.getValue(ResTags.R_A_POSITION_X));
@@ -140,7 +146,7 @@ public class ParserXMLResourcesDescriptor extends DefaultHandler {
 			pTextureRegionDsc.textureName = new String(pTextureDsc.Name);					//add parent texture name to textureregion descriptor
 			
 			pResDescManager.addTextureRegion(pTextureRegionDsc.Name, pTextureRegionDsc);	//add textureregion to maps or texture region
-			pTextureDsc.Regions.add(pTextureRegionDsc);										//add textureregion to list of region in parent texture
+			pTextureDsc.Regions.add(pTextureRegionDsc);	//add textureregion to list of region in parent texture
 			return;
 		}
 		

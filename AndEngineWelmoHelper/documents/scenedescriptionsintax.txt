@@ -1,0 +1,53 @@
+Scene Description  com.welmo.andengine.scenes.MemoryScene syntax explaination
+
+Example: 
+<scene name="MemoryWeekDays" type="MEMORY" sceneFather="Alphabeth"   class_name="com.welmo.andengine.scenes.MemoryScene"
+     maxLevels="EASY"
+     TopBottomBorder ="40" 
+     LeftRightBorder="40"
+     VIntraBorder="10"     
+     nHIntraBorder="10" 
+     StdCardHeight="252" 
+     StdCardWidth="240"
+     MaxNumberOfSymbols="7"      
+     resource="MemoryDaysRegion"   
+     FlipTime="100"
+     WaitBackFlip="1000"
+     geometry = "{ 'geometry': [[0,3,5,7],[1,3,5,7],[2,3,5,7],[3,3,5,7]]}"
+     mapCardTiles="{'mapCardTiles': [[0,0,14,'lun'],[1,2,14,'mar'],[2,4,14,'mer'],[3,6,14,'jeu'],[4,8,14,'ven'],[5,10,14,'sam'],
+                    [6,12,14,'dim'],[7,1,14,'mon'],[8,3,14,'tue'],[9,5,14,'wed'],[10,7,14,'thu'],[11,9,14,'fri'],
+                    [12,11,14,'sat'],[13,13,14,'sun']]}" 
+                    
+     phrases = "{'matchcards': ['bravo','%1','sedienanglais','#2000','%2'],
+                  'twocardmatch': ['bien','%1','sedienanglais','%2','bien','sedienanglais','#2000','bravo']}">
+                    
+     <background ID="1" type="COLOR" color="LightSalmon" ></background>
+  </scene>
+  
+  maxLevels => is the maximum level the memory cam can have. It can eccept 4 values 
+  	EASY, DEMIUM, DIFFICULT, HARD
+  
+  TopBottomBorder  => NB of pixel to the top and bottom borders that are left empty
+  
+  LeftRightBorder  => NB of pixel to the left & right borders that are left empty
+  
+  VIntraBorder="10"     
+  nHIntraBorder="10" 
+  StdCardHeight="252" 
+  StdCardWidth="240"
+  MaxNumberOfSymbols="7"
+  resource="MemoryDaysRegion"
+  FlipTime="100"
+  WaitBackFlip="1000"
+  
+  geometry = "{ 'geometry': [[0,3,5,7],[1,3,5,7],[2,3,5,7],[3,3,5,7]]}"
+  
+  mapCardTiles="{'mapCardTiles': [[0,0,14,'lun'],[1,2,14,'mar'],[2,4,14,'mer'],[3,6,14,'jeu'],[4,8,14,'ven'],[5,10,14,'sam'],
+                    [6,12,14,'dim'],[7,1,14,'mon'],[8,3,14,'tue'],[9,5,14,'wed'],[10,7,14,'thu'],[11,9,14,'fri'],
+                    [12,11,14,'sat'],[13,13,14,'sun']]}" 
+                    
+  phrases = "{'matchcards': ['bravo','%1','sedienanglais','#2000','%2'],
+                  'twocardmatch': ['bien','%1','sedienanglais','%2','bien','sedienanglais','#2000','bravo']}">
+                    
+     <background ID="1" type="COLOR" color="LightSalmon" ></background>
+  	

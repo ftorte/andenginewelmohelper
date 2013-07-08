@@ -50,23 +50,22 @@ public class ResourcesManager {
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	final static String TAG = "ResourcesManager";
+	final static String TAG 		= "ResourcesManager";
 	
-	final String FONTHBASEPATH = "font/";
-	final String TEXTUREBASEPATH = "gfx/";
-	final String MUSICBASEPATH	= "musics/";
-	final String SOUNDBASEPATH	= "sounds/";
+	final String FONTHBASEPATH 		= "font/";
+	final String TEXTUREBASEPATH 	= "gfx/";
+	final String MUSICBASEPATH		= "musics/";
+	final String SOUNDBASEPATH		= "sounds/";
 	
 	public enum SoundType { 
 		SOUND, PAUSE,
 	}
-
 	// ===========================================================
 	// Variables
 	// ===========================================================
 	Context mCtx;
-	Engine mEngine;
-	boolean initialized = false;
+	Engine 	mEngine;
+	boolean initialized 			= false;
 
 	private HashMap<String, Font> 							mapFonts;
 	private HashMap<String, ITextureRegion> 				mapTextureRegions;
@@ -117,9 +116,9 @@ public class ResourcesManager {
 		}
 	}
 	
-	//--------------------------------------------------------
+	// ===========================================================
 	// Constructors
-	//--------------------------------------------------------
+	// ===========================================================
 	private ResourcesManager(){
 		mapFonts = new HashMap<String, Font>();
 		mapTextureRegions = new HashMap<String, ITextureRegion>();
@@ -132,30 +131,12 @@ public class ResourcesManager {
 		initialized = false;
 	}
 	@method
-	public static ResourcesManager getInstance(){
+	public synchronized static ResourcesManager getInstance(){
 		if(mInstance == null)
 			mInstance = new  ResourcesManager();
 		return mInstance;
 	}
-		
-	// ===========================================================
-	public void PauseGame(){
-		Log.i(TAG, "PauseGame In");
-		for (SoundContainer value : mapSound.values()) {
-			if(!value.theSound.isReleased())
-				value.theSound.pause();
-				Log.i(TAG, "PauseGame In " + value.theSound.getSoundID());
-		}
-		mapSound.clear();
-		Log.i(TAG, "PauseGame Out");
-	}
-	public void ResumeGame(){
-		for (SoundContainer value : mapSound.values())
-				value.theSound.resume();
-	}
-	
-
-	public void init(Context ctx, Engine eng){
+	public synchronized void init(Context ctx, Engine eng){
 		//if init called for already initilized manager but with different context and engine throw an exception
 		if(initialized & (mCtx != ctx || mEngine!= eng)){ //if intiliazation called on onother conxtx
 			mapFonts.clear();
@@ -173,7 +154,7 @@ public class ResourcesManager {
 			BitmapTextureAtlasTextureRegionFactory.setAssetBasePath(TEXTUREBASEPATH);
 			MusicFactory.setAssetBasePath(MUSICBASEPATH);
 			SoundFactory.setAssetBasePath(SOUNDBASEPATH);
-			
+
 			//mCtx 	= ctx;
 			mCtx 	= ctx.getApplicationContext();
 			mEngine = eng;
@@ -181,46 +162,32 @@ public class ResourcesManager {
 		}	
 	}
 	
-	public void EngineLoadResources(Engine theEndgine){
+	// ===========================================================
+	// PAUSE & RESUME
+	// ===========================================================
+	public synchronized void PauseGame(){
+		Log.i(TAG, "PauseGame In");
+		for (SoundContainer value : mapSound.values()) {
+			if(!value.theSound.isReleased())
+				value.theSound.pause();
+				Log.i(TAG, "PauseGame In " + value.theSound.getSoundID());
+		}
+		mapSound.clear();
+		Log.i(TAG, "PauseGame Out");
+	}
+	public synchronized void ResumeGame(){
+		for (SoundContainer value : mapSound.values())
+				value.theSound.resume();
+	}
+	public synchronized void EngineLoadResources(Engine theEndgine){
 		TextureManager textureManager = theEndgine.getTextureManager();
 		for(String key:mapBitmapTexturesAtlas.keySet())
 			textureManager.loadTexture(mapBitmapTexturesAtlas.get(key));
 	}
-
-	public ITexture loadTexture(String textureName){
-		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
-		TextureDescriptor pTextRegDsc = pResDscMng.getTexture(textureName);
-
-		//check if texture already exists
-		if(mapBitmapTexturesAtlas.get(pTextRegDsc.Name)!=null)
-			throw new IllegalArgumentException("In LoadTexture: Tentative to load a texture already loaded");
-
-		//Create the texture
-		BitmapTextureAtlas pTextureAtlas = new BitmapTextureAtlas(mEngine.getTextureManager(), pTextRegDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTextRegDsc.Parameters[ResTags.R_A_HEIGHT_IDX], TextureOptions.BILINEAR);
-		mapBitmapTexturesAtlas.put(pTextRegDsc.Name,pTextureAtlas);
-
-		//iterate to all textureregion define in the texture
-		for (TextureRegionDescriptor pTRDsc:pTextRegDsc.Regions){	
-			
-			if(mapBitmapTexturesAtlas.get(pTRDsc.Name)!=null) // check that texture region is new
-				throw new IllegalArgumentException("In LoadTexture: Tentative to create a texture region that already exists ");
-
-			//Create texture region
-			mapTextureRegions.put(pTRDsc.Name, SVGBitmapTextureAtlasTextureRegionFactory.createFromAsset(pTextureAtlas, 
-					this.mCtx, pTRDsc.filename, pTRDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTRDsc.Parameters[ResTags.R_A_HEIGHT_IDX], 
-					pTRDsc.Parameters[ResTags.R_A_POSITION_X_IDX], pTRDsc.Parameters[ResTags.R_A_POSITION_Y_IDX]));
-		}
-				
-		
-		mEngine.getTextureManager().loadTexture(pTextureAtlas);
-		
-		//for(String key:mapBitmapTexturesAtlas.keySet())
-		//	textureManager.loadTexture(mapBitmapTexturesAtlas.get(key));
-	
-		return pTextureAtlas;
-	}
-	
-	public IFont loadFont(String fontName){
+	// =============================================================================
+	// FONT
+	// =============================================================================
+	public synchronized IFont loadFont(String fontName){
 		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
 		FontDescriptor pFontDsc = pResDscMng.getFont(fontName);
 		
@@ -246,9 +213,53 @@ public class ResourcesManager {
 		//return the new font just created
 		return newFont;
 	}
+	public IFont getFont(String fontName){
+		IFont theFont = mapFonts.get(fontName);
+		//if the texture region is not already loaded in the resource manager load it
+		if(theFont==null) 
+			theFont = loadFont(fontName);
+		//return the found or loaded texture region
+		return theFont;
+	}
+	// =============================================================================
+	// TEXTURE REGION
+	// =============================================================================
+	public synchronized ITexture loadTexture(String textureName){
+		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
+		TextureDescriptor pTextRegDsc = pResDscMng.getTextureDescriptor(textureName);
 
+		//check if texture already exists
+		if(mapBitmapTexturesAtlas.get(pTextRegDsc.Name)!=null)
+			throw new IllegalArgumentException("In LoadTexture: Tentative to load a texture already loaded");
 
-	public ITextureRegion loadTextureRegion(String textureRegionName){
+		//Create the texture
+		BitmapTextureAtlas pTextureAtlas = new BitmapTextureAtlas(mEngine.getTextureManager(), pTextRegDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTextRegDsc.Parameters[ResTags.R_A_HEIGHT_IDX], TextureOptions.BILINEAR);
+		mapBitmapTexturesAtlas.put(pTextRegDsc.Name,pTextureAtlas);
+
+		//iterate to all textureregion define in the texture
+		for (TextureRegionDescriptor pTRDsc:pTextRegDsc.Regions){	
+
+			if(mapBitmapTexturesAtlas.get(pTRDsc.Name)!=null) // check that texture region is new
+				throw new IllegalArgumentException("In LoadTexture: Tentative to create a texture region that already exists ");
+
+			switch(pTRDsc.type){
+			case SVG://Create texture region if SVG
+				mapTextureRegions.put(pTRDsc.Name, SVGBitmapTextureAtlasTextureRegionFactory.createFromAsset(pTextureAtlas, 
+						this.mCtx, pTRDsc.filename, pTRDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTRDsc.Parameters[ResTags.R_A_HEIGHT_IDX], 
+						pTRDsc.Parameters[ResTags.R_A_POSITION_X_IDX], pTRDsc.Parameters[ResTags.R_A_POSITION_Y_IDX]));
+				break;
+			case PNG://
+				mapTextureRegions.put(pTRDsc.Name, BitmapTextureAtlasTextureRegionFactory.createFromAsset(pTextureAtlas, 
+						this.mCtx, pTRDsc.filename,pTRDsc.Parameters[ResTags.R_A_POSITION_X_IDX], pTRDsc.Parameters[ResTags.R_A_POSITION_Y_IDX]));
+				break;
+			default:
+				break;
+			}
+		}
+		mEngine.getTextureManager().loadTexture(pTextureAtlas);		
+		return pTextureAtlas;
+	}
+	public synchronized ITextureRegion loadTextureRegion(String textureRegionName){
 		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
 		TextureRegionDescriptor pTextRegDsc = pResDscMng.getTextureRegion(textureRegionName);
 		if(pTextRegDsc == null)
@@ -260,7 +271,6 @@ public class ResourcesManager {
 		//return the texture region that has just been loaded
 		return mapTextureRegions.get(textureRegionName);
 	}
-	
 	public ITextureRegion getTextureRegion(String textureRegionName){
 		ITextureRegion theTexture = mapTextureRegions.get(textureRegionName);
 		//if the texture region is not already loaded in the resource manager load it
@@ -269,7 +279,11 @@ public class ResourcesManager {
 		//return the found or loaded texture region
 		return theTexture;
 	}
-	public Color loadColor(String colorName){
+	// =============================================================================
+	// COLOR
+	// =============================================================================
+	public synchronized Color loadColor(String colorName){
+		Log.i(TAG,"loadColor:" + colorName);
 		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
 		ColorDescriptor pColorDsc = pResDscMng.getColor(colorName);
 		
@@ -285,7 +299,6 @@ public class ResourcesManager {
 		//return the new font just created
 		return newColor;
 	}
-		
 	public Color getColor(String colorName){
 		Color theColor = mapColors.get(colorName);
 		//if the texture region is not already loaded in the resource manager load it
@@ -295,16 +308,10 @@ public class ResourcesManager {
 		return theColor;
 		
 	}
-	public IFont getFont(String fontName){
-		IFont theFont = mapFonts.get(fontName);
-		//if the texture region is not already loaded in the resource manager load it
-		if(theFont==null) 
-			theFont = loadFont(fontName);
-		//return the found or loaded texture region
-		return theFont;
-	}
-	
-	public ITexture loadBuildableTexture(String textureName){
+	// =============================================================================
+	// TILED TEXTURE REGION
+	// =============================================================================
+	public synchronized ITexture loadBuildableTexture(String textureName){
 		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
 		BuildableTextureDescriptor pTextRegDsc = pResDscMng.getBuildableTexture(textureName);
 	
@@ -336,9 +343,7 @@ public class ResourcesManager {
 		
 		return pBuildableTextureAtlas;
 	}
-	
-	
-	public ITiledTextureRegion loadTiledTextureRegion(String tiledTextureRegionName){
+	public synchronized ITiledTextureRegion loadTiledTextureRegion(String tiledTextureRegionName){
 		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
 		TiledTextureRegionDescriptor pTiledTextRegDsc = pResDscMng.getTiledTextureRegion(tiledTextureRegionName);
 		if(pTiledTextRegDsc == null)
@@ -350,7 +355,7 @@ public class ResourcesManager {
 		//return the texture region that has just been loaded
 		return mapTiledTextureRegions.get(tiledTextureRegionName);
 	}
-	public ITiledTextureRegion getTiledTextureRegion(String tiledTextureRegionName){
+	public synchronized ITiledTextureRegion getTiledTextureRegion(String tiledTextureRegionName){
 		ITiledTextureRegion theTiledTextureRegion = this.mapTiledTextureRegions.get(tiledTextureRegionName);
 		//if the texture region is not already loaded in the resource manager load it
 		if(theTiledTextureRegion==null) 
@@ -358,6 +363,9 @@ public class ResourcesManager {
 		//return the found or loaded texture region
 		return theTiledTextureRegion;
 	}
+	// =============================================================================
+	// MUSIC
+	// =============================================================================
 	public Music loadMusic(String musicName){
 		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
 		MusicDescriptor pMusicDsc = pResDscMng.getMusicDescriptor(musicName);
@@ -388,7 +396,10 @@ public class ResourcesManager {
 		//return the found or loaded texture region
 		return theMusic;
 	}
-	public SoundContainer loadSound(String soundName){
+	// =============================================================================
+	// SOUND
+	// =============================================================================
+	public synchronized SoundContainer loadSound(String soundName){
 		Log.d(TAG,"loadSound " + soundName);
 		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
 		SoundDescriptor pSoundDsc = pResDscMng.getSoundDescriptor(soundName);

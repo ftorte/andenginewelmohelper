@@ -9,7 +9,7 @@ import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 public interface IActionOnSceneListener {
 	public boolean onActionChangeScene(String nextSceneName); // Sprite call this interface to inform scene parentthat has been clicked
 	public void onStick(IAreaShape currentShapeToStick, SceneActions stickActionDescription);
-	public void onFlipCard(int CardID);
+	public void onFlipCard(int CardID, CardSide currentSide);
 	public void lockTouch();
 	public void unLockTouch();
 }

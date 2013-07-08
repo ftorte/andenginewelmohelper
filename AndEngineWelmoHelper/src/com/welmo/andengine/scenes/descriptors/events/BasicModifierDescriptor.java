@@ -13,7 +13,6 @@ public abstract class BasicModifierDescriptor {
 		public float getMoveFactor();
 		public int getStickFactor();
 		public String getSoundName();
-
 		public void setType(ModifierType m);
 		public void setScaleFactor(float sf);
 		public void setScaleBegin(float sf);
