@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 public class ComponentModifierDescriptor extends BasicModifierDescriptor{
 	public enum ModifierType {
-		NONE, MOVE, SCALE, CHANGE_COLOR,SOUND;
+		NONE, MOVE, SCALE, CHANGE_COLOR,SOUND,FOLLOW;
 	}	
 	
 	// ========================================================

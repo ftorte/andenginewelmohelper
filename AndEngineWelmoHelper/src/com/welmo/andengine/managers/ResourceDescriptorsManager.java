@@ -53,7 +53,7 @@ public class ResourceDescriptorsManager {
 		hmSoundDscMap = new HashMap<String,SoundDescriptor>();
 	}
 	@method
-	public static ResourceDescriptorsManager getInstance(){
+	public synchronized  static ResourceDescriptorsManager getInstance(){
 		if(mInstance == null)
 			mInstance = new  ResourceDescriptorsManager();
 		return mInstance;
@@ -67,13 +67,13 @@ public class ResourceDescriptorsManager {
 	//--------------------------------------------------------
 	@method
 	//Add a texture description to the texture descriptions list
-	public void addTexture(String name, TextureDescriptor texture){
+	public synchronized void addTexture(String name, TextureDescriptor texture){
 		if (hmTextureDscMap == null)
 			throw new NullPointerException("ResurceDescriptorsManager not initialized correctly"); 
 		hmTextureDscMap.put(name,texture);
 	}
 	@method
-	public TextureDescriptor getTexture(String name){
+	public TextureDescriptor getTextureDescriptor(String name){
 		if (hmTextureRegionDscMap == null)
 			throw new NullPointerException("ResurceDescriptorsManager not initialized correctly"); 
 		return hmTextureDscMap.get(name);
@@ -84,7 +84,7 @@ public class ResourceDescriptorsManager {
 	//--------------------------------------------------------
 	@method
 	//Add the description of a texture region to the texture region descriptions list
-	public void addTextureRegion(String name, TextureRegionDescriptor textureRegion){
+	public synchronized void addTextureRegion(String name, TextureRegionDescriptor textureRegion){
 		if (hmTextureRegionDscMap == null)
 			throw new NullPointerException("ResurceDescriptorsManager not initialized correctly"); 
 		hmTextureRegionDscMap.put(name,textureRegion);
@@ -100,7 +100,7 @@ public class ResourceDescriptorsManager {
 	//--------------------------------------------------------
 	@method
 	//Add the description of a scene descriptions list
-	public void addColor(String name, ColorDescriptor color){
+	public synchronized void addColor(String name, ColorDescriptor color){
 		if (hmColorDscMap == null)
 			throw new NullPointerException("ResurceDescriptorsManager not initialized correctly"); 
 		hmColorDscMap.put(name,color);
@@ -117,7 +117,7 @@ public class ResourceDescriptorsManager {
 	//--------------------------------------------------------
 	@method
 	//Add the description of a scene descriptions list
-	public void addFont(String name, FontDescriptor font){
+	public synchronized void addFont(String name, FontDescriptor font){
 		if (hmFontDscMap == null)
 			throw new NullPointerException("ResurceDescriptorsManager not initialized correctly"); 
 		hmFontDscMap.put(name,font);
@@ -135,7 +135,7 @@ public class ResourceDescriptorsManager {
 	//--------------------------------------------------------
 	@method
 	//Add a texture description to the texture descriptions list
-	public void addBuildableTexture(String name, BuildableTextureDescriptor texture){
+	public synchronized void addBuildableTexture(String name, BuildableTextureDescriptor texture){
 		if (hmBuildableTextureDscMap == null)
 			throw new NullPointerException("ResurceDescriptorsManager not initialized correctly"); 
 		hmBuildableTextureDscMap.put(name,texture);
@@ -152,7 +152,7 @@ public class ResourceDescriptorsManager {
 	//--------------------------------------------------------
 	@method
 	//Add the description of a texture region to the texture region descriptions list
-	public void addTiledTextureRegion(String name, TiledTextureRegionDescriptor textureRegion){
+	public synchronized void addTiledTextureRegion(String name, TiledTextureRegionDescriptor textureRegion){
 		if (hmTiledTextureRegionDscMap == null)
 			throw new NullPointerException("ResurceDescriptorsManager not initialized correctly"); 
 		hmTiledTextureRegionDscMap.put(name,textureRegion);
@@ -167,7 +167,7 @@ public class ResourceDescriptorsManager {
 	// MUSIC
 	//--------------------------------------------------------
 	//Add the description of a texture region to the texture region descriptions list
-	public void addMusicDescriptor(String name, MusicDescriptor musicDsc){
+	public synchronized void addMusicDescriptor(String name, MusicDescriptor musicDsc){
 		if (this.hmMusicDscMap == null)
 			throw new NullPointerException("ResurceDescriptorsManager not initialized correctly"); 
 		hmMusicDscMap.put(name,musicDsc);
@@ -181,7 +181,7 @@ public class ResourceDescriptorsManager {
 	//--------------------------------------------------------
 	// SOUND
 	//--------------------------------------------------------
-	public void addSoundDescriptor(String name, SoundDescriptor soundDsc){
+	public synchronized void addSoundDescriptor(String name, SoundDescriptor soundDsc){
 		if (this.hmSoundDscMap == null)
 			throw new NullPointerException("ResurceDescriptorsManager not initialized correctly"); 
 		hmSoundDscMap.put(name,soundDsc);

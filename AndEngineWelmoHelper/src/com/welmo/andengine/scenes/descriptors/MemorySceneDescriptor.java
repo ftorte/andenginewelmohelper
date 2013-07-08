@@ -8,16 +8,13 @@ public class MemorySceneDescriptor extends SceneDescriptor{
 	//  ========================================================
 	//  Value of difficulties (are row index in memoryeStructure}
 	//  =========================================================		
-	//public static final int 				EASY 		= 0;
-	//public static final int 				MEDIUM 		= 1;
-	//public static final int 				DIFFICULT 	= 2;
-	//public static final int 				HARD 		= 3;
 	//Value of parameter (are column index in memoryeStructure}
 	public static final int 				DIFFICULTY 	= 0;
 	public static final int 				HEIGHT 		= 1;
 	public static final int 				WIDTH 		= 2;
 	public static final int 				NB_SYMBOLS 	= 3;
 	public static final int					GEOMETRY_DSC_NBCOL = 4;
+	public static final int					DEFAULT_FLIP_TIME = 1000;
 	
 	protected GameLevel						nMaxLevelAllowed;
 	protected int							nTopBottomBorder;
@@ -29,8 +26,24 @@ public class MemorySceneDescriptor extends SceneDescriptor{
 	protected String 						resouceName;
 	protected int  							nMaxNbOfSymbols;
 	protected int[][]						memoryStructure = {{0,3,5,7},{1,2,4,4},{2,5,8,18},{3,6,10,30}};
-	protected int[][]						memoryMapOfCardsTiles;
 	
+
+	protected int[][]						memoryMapOfCardsTiles;
+	protected float							fFlipTime = DEFAULT_FLIP_TIME;
+	protected float							fWaitBackFlip=DEFAULT_FLIP_TIME;
+
+	public float getWaitBackFlip() {
+		return fWaitBackFlip;
+	}
+	public void setWaitBackFlip(float fWaitBackFlip) {
+		this.fWaitBackFlip = fWaitBackFlip;
+	}
+	public float getFlipTime() {
+		return fFlipTime;
+	}
+	public void setFlipTime(float fFlipTime) {
+		this.fFlipTime = fFlipTime;
+	}
 	public int[][] getMemoryMapOfCardsTiles() {
 		return memoryMapOfCardsTiles;
 	}

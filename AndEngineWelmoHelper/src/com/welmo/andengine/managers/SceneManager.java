@@ -40,7 +40,7 @@ public class SceneManager {
 
 	// ===========================================================
 
-	public void init(Engine eng, Context ctx){
+	public synchronized void init(Engine eng, Context ctx){
 		if(!initialized){
 			mEngine = eng;
 			mContext = ctx;
@@ -60,14 +60,14 @@ public class SceneManager {
 	
 	//create scene and add to the map with name strSceneName
 	//public void BuildScenes(String strSceneName, BaseGameActivity activity){
-	public void BuildScenes(String strSceneName){
+	public synchronized IManageableScene BuildScenes(String strSceneName){
 		if((mEngine == null) | (mContext == null)){ 
 			throw new NullPointerException("Scene Manager not initialized: mEngine &/or mContext are null"); 
 		}
 		
 		SceneDescriptor pSCDercriptor;
 		if((pSCDercriptor = pSDM.getScene(strSceneName))== null)
-			throw new NullPointerException("In BuildScenes: the scene: " + strSceneName + " don't exists");
+			return null;
 	
 		IManageableScene iManageableScene = null;
 		String className = pSCDercriptor.getClassName();
@@ -96,6 +96,7 @@ public class SceneManager {
 		else
 			throw new NullPointerException("In BuildScenes: the scene: " + strSceneName + " cannot being created");
 
+		return iManageableScene;
 	}
 
 	// Get the scene strSceneName
@@ -106,9 +107,8 @@ public class SceneManager {
 		
 		return (Scene) mapScenes.get(strSceneName);
 	}
-
 	// Get the scene strSceneName
-	public void addScene(String strSceneName, IManageableScene theScene){
+	public synchronized void addScene(String strSceneName, IManageableScene theScene){
 		mapScenes.put(strSceneName, theScene);
 	}
 }

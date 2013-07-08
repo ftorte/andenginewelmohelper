@@ -1,9 +1,12 @@
 package com.welmo.andengine.scenes.components;
 
+import java.util.HashMap;
+
 import org.andengine.engine.Engine;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
+import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.IFont;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
@@ -14,8 +17,12 @@ import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.Alignment;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.SceneActions;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
+import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
-public class TextComponent extends Text{
+public class TextComponent extends Text implements IBasicComponent, IClickable{
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -25,8 +32,9 @@ public class TextComponent extends Text{
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	private int nID											=-1;
+	protected DefaultIClickableImplementation 			mIClicakableImpmementation 	= null;
 
+		
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -35,12 +43,13 @@ public class TextComponent extends Text{
 			VertexBufferObjectManager pTextVertexBufferObject) {
 		super(pX, pY, pFont, pText, pTextOptions,
 				pTextVertexBufferObject);
-		// TODO Auto-generated constructor stub
+		init();
 	}
 	public TextComponent(TextObjectDescriptor pTXTDscf, ResourcesManager pRM, Engine theEngine,IAreaShape theFather){
 		super(0, 0, pRM.getFont(pTXTDscf.getFontName()), 
 				pTXTDscf.getMessage(), new TextOptions(HorizontalAlign.CENTER), 
 				theEngine.getVertexBufferObjectManager());
+		init();
 		configure(pTXTDscf);
 		if(theFather != null){
 			PositionHelper.align(pTXTDscf.getIPosition(), this, theFather);
@@ -51,14 +60,55 @@ public class TextComponent extends Text{
 		if(!colorName.equals(""))
 				this.setColor(pRM.getColor(colorName));
 	}
-	
+
+	// ===========================================================
+	// private member function
+	// ===========================================================	
+	protected void init(){
+		mIClicakableImpmementation =  new DefaultIClickableImplementation();
+		mIClicakableImpmementation.setParent(this);
+	}
+		
 	public void configure(TextObjectDescriptor spDsc){
-		nID = spDsc.getID();
+		setID(spDsc.getID()); 
 		/* Setup Rotation*/
 		setRotationCenter(getWidth()/2, getHeight()/2);
 		setRotation(spDsc.getIOriantation().getOrientation());
 		//set position			
 		setX(spDsc.getIPosition().getX());
 		setY(spDsc.getIPosition().getY());
+	}
+	@Override
+	public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+			float pTouchAreaLocalX, float pTouchAreaLocalY) {
+		return this.onTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+	}
+	// ===========================================================
+	// Interfaces & Superclass
+	// ===========================================================	
+	// ===========================================================		
+	// ====== IClickableSprite ==== 	
+	public void addEventsHandler(Events theEvent, IComponentEventHandler oCmpDefEventHandler){
+			mIClicakableImpmementation.addEventsHandler(theEvent, oCmpDefEventHandler);
+	}
+	public void setActionOnSceneListener(IActionOnSceneListener actionLeastner) {
+		mIClicakableImpmementation.setActionOnSceneListener(actionLeastner);
+	}
+	public IActionOnSceneListener getActionOnSceneListener(){
+		return mIClicakableImpmementation.getActionOnSceneListener();
+	}
+	public int getID() {
+		return mIClicakableImpmementation.getID();
+	}
+	public void setID(int ID) {
+		mIClicakableImpmementation.setID(ID);
+	}
+	public boolean onTouched(TouchEvent pSceneTouchEvent,
+			float pTouchAreaLocalX, float pTouchAreaLocalY) {
+		return mIClicakableImpmementation.onTouched(pSceneTouchEvent,pTouchAreaLocalX,pTouchAreaLocalY);
+	}
+	@Override
+	public void onFireEventAction(Events event, ActionType type) {
+		mIClicakableImpmementation.onFireEventAction(event, type);
 	}
 }

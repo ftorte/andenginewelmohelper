@@ -2,25 +2,24 @@ package com.welmo.andengine.scenes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-
-import org.andengine.audio.music.Music;
-import org.andengine.audio.sound.Sound;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.input.touch.TouchEvent;
 
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.managers.ResourcesManager.SoundContainer;
 import com.welmo.andengine.scenes.components.CardSprite;
 import com.welmo.andengine.scenes.components.ComponentDefaultEventHandler;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
+import com.welmo.andengine.scenes.components.IClickable;
 import com.welmo.andengine.scenes.descriptors.MemorySceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
+import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
+import com.welmo.andengine.utility.ICallBack;
 import com.welmo.andengine.utility.SoundSequence;
 import com.welmo.andengine.utility.SoundTaskPoolSequence;
 
@@ -68,6 +67,9 @@ public class MemoryScene extends ManageableScene {
 	//Card Dimension
 	protected int							nCardWidth			= 0;
 	protected int							nCardHeight			= 0;
+	protected float							fFlipTime			= MemorySceneDescriptor.DEFAULT_FLIP_TIME;
+	protected float							fWaitBackFlip		= MemorySceneDescriptor.DEFAULT_FLIP_TIME;
+	
 	
 	//GameStatus
 	protected int 							nStatus					= STATUS_NOSELCTION;
@@ -113,6 +115,8 @@ public class MemoryScene extends ManageableScene {
 		nStdCardWidth 		= pdsc.getStdCardWidth();
 		nMaxNbOfSymbols     = pdsc.getMaxNbOfSymbols();
 		memoryStructure 	= pdsc.getMemoryStructure();
+		fFlipTime			= pdsc.getFlipTime();
+		fWaitBackFlip		= pdsc.getWaitBackFlip();
 	}
 	
 	protected void ResetSymbolList(){
@@ -134,11 +138,11 @@ public class MemoryScene extends ManageableScene {
 		java.util.Collections.shuffle(alSymbolIDList);
 		
 		//select only the first N symbols depending on game level & add it to the card deck
-		//symbols are added two times
+		//symbols are added two times to take into account that there are two cards
 		memoryDeck.clear();
 		for (int i = 0; i < memoryStructure[nMemoryLevel.ordinal()][MemorySceneDescriptor.NB_SYMBOLS];  i++){
 			memoryDeck.add(alSymbolIDList.get(i));					//Create element
-			memoryDeck.add(alSymbolIDList.get(i)+ nMaxNbOfSymbols); //Create element copy
+			memoryDeck.add(alSymbolIDList.get(i)+ nMaxNbOfSymbols); //Create the element copy
 		}
 		
 		//shuffle the memory deck
@@ -173,7 +177,6 @@ public class MemoryScene extends ManageableScene {
 		for (int i=0; i < memoryDeck.size(); i++){
 			CardSprite tmpCard = (CardSprite)allCards.get(memoryDeck.get(i));
 			tmpCard.setVisible(true);
-			tmpCard.setRotation(180);
 			tmpCard.setSideB();
 			this.registerTouchArea(tmpCard);
 		}
@@ -272,6 +275,7 @@ public class MemoryScene extends ManageableScene {
 				
 				}
 			}
+			//TODO put code to check the if the allCads has less the 2*Number of max symbol exception
 	}
 			
 	// ===========================================================
@@ -347,26 +351,44 @@ public class MemoryScene extends ManageableScene {
 	// ===========================================================
 	// Interface IOnActionSceneLeastener
 	@Override
-	public void onFlipCard(int CardID){
+	public void onFlipCard(int CardID,CardSide CurrentSide){
 		switch(nStatus){
 		case STATUS_NOSELCTION:
-			Log.i(TAG,"Current status = STAUS_NOSELCTION selected card" + CardID + "new STATU = STATUS_ONE_CARD_SELECTED");
-			nStatus = STATUS_ONE_CARD_SELECTED;
-			nFistCard = CardID;
-			break;
-		case STATUS_ONE_CARD_SELECTED:
-			Log.i(TAG,"Current status = STAUS_ONE_CARD_SELECTED selected card" + CardID);
-			if(CardID != nFistCard){
+			if(CurrentSide == CardSide.A){
+				Log.i(TAG,"00:CS = NO-S => Card: " + CardID + "Side A");
+				nFistCard = CardID;												//register first card
+				this.unregisterTouchArea((IAreaShape)allCards.get(CardID));		//make its touch disabled
 				nStatus = STATUS_ONE_CARD_SELECTED;
-				nSecondCard = CardID;
-				CheckSelection();
+				Log.i(TAG,"01:NS = ONE-S");
 			}
 			else
-				nStatus = STATUS_NOSELCTION; 
+				Log.i(TAG,"02:CS = NO-S => Card: " + CardID + "Side B => do nothing");
+			break;
+		case STATUS_ONE_CARD_SELECTED:
+			if(CardID != nFistCard){ 
+				if(CurrentSide == CardSide.A){
+					Log.i(TAG,"03:CS = ONE-S => Card: " + CardID + "Side A");
+					nSecondCard = CardID;										//register first card
+					this.unregisterTouchArea((IAreaShape)allCards.get(CardID)); //make its touch disabled
+					CheckSelection();		
+				}
+				else
+					Log.i(TAG,"04:CS = ONE-S => Card: " + CardID + "Side B => do nothing");
+				//else do nothing since no new cards has been selected this should never happens
+			}
+			else{
+				if(CurrentSide == CardSide.B){
+					Log.i(TAG,"05:CS = ONE-S => Card: " + CardID + "Side B");
+					nStatus = STATUS_NOSELCTION;
+					Log.i(TAG,"06:NS = NO-S");
+				//else do nothing since it means I re-selected the first card this should not happen
+				}
+				else
+					Log.i(TAG,"05:CS = ONE-S => Card: " + CardID + "Side A => do nothing");	
+			}
 			break;
 		case STATUS_TWO_CARD_SELECTED:
 			break;
-		
 		}
 	}
 	@Override
@@ -377,29 +399,28 @@ public class MemoryScene extends ManageableScene {
 		allCards.clear();
 	}
 	private void CheckSelection(){
-		Log.i(TAG,"\t Disable scene touch ");
 		lockTouch();
 		
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					Thread.sleep(1000);
+					Thread.sleep((long)fWaitBackFlip);
 				} catch (InterruptedException e) {
-					Log.i(TAG,"\t Enable scene touch ");
 					unLockTouch();
 					e.printStackTrace();
 				}
 				if (Math.abs(nFistCard - nSecondCard) == nMaxNbOfSymbols)
 					hideCards(Math.min(nFistCard,nSecondCard));
 				else{
-					((CardSprite)allCards.get(nFistCard)).setSideB();
-					((CardSprite)allCards.get(nFistCard)).setRotation(180);
-					((CardSprite)allCards.get(nSecondCard)).setSideB();
-					((CardSprite)allCards.get(nSecondCard)).setRotation(180);
+					((IClickable)allCards.get(nFistCard)).onFireEventAction(Events.ON_CLICK, ActionType.FLIP);
+					registerTouchArea((IAreaShape)allCards.get(nFistCard));										//activate touch 
+					((IClickable)allCards.get(nSecondCard)).onFireEventAction(Events.ON_CLICK, ActionType.FLIP);
+					registerTouchArea((IAreaShape)allCards.get(nSecondCard));									//activate touch 
+					Log.i(TAG,"10:CS = TWO-S => Card1: " + nFistCard + "Card2:  " + nSecondCard);
+					unLockTouch();
+					nStatus = STATUS_NOSELCTION;
+					Log.i(TAG,"11:NS = NO-S");
 				}
-				nStatus = STATUS_NOSELCTION;
-				Log.i(TAG,"\t Enable scene touch ");
-				unLockTouch();
 			}
 		}).start();
 	}
@@ -411,13 +432,23 @@ public class MemoryScene extends ManageableScene {
 		
 		//Build Sound sequence
 		ResourcesManager rMgr = ResourcesManager.getInstance();
-		SoundSequence sequence = this.mapOfPhrases.get("twocardmathsphrase");
+		SoundSequence sequence = this.mapOfPhrases.get("twocardmatch");
 		if(sequence != null){
 			sequence.getSequence()[sequence.getParameter(0)] = rMgr.getSound(((CardSprite)allCards.get(cardID)).getSoundName());
 			sequence.getSequence()[sequence.getParameter(1)]  =rMgr.getSound(((CardSprite)allCards.get(cardID + nMaxNbOfSymbols)).getSoundName());
 
 			SoundTaskPoolSequence playsequence = new SoundTaskPoolSequence();
-			playsequence.setup(sequence.getSequence());
+			playsequence.setup(new ICallBack(){
+
+				@Override
+				public void onPreExecution(){
+				}
+
+				@Override
+				public void onPostExecution(){
+					unLockTouch();
+					nStatus = STATUS_NOSELCTION;
+				}},sequence.getSequence());
 			playsequence.start();   
 		}
 	}

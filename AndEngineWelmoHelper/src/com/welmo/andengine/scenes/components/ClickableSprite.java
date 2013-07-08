@@ -11,26 +11,23 @@ import android.util.Log;
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
-import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
+import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
-public class ClickableSprite extends Sprite implements IClickableSprite, IActionOnSceneListener{
-	// ===========================================================
+public class ClickableSprite extends Sprite implements IClickable, IActionOnSceneListener,IBasicComponent{
+	// ========================================================================
 	// Constants
-	// ===========================================================
+	// ========================================================================
 	//Log & Debug
-	private static final String TAG = "ClickableSprite";
-	// ===========================================================
+	private static final String 		TAG = "ClickableSprite";
+	// ========================================================================
 	// Fields
-	// ===========================================================
-	private IActionOnSceneListener   mActionListener		=null;
-	private int nID											=-1;
-	HashMap<Events,IComponentEventHandler> hmEventHandlers = null;
-	
-	// ===========================================================
+	// ========================================================================
+	DefaultIClickableImplementation 	mIClicakableImpmementation = null;
+	// ========================================================================
 	// Constructors
-	// ===========================================================
+	// ========================================================================
 	public ClickableSprite(SpriteObjectDescriptor pSPRDscf, ResourcesManager pRM, Engine theEngine){
 		super(pSPRDscf.getIPosition().getX(), pSPRDscf.getIPosition().getY(), 
 				pSPRDscf.getIDimension().getWidth(), pSPRDscf.getIDimension().getHeight(), 
@@ -43,7 +40,8 @@ public class ClickableSprite extends Sprite implements IClickableSprite, IAction
 	// private member function
 	// ===========================================================	
 	protected void init(){
-		hmEventHandlers			= new HashMap<Events,IComponentEventHandler>();
+		mIClicakableImpmementation =  new DefaultIClickableImplementation();
+		mIClicakableImpmementation.setParent(this);
 	}
 	// ===========================================================
 	// public member function
@@ -73,32 +71,7 @@ public class ClickableSprite extends Sprite implements IClickableSprite, IAction
 	@Override
 	public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 			float pTouchAreaLocalX, float pTouchAreaLocalY) {
-		
-		boolean managed = false;
-		switch (pSceneTouchEvent.getAction()) {
-		case TouchEvent.ACTION_DOWN:
-			/*if (MLOG.LOG)Log.i(TAG,"onAreaTouched ACTION_DOWN = " + nID);
-			break;*/
-		case TouchEvent.ACTION_MOVE:
-			break;
-		case TouchEvent.ACTION_UP:
-			if(hmEventHandlers != null){
-				Log.i(TAG,"\t launch event handler trough object control");
-				IComponentEventHandler handlerEvent = hmEventHandlers.get(ComponentEventHandlerDescriptor.Events.ON_CLICK);
-				if(handlerEvent != null){
-					Log.i(TAG,"\t launch event handler trough object found");
-					handlerEvent.handleEvent(this);
-				}
-			}
-			break;
-		}
-		return managed;
-	}
-	public int getID() {
-		return nID;
-	}
-	public void setID(int ID) {
-		this.nID = ID;
+		return this.onTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);	
 	}
 	// ===========================================================
 	// Interfaces & Superclass
@@ -106,37 +79,48 @@ public class ClickableSprite extends Sprite implements IClickableSprite, IAction
 	// ===========================================================		
 	// ====== IClickableSprite ==== 	
 	public void addEventsHandler(Events theEvent, IComponentEventHandler oCmpDefEventHandler){
-			hmEventHandlers.put(theEvent, oCmpDefEventHandler);
+			mIClicakableImpmementation.addEventsHandler(theEvent, oCmpDefEventHandler);
 	}
 	public void setActionOnSceneListener(IActionOnSceneListener actionLeastner) {
-		this.mActionListener=actionLeastner;
+		mIClicakableImpmementation.setActionOnSceneListener(actionLeastner);
 	}
 	public IActionOnSceneListener getActionOnSceneListener(){
-		return mActionListener;
+		return mIClicakableImpmementation.getActionOnSceneListener();
+	}
+	public int getID() {
+		return mIClicakableImpmementation.getID();
+	}
+	public void setID(int ID) {
+		mIClicakableImpmementation.setID(ID);
+	}
+	public boolean onTouched(TouchEvent pSceneTouchEvent,
+			float pTouchAreaLocalX, float pTouchAreaLocalY) {
+		return mIClicakableImpmementation.onTouched(pSceneTouchEvent,pTouchAreaLocalX,pTouchAreaLocalY);
+	}
+	@Override
+	public void onFireEventAction(Events event, ActionType type) {
+		mIClicakableImpmementation.onFireEventAction(event, type);
 	}
 	// ===========================================================		
 	// ====== IActionOnSceneListener ==== 	
 	@Override
 	public boolean onActionChangeScene(String nextSceneName) {
-		return this.mActionListener.onActionChangeScene(nextSceneName);
+		return mIClicakableImpmementation.getActionOnSceneListener().onActionChangeScene(nextSceneName);
 	}
 	@Override
 	public void onStick(IAreaShape currentShapeToStick,
 			SceneActions stickActionDescription) {
-		this.mActionListener.onStick(currentShapeToStick, stickActionDescription);
-		
+		mIClicakableImpmementation.getActionOnSceneListener().onStick(currentShapeToStick, stickActionDescription);
 	}
 	@Override
-	public void onFlipCard(int CardID) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void onFlipCard(int CardID, CardSide currentSide) {
+	}	
 	@Override
 	public void lockTouch() {
-		this.mActionListener.lockTouch();
+		mIClicakableImpmementation.getActionOnSceneListener().lockTouch();
 	}
 	@Override
 	public void unLockTouch() {
-		this.mActionListener.unLockTouch();
+		mIClicakableImpmementation.getActionOnSceneListener().unLockTouch();
 	}
 }

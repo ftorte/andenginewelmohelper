@@ -59,6 +59,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	protected BackGroundObjectDescriptor		pBackGroundDescriptor=null;
 	protected SpriteObjectDescriptor 			pSpriteDsc=null;
 	protected SpriteObjectDescriptor 			pCompoundSpriteDsc=null;
+	protected PuzzleObjectDescriptor 			pPuzzleDsc=null;
 	//List to manage descriptor chain
 	protected LinkedList<BasicDescriptor> 		pDescriptorsInProcessing=null;
 	protected BasicDescriptor 					pCurrentDescriptorInProcessing=null;
@@ -202,6 +203,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			newDescriptor = readTextDescription(attributes);
 		else if (localName.equalsIgnoreCase(ScnTags.S_BACKGROUND))
 			newDescriptor = readBackGroudDescription(attributes); //Read new descriptor	
+		else if (localName.equalsIgnoreCase(ScnTags.S_PUZZLE_SPRITE))
+			newDescriptor = readPuzzleDescription(attributes); //Read new descriptor	
 		else 
 			return null;
 
@@ -346,6 +349,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		int stdCardH=0;
 		int stdCardW=0;
 		String resourceName="";
+		float flipTime=0;
 		
 		
 		if(attr.getValue(ScnTags.S_A_MAX_LEVELS)!= null)
@@ -372,6 +376,13 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			resourceName = attr.getValue(ScnTags.S_A_RESOURCES);
 			pScene.setResouceName(resourceName);
 		}
+		if(attr.getValue(ScnTags.S_A_FLIP_TIME)!= null){
+			pScene.setFlipTime(Float.parseFloat(attr.getValue(ScnTags.S_A_FLIP_TIME)));
+			flipTime = pScene.getFlipTime();
+		}
+		if(attr.getValue(ScnTags.S_A_WAIT_BACK_FLIP)!= null){
+			pScene.setWaitBackFlip(Float.parseFloat(attr.getValue(ScnTags.S_A_WAIT_BACK_FLIP)));
+		}
 		
 		//Parse JSON strings
 		JSONObject jObject;
@@ -397,7 +408,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 					pScene.setMemoryStructure(geometryArray);
 				} 
 			}
-			//Parse tiles Maps
+			//Parse tiled Maps
 			if(attr.getValue(ScnTags.S_A_MAPCARDTILES)!= null){
 				jObject = new JSONObject(attr.getValue(ScnTags.S_A_MAPCARDTILES));
 				JSONArray mapOfTiles = jObject.getJSONArray(ScnTags.S_A_MAPCARDTILES);
@@ -441,6 +452,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 					//Flip
 					SceneActions action2 = new SceneActions();
 					action2.type = ActionType.FLIP;
+					action2.flipTime = flipTime;
 					pNewEvent.preModAction.add(action2);
 
 					//sound on going  
@@ -455,18 +467,12 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 					pNewEvent.postModAction.add(action4);
 				
 					oCardDsc.pEventHandlerList.put(pNewEvent.event, pNewEvent);
-					//oCardDscII.pEventHandlerList.put(pNewEvent.event, pNewEvent);
-						    
 				}
 				pScene.setMemoryMapOfCardsTiles(mapOfCardTiles);
 			} 
 		}
 		catch (JSONException e) {
-		}
-
-		//public final static String S_A_MAPCARDTILES		="mapCardTiles";
-		//public final static String S_A_MAPCARDSOUND  	="mapCardSound";*/
-		
+		}		
 		return pScene;
 	}
 	private SceneDescriptor ReadDefaultSceneDescriptor(SceneDescriptor pScene, Attributes attr){
@@ -498,12 +504,17 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	}
 	private SpriteObjectDescriptor readSpriteDescription(Attributes attr){
 		Log.i(TAG,"\t\t readSpriteDescription");
+		
 		pSpriteDsc = new SpriteObjectDescriptor();
+		
 		// Read the sprite
 		pSpriteDsc.ID=Integer.parseInt(attr.getValue(ScnTags.S_A_ID));
 		Log.i(TAG,"\t\t readSpriteDescription ID " + pSpriteDsc.ID);
 		pSpriteDsc.textureName = new String(attr.getValue(ScnTags.S_A_RESOURCE_NAME));
-		pSpriteDsc.type = SpriteObjectDescriptor.SpritesTypes.valueOf(attr.getValue(ScnTags.S_A_TYPE));
+		if(attr.getValue(ScnTags.S_A_TYPE)!= null)
+			pSpriteDsc.type = SpriteObjectDescriptor.SpritesTypes.valueOf(attr.getValue(ScnTags.S_A_TYPE));
+		else
+			pSpriteDsc.type = SpriteObjectDescriptor.SpritesTypes.valueOf("STATIC");
 
 		//parse position, dimension & orientation attributes
 		this.parseAttributesPosition(pSpriteDsc.getIPosition(),attr);
@@ -522,6 +533,36 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	
 		return pSpriteDsc;
 	}	
+	private PuzzleObjectDescriptor readPuzzleDescription(Attributes attr){
+		Log.i(TAG,"\t\t readPuzzleDescription");
+
+		PuzzleObjectDescriptor pPuzzleDsc = null;
+
+		pPuzzleDsc = new PuzzleObjectDescriptor();
+
+
+		// Read the puzzle 
+		pPuzzleDsc.ID=Integer.parseInt(attr.getValue(ScnTags.S_A_ID));
+
+		pPuzzleDsc.textureName = new String(attr.getValue(ScnTags.S_A_RESOURCE_NAME));
+
+		//parse position, dimension & orientation attributes
+		this.parseAttributesPosition(pPuzzleDsc.getIPosition(),attr);
+		this.parseAttributesDimensions(pPuzzleDsc.getIDimension(),attr);
+		this.parseAttributesOrientation(pPuzzleDsc.getIOriantation(),attr);
+		this.parseAttributesCharacteristics(pPuzzleDsc.getICharacteristis(),attr);
+			
+		// Read specific puzzle parameters
+		if(attr.getValue(ScnTags.S_A_NBCOLS)!= null)
+			pPuzzleDsc.setNbColumns(Integer.parseInt(attr.getValue(ScnTags.S_A_NBCOLS)));
+		else
+			pPuzzleDsc.setNbColumns(1);
+		if(attr.getValue(ScnTags.S_A_NBROWS)!= null)
+			pPuzzleDsc.setNbRows(Integer.parseInt(attr.getValue(ScnTags.S_A_NBROWS)));
+		else
+			pPuzzleDsc.setNbRows(1);
+		return pPuzzleDsc;
+	}
 	private SpriteObjectDescriptor readCupondSprite(Attributes attr){
 		Log.i(TAG,"\t\t readCupondSprite");
 		if(this.pCompoundSpriteDsc != null) //check if new compound sprite
@@ -614,6 +655,10 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			newAction.ZIndex = Integer.parseInt(attributes.getValue(ScnTags.S_A_Z_ORDER));
 			break;
 		case FLIP:
+			if(attributes.getValue(ScnTags.S_A_FLIP_TIME) != null)
+					newAction.flipTime = Integer.parseInt(attributes.getValue(ScnTags.S_A_FLIP_TIME));
+			break;
+		case ON_MOVE_FOLLOW:
 			break;
 		default:
 			break;
@@ -783,8 +828,14 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 				Log.i(TAG,"\t\t end Element ACTION");
 				pAction = null;
 			}
+			else if(localName.equalsIgnoreCase(ScnTags.S_PUZZLE_SPRITE)){
+				Log.i(TAG,"\t\t end Element S_PUZZLE_SPRITE");
+				pSpriteDsc = null;
+				removeLastComponentDescriptor();
+				nComponents--;
+			}
 			else
-				throw new NullPointerException("ParserXMLSceneDescriptor error invalid End Element STATUS_PARSE_COMPONENT");
+				throw new NullPointerException("ParserXMLSceneDescriptor error invalid End Element:" +  localName);
 
 			if(nComponents == 0)
 				nStatus = STATUS_PARSE_SCENE;

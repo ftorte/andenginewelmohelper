@@ -26,7 +26,7 @@ public final class PositionHelper{
 			}
 		}
 		//Setup Vertical Alignment
-		alignment = iPosition.getHorizzontalAlignment();
+		alignment = iPosition.getVerticalAlignment();
 		if(alignment != Alignment.NO_ALIGNEMENT){
 			switch(alignment){
 			case TOP:

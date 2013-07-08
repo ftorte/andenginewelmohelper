@@ -14,6 +14,8 @@ import org.andengine.entity.modifier.RotationModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
+import org.andengine.entity.shape.IAreaShape;
+import org.andengine.input.touch.TouchEvent;
 import org.andengine.util.modifier.IModifier;
 
 import android.util.Log;
@@ -27,6 +29,7 @@ import com.welmo.andengine.scenes.descriptors.events.ComponentModifierListDescri
 import com.welmo.andengine.scenes.descriptors.events.ExecutionOrder;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
+import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
 public class ComponentDefaultEventHandler implements IEntityModifierListener, IComponentEventHandler{
 	
@@ -59,7 +62,7 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		Log.i(TAG,"\t onModifierFinished");
 		if(onFlipModifier == pModifier)
 			if(pItem instanceof IActionOnSceneListener)
-				((IActionOnSceneListener)pItem).onFlipCard(((CardSprite)pItem).getID());
+				((IActionOnSceneListener)pItem).onFlipCard(((CardSprite)pItem).getID(),((CardSprite)pItem).getCurrentSidet());
 		
 		if(oPostModifierAction != null)
 			for(SceneActions action:oPostModifierAction){ 
@@ -96,11 +99,11 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		if(entry.onModAction != null)
 			oOnModifierAction= entry.onModAction;
 	}
-	public void handleEvent(IEntity pItem){
+	public void handleEvent(IEntity pItem, TouchEvent pTouchEvent, TouchEvent lastTouchEvent){
 		if(oPreModifierAction != null){
 			Log.i(TAG,"\t Execute pre Mofier");
 			for(SceneActions action:oPreModifierAction) 
-				ExecuteAction(action,pItem);
+				ExecuteAction(action,pItem,pTouchEvent,lastTouchEvent);
 
 		}
 		if(modifierSet != null){
@@ -113,11 +116,10 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		if(oOnModifierAction != null){
 			Log.i(TAG,"\t Execute OnModiferAction");
 			for(SceneActions action:oOnModifierAction) 
-				ExecuteAction(action,pItem);
+				ExecuteAction(action,pItem,pTouchEvent,lastTouchEvent);
 
 		}
 	}
-	
 	public IComponentEventHandler cloneEvent(ComponentEventHandlerDescriptor entry){
 		ComponentDefaultEventHandler newHandler= new ComponentDefaultEventHandler();
 		
@@ -171,6 +173,27 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 	}
 	
 	protected void ExecuteAction(SceneActions action, IEntity pItem){
+		if(ActionType.ON_MOVE_FOLLOW != action.type){
+			ExecuteAction(action, pItem, null,null);
+		}
+	}
+	public void onFireAction(ActionType type, IEntity pItem){
+		if(oPreModifierAction != null){
+			Log.i(TAG,"\t onFireAction Execute pre Mofier");
+			for(SceneActions theAction:oPreModifierAction) 
+				if(theAction.type == type)
+				ExecuteAction(theAction,pItem,null,null);
+		}
+		if(oPostModifierAction != null){
+			Log.i(TAG,"\t onFireAction Execute post Mofier");
+			for(SceneActions theAction:oPostModifierAction) 
+				if(theAction.type == type)
+				ExecuteAction(theAction,pItem,null,null);
+		}
+	}
+		
+		
+	public void ExecuteAction(SceneActions action, IEntity pItem, TouchEvent pTouchEvent,TouchEvent lastTouchEvent){
 		Log.i(TAG,"\t ExecuteAction");
 		switch(action.type){
 		case NO_ACTION:
@@ -198,6 +221,8 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		case ENABLE_SCENE_TOUCH:
 			enableTouch(pItem);
 			break;
+		case ON_MOVE_FOLLOW:
+			executeOnMoveFollow(pItem,pTouchEvent,lastTouchEvent);
 		default:
 			break;
 		}	
@@ -235,12 +260,12 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		Log.i(TAG,"\t executeFlip from rotation" + rotation);
 		if(rotation <=90){
 			Log.i(TAG,"\t executeFlip flip 1");
-			onFlipModifier = new RotationModifier(1.0f,0,180,this);
+			onFlipModifier = new RotationModifier(action.flipTime/1000,0,180,this);
 			pItem.registerEntityModifier(onFlipModifier);
 		}
 		else{
 			Log.i(TAG,"\t executeFlip flip 2");
-			onFlipModifier = new RotationModifier(1.0f,180,0,this);
+			onFlipModifier = new RotationModifier(action.flipTime/1000,180,0,this);
 			pItem.registerEntityModifier(onFlipModifier);
 		}
 	}
@@ -254,5 +279,9 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		if(pItem instanceof IActionOnSceneListener)
 			((IActionOnSceneListener)pItem).lockTouch();
 	}
-
+	protected void executeOnMoveFollow(IEntity pItem,TouchEvent pTouchEvent,TouchEvent lastTouchEvent){
+		float deltaX = pTouchEvent.getX() - lastTouchEvent.getX();
+		float deltaY = pTouchEvent.getY() - lastTouchEvent.getY();
+		pItem.setPosition(pItem.getX() + deltaX, pItem.getY() + deltaY);
+	}
 }
