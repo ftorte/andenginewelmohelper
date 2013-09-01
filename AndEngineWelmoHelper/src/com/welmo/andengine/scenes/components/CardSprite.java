@@ -40,7 +40,6 @@ public class CardSprite extends TiledSprite implements IClickable, IActionOnScen
 	public enum CardSide {
 		A, B, 
 	}
-
 	// =========================================================================================
 	// Fields
 	// =========================================================================================
@@ -48,8 +47,8 @@ public class CardSprite extends TiledSprite implements IClickable, IActionOnScen
 	protected int 										nSideBTileNb	= 0;
 	protected String									sSoundNAme		= "";
 	protected CardSide									currentSide 	= CardSide.A;
-	protected DefaultIClickableImplementation 			mIClicakableImpmementation = null;
-
+	protected IClickable 								mIClicakableImpmementation = null;
+	protected IActionOnSceneListener 					mIActionSceneListnerImpmementation = null;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -61,7 +60,8 @@ public class CardSprite extends TiledSprite implements IClickable, IActionOnScen
 						DrawType.STATIC,
 						true, Sprite.VERTEXBUFFEROBJECTATTRIBUTES_DEFAULT)); 
 		this.setCurrentTileIndex(0);
-		init();
+		mIClicakableImpmementation =  new DefaultIClickableImplementation();
+		mIClicakableImpmementation.setParent(this);
 		configure(pSPRDscf);
 	}
 	protected CardSprite(final float pX, final float pY, final float pWidth, final float pHeight, final ITiledTextureRegion pTiledTextureRegion, final ITiledSpriteVertexBufferObject pTiledSpriteVertexBufferObject) {
@@ -79,10 +79,6 @@ public class CardSprite extends TiledSprite implements IClickable, IActionOnScen
 	// ===========================================================
 	// private member function
 	// ===========================================================	
-	protected void init(){
-		mIClicakableImpmementation =  new DefaultIClickableImplementation();
-		mIClicakableImpmementation.setParent(this);
-	}
 	public void configure(SpriteObjectDescriptor spDsc){
 		ResourcesManager pRM = ResourcesManager.getInstance();
 		setID(spDsc.getID());
@@ -186,9 +182,6 @@ public class CardSprite extends TiledSprite implements IClickable, IActionOnScen
 	public void addEventsHandler(Events theEvent, IComponentEventHandler oCmpDefEventHandler){
 		mIClicakableImpmementation.addEventsHandler(theEvent, oCmpDefEventHandler);
 	}
-	public void setActionOnSceneListener(IActionOnSceneListener actionLeastner) {
-		mIClicakableImpmementation.setActionOnSceneListener(actionLeastner);
-	}
 	public IActionOnSceneListener getActionOnSceneListener(){
 		return mIClicakableImpmementation.getActionOnSceneListener();
 	}
@@ -209,25 +202,24 @@ public class CardSprite extends TiledSprite implements IClickable, IActionOnScen
 	// ===========================================================		
 	// ====== IActionOnSceneListener ==== 	
 	@Override
-	public boolean onActionChangeScene(String nextSceneName) {
-		return mIClicakableImpmementation.getActionOnSceneListener().onActionChangeScene(nextSceneName);
-	}
-	@Override
 	public void onStick(IAreaShape currentShapeToStick,
 			SceneActions stickActionDescription) {
-		mIClicakableImpmementation.getActionOnSceneListener().onStick(currentShapeToStick, stickActionDescription);
+		mIActionSceneListnerImpmementation.onStick(currentShapeToStick, stickActionDescription);
 	}
 	@Override
 	public void onFlipCard(int CardID, CardSide currentSide) {
-		mIClicakableImpmementation.getActionOnSceneListener().onFlipCard(CardID,currentSide);	
+		mIActionSceneListnerImpmementation.onFlipCard(CardID,currentSide);	
 	}	
 	@Override
 	public void lockTouch() {
-		mIClicakableImpmementation.getActionOnSceneListener().lockTouch();
+		mIActionSceneListnerImpmementation.lockTouch();
 	}
 	@Override
 	public void unLockTouch() {
-		mIClicakableImpmementation.getActionOnSceneListener().unLockTouch();
+		mIActionSceneListnerImpmementation.unLockTouch();
+	}
+	public void setIActionOnSceneListener(IActionOnSceneListener pListener){
+		mIActionSceneListnerImpmementation = pListener;
 	}
 }
 

@@ -13,6 +13,8 @@ public abstract class BasicModifierDescriptor {
 		public float getMoveFactor();
 		public int getStickFactor();
 		public String getSoundName();
+		public float getDuration();	
+		
 		public void setType(ModifierType m);
 		public void setScaleFactor(float sf);
 		public void setScaleBegin(float sf);
@@ -20,7 +22,7 @@ public abstract class BasicModifierDescriptor {
 		public void setMoveFactor(float mf);
 		public void setStickWidth(int sw);
 		public void setSoundName(String sound);
-		
+		public void setDuration(float duration);	
 	}
 	public interface IModifierList{
 		public LinkedList<ComponentModifierDescriptor> getModifiers();

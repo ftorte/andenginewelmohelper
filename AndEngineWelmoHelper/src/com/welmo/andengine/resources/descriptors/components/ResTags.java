@@ -26,8 +26,8 @@ public class ResTags {
 	public final static String R_A_POSITION_Y			= "py";
 	public final static String R_A_FILE_NAME			= "filename";
 	
-	public final static String R_A_COL					= "column";
-	public final static String R_A_ROW 					= "row";
+	public final static String R_A_COL					= "nbOfColumns";
+	public final static String R_A_ROW 					= "nbOfRows";
 	
 
 	public final static int R_A_HEIGHT_IDX				= 0;

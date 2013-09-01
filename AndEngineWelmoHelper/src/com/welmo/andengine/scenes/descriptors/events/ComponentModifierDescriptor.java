@@ -19,6 +19,7 @@ public class ComponentModifierDescriptor extends BasicModifierDescriptor{
 	private float 							fScaleEnd;	
 	private int 							stick_with;
 	private String							soundName;
+	private float							mDuration;
 		
 	// ========================================================
 	// Constructor	
@@ -31,6 +32,7 @@ public class ComponentModifierDescriptor extends BasicModifierDescriptor{
 		fScaleEnd		= 1;
 		fMoveFactor 	= 1; 
 		stick_with		= 0;
+		mDuration		= 1;
 	};
 
 	// ========================================================
@@ -95,6 +97,15 @@ public class ComponentModifierDescriptor extends BasicModifierDescriptor{
 				@Override
 				public void setSoundName(String sound) {
 					soundName = new String(sound);
+				}
+				@Override
+				public float getDuration() {
+					// TODO Auto-generated method stub
+					return mDuration;
+				}
+				@Override
+				public void setDuration(float pDuration) {
+					mDuration = pDuration;
 				}
 			};
 		}

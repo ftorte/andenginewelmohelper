@@ -1,7 +1,6 @@
 package com.welmo.andengine.scenes.descriptors;
 
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
-import com.welmo.andengine.scenes.descriptors.components.SceneDescriptor;
 
 public class MemorySceneDescriptor extends SceneDescriptor{
 	

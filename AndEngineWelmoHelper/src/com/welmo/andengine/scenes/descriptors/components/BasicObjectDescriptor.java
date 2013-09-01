@@ -46,7 +46,7 @@ public abstract class BasicObjectDescriptor extends BasicDescriptor{
 	}
 	//----------------------------------------------------------------------//
 	//Protected members
-	protected int 			ID;
+	//protected int 			ID;
 	protected int 			pX, pY;
 	protected int			pZOrder;
 	protected int 			width, height;
@@ -61,7 +61,7 @@ public abstract class BasicObjectDescriptor extends BasicDescriptor{
 	//----------------------------------------------------------------------//
 	public BasicObjectDescriptor(){
 		super();
-		ID=0;
+		//ID=0;
 		pX=0;
 		pY=0;
 		pZOrder=0;
@@ -163,12 +163,12 @@ public abstract class BasicObjectDescriptor extends BasicDescriptor{
 			}
 		};
 	}
-	public int getID(){
+	/*public int getID(){
 		return ID;
-	}
+	}*/
 	public void copyFrom(BasicObjectDescriptor copyfrom) {
 		super.copyFrom(copyfrom);
-		ID 			= copyfrom.ID;
+		//ID 			= copyfrom.ID;
 		pX 			= copyfrom.pX;
 		pY 			= copyfrom.pY;
 		pZOrder 	= copyfrom.pZOrder;

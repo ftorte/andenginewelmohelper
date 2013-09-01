@@ -4,14 +4,15 @@ import org.andengine.engine.Engine;
 import org.andengine.ui.activity.BaseGameActivity;
 
 import com.welmo.andengine.managers.SceneManager;
-import com.welmo.andengine.scenes.descriptors.components.SceneDescriptor;
+import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
 
 import android.content.Context;
 
 public interface IManageableScene {
 	public void loadScene(SceneDescriptor sceneDescriptor);
-	public void init(Engine theEngine, Context ctx, BaseGameActivity activity);
+	public void initScene(SceneManager pSM, Engine theEngine, Context ctx, BaseGameActivity activity);
 	public void resetScene();
 	public String getFatherScene();
-	public void setSceneManager(SceneManager sceneManager);
+	public boolean isPinchAndZoom();
+	public boolean hasHUD();
 }

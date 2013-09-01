@@ -91,9 +91,6 @@ public class TextComponent extends Text implements IBasicComponent, IClickable{
 	public void addEventsHandler(Events theEvent, IComponentEventHandler oCmpDefEventHandler){
 			mIClicakableImpmementation.addEventsHandler(theEvent, oCmpDefEventHandler);
 	}
-	public void setActionOnSceneListener(IActionOnSceneListener actionLeastner) {
-		mIClicakableImpmementation.setActionOnSceneListener(actionLeastner);
-	}
 	public IActionOnSceneListener getActionOnSceneListener(){
 		return mIClicakableImpmementation.getActionOnSceneListener();
 	}
