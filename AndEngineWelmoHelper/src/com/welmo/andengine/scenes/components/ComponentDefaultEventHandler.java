@@ -158,7 +158,7 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 			IEntityModifier modifier;
 			switch(m.getIModifier().getType()){
 			case SCALE:
-				modifier = new ScaleModifier(1,m.getIModifier().getScaleBegin(),m.getIModifier().getScaleEnd());
+				modifier = new ScaleModifier(m.getIModifier().getDuration(),m.getIModifier().getScaleBegin(),m.getIModifier().getScaleEnd());
 				iEntityModifiers[index++] = modifier;
 				break;
 			default:
@@ -232,8 +232,8 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 	//------------------------------------------------------------
 	protected void executeChangeScene(SceneActions action, IEntity pItem){
 		Log.i(TAG,"\t Change Scene");
-		if(pItem instanceof IActionOnSceneListener)
-			((IActionOnSceneListener)pItem).onActionChangeScene(action.NextScene);
+		if(pItem instanceof IActivitySceneListener)
+			((IActivitySceneListener)pItem).onChangeScene(action.NextScene);
 	}
 	protected void executePlaySound(SceneActions action, IEntity pItem){
 		Log.i(TAG,"\t PLay Music");

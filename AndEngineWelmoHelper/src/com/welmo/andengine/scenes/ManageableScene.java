@@ -30,15 +30,17 @@ import com.welmo.andengine.scenes.components.ClickableSprite;
 import com.welmo.andengine.scenes.components.ComponentDefaultEventHandler;
 import com.welmo.andengine.scenes.components.CompoundSprite;
 import com.welmo.andengine.scenes.components.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.IActivitySceneListener;
 import com.welmo.andengine.scenes.components.IClickable;
 import com.welmo.andengine.scenes.components.IComponentEventHandler;
-import com.welmo.andengine.scenes.components.PuzzleSprites;
+import com.welmo.andengine.scenes.components.IComponentLifeCycle;
 import com.welmo.andengine.scenes.components.Stick;
 import com.welmo.andengine.scenes.components.TextComponent;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
+import com.welmo.andengine.scenes.components.puzzle.PuzzleSprites;
+import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
@@ -67,10 +69,11 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	protected SceneManager									pSM;
 	protected HashMap<Integer, IAreaShape> 					mapOfObjects;
 	protected HashMap<String, SoundSequence> 				mapOfPhrases;
+	protected boolean										bImplementPinchAndZoom;
+	protected boolean										bHasHUD;
 	
 	protected SceneDescriptor 								pSCDescriptor;
 	protected HashMap<Integer, IComponentEventHandler> 		hmEventHandlers;
-	protected BaseGameActivity								mActivity;
 	protected int											nLockTouch=0;
 	
 	// ===========================================================================================
@@ -81,7 +84,8 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		pRM = ResourcesManager.getInstance();
 		mapOfObjects = new HashMap<Integer, IAreaShape>();
 		hmEventHandlers = new HashMap<Integer, IComponentEventHandler>();
-		mapOfPhrases = new HashMap<String, SoundSequence>(); 	
+		mapOfPhrases = new HashMap<String, SoundSequence>(); 
+		bImplementPinchAndZoom = false;
 	}
 	// ===========================================================================================
 	// Load the scene
@@ -89,13 +93,17 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	public void loadScene(SceneDescriptor sceneDescriptor) {
 		pSCDescriptor = sceneDescriptor;
 
+		//Init default value by reading configuration
+		bImplementPinchAndZoom 	= sceneDescriptor.isPinchAndZoom();
+		bHasHUD					= sceneDescriptor.hasHUD();
+		
 		for (ComponentEventHandlerDescriptor ehDsc:pSCDescriptor.pGlobalEventHandlerList){
 			ComponentDefaultEventHandler newEventHandler= new ComponentDefaultEventHandler();
 			newEventHandler.setUpEventsHandler(ehDsc);
 			this.hmEventHandlers.put(ehDsc.getID(), newEventHandler);
 		}
 
-		for(BasicDescriptor scObjDsc:pSCDescriptor.pChild){
+		for(BasicDescriptor scObjDsc:pSCDescriptor.pChild.values()){
 			loadComponent(scObjDsc, this);
 		}
 		
@@ -137,11 +145,14 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	// ===========================================================
 	protected IEntity loadComponent(BasicDescriptor scObjDsc, IEntity pEntityFather) {
 		IEntity newEntity = null;
+		
+		
 		if(scObjDsc instanceof BackGroundObjectDescriptor){
 			this.setBackground(createBackground((BackGroundObjectDescriptor)scObjDsc));
 			//no childrens
 			return newEntity;
 		}
+		
 		if(scObjDsc instanceof SpriteObjectDescriptor){
 			SpriteObjectDescriptor pSprtDsc = (SpriteObjectDescriptor)scObjDsc;
 			switch(pSprtDsc.getType()){	
@@ -170,7 +181,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		}
 		//handle children
 		if(newEntity != null)
-			for(BasicDescriptor theChild:scObjDsc.pChild)
+			for(BasicDescriptor theChild:scObjDsc.pChild.values())
 				loadComponent(theChild, newEntity);
 		this.sortChildren();
 		
@@ -184,15 +195,22 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	// Create component BackGround
 	// ===========================================================
 	protected IBackground createBackground(BackGroundObjectDescriptor pBkgDsc){
+		
 		switch(pBkgDsc.type){
 		case COLOR:
 			return new Background(pRM.getColor(pBkgDsc.color));
 		case SPRITE:
-			SpriteObjectDescriptor pSDsc = (SpriteObjectDescriptor)pBkgDsc.pChild.getFirst();
-			Sprite spriteBKG = new Sprite(0, 0, pSDsc.getIDimension().getWidth(), pSDsc.getIDimension().getHeight(), 
-					pRM.getTextureRegion(pSDsc.getTextureName()), 
-					this.mEngine.getVertexBufferObjectManager());
-			return new SpriteBackground(spriteBKG);
+			SpriteObjectDescriptor pSDsc = null;
+			for (BasicDescriptor pObjDsc : pBkgDsc.pChild.values()){
+				if(pObjDsc instanceof SpriteObjectDescriptor){
+					pSDsc = (SpriteObjectDescriptor)pObjDsc;
+					Sprite spriteBKG = new Sprite(0, 0, pSDsc.getIDimension().getWidth(), pSDsc.getIDimension().getHeight(), 
+						pRM.getTextureRegion(pSDsc.getTextureName()), 
+						this.mEngine.getVertexBufferObjectManager());
+					return new SpriteBackground(spriteBKG);
+				}
+			}
+			throw new NullPointerException("Invalid Sprite Backgound. Not found sprite descriptor for background");
 		default:
 			return null;
 		}
@@ -214,7 +232,6 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	protected IEntity createCompoundSprite(SpriteObjectDescriptor spDsc){
 		CompoundSprite newCompound = new CompoundSprite(0, 0, 0,0, this.mEngine.getVertexBufferObjectManager());
 		newCompound.setID(spDsc.getID());
-		newCompound.setActionOnSceneListener(this);
 		newCompound.setPDescriptor(spDsc);
 		this.registerTouchArea(newCompound);
 		mapOfObjects.put(spDsc.getID(), newCompound); 
@@ -222,14 +239,13 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	}
 	protected IEntity createPuzzle(PuzzleObjectDescriptor spDsc,IEntity pEntityFather){
 		
-		IEntity newEntity = null;
-		PuzzleSprites puzzle= new PuzzleSprites();	
-		puzzle.setResourceName(spDsc.getTextureName());
-		puzzle.createPuzzle(this.mEngine, spDsc);
-		//mapOfObjects.put(spDsc.getID(), (Entity) puzzle); 
-		newEntity=puzzle;
-		pEntityFather.attachChild(newEntity);
-		return newEntity;
+		PuzzleSprites puzzle= new PuzzleSprites(spDsc, mEngine);
+		//[FT] puzzle.setResourceName(spDsc.getTextureName());
+		//puzzle.start();
+		pEntityFather.attachChild(puzzle);
+		this.registerTouchArea(puzzle);
+		mapOfObjects.put(spDsc.getID(), puzzle); 
+		return puzzle;
 	}
 	// ===========================================================
 	// Create component Text
@@ -254,8 +270,6 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	// ===========================================================
 	protected IEntity createClickableSprite(SpriteObjectDescriptor spDsc) {
 			
-		//ClickableSprite newClickableSprite = new ClickableSprite (spDsc,pRM,mEngine);
-		
 		IClickable newClickableSprite = null;
 		String className = spDsc.getClassName();
 		try {
@@ -295,7 +309,11 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		this.registerTouchArea((IAreaShape) newClickableSprite);
 		mapOfObjects.put(spDsc.getID(), (IAreaShape)newClickableSprite); 
 		
-		newClickableSprite.setActionOnSceneListener(this);
+		if(newClickableSprite instanceof IActionOnSceneListener)
+			((IActionOnSceneListener)newClickableSprite).setIActionOnSceneListener(this);
+		
+		if(newClickableSprite instanceof IActivitySceneListener)
+			((IActivitySceneListener)newClickableSprite).setIActivitySceneListener(pSM.getIActivitySceneListener());
 		
 		newClickableSprite.setID(spDsc.getID());
 		//Create events handler
@@ -335,16 +353,22 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		animatedObject.animate(100);
 		return animatedObject;
 	}
-	public void init(Engine theEngine, Context ctx, BaseGameActivity activity) {
+	public void initScene(SceneManager sceneManager, Engine theEngine, Context ctx, BaseGameActivity activity) {
 		mEngine = theEngine;
 		mContext = ctx;
-		mActivity = activity;
+		// FT mActivity = activity;
 		//Enable audio option
 		mEngine.getEngineOptions().getAudioOptions().setNeedsMusic(true);
 		mEngine.getEngineOptions().getAudioOptions().setNeedsSound(true);
+		pSM = sceneManager;
 	}
-	public void resetScene(){
+	public void resetScene(){	
 		//reset values
+		for(Integer ID  : mapOfObjects.keySet()){
+			IAreaShape theObject = mapOfObjects.get(ID);
+			if(theObject instanceof IComponentLifeCycle)
+				((IComponentLifeCycle)theObject).reset();
+		}
 		nLockTouch = 0;
 	}	
 	protected void ClearScene(){
@@ -374,21 +398,6 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 			return super.onSceneTouchEvent(pSceneTouchEvent);
 	}
 	
-	//Default Implementation of IActionOnSceneListener interface
-	@Override
-	public boolean onActionChangeScene(String nextScene) {
-		ManageableScene psc = (ManageableScene) pSM.getScene(nextScene);
-		if(psc != null){
-			psc.resetScene();
-			mEngine.setScene(psc);
-			return true;
-		}
-		else
-			return false;
-	}
-	public void setSceneManager(SceneManager sceneManager) {
-		this.pSM = sceneManager;
-	}
 	@Override
 	public void onStick(IAreaShape currentShapeToStick,
 			SceneActions stickActionDescription) {
@@ -428,5 +437,18 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		if(nLockTouch < 0)
 			nLockTouch=0;
 		Log.i(TAG,"\t unLocked Touch = " + nLockTouch);
+	}
+	@Override
+	public boolean isPinchAndZoom() {
+		return this.bImplementPinchAndZoom;
+	}
+	@Override
+	public void setIActionOnSceneListener(IActionOnSceneListener pListener) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public boolean hasHUD() {
+		return bHasHUD;
 	}
 }

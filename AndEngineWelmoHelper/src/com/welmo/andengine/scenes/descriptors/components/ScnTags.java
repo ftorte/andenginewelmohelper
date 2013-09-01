@@ -10,6 +10,7 @@ public class ScnTags {
 	public final static String S_A_NAME				= "name";
 	public final static String S_SCENE 				= "scene";
 	public final static String S_SCENES 			= "scenes";
+	public final static String S_SCENE_INSTANTIATION= "instantiatescene";
 	public final static String S_MULTIVIEWSCENE 	= "multiviewscene";
 	public final static String S_FATHER				= "sceneFather";
 	
@@ -22,6 +23,7 @@ public class ScnTags {
 	public final static String S_TEXT 				= "text";
 	public final static String S_BACKGROUND 		= "background";
 	public final static String S_PUZZLE_SPRITE		= "puzzle_sprite";
+	public final static String S_HUD				= "HUD";
 	
 	//Event handler
 	public final static String S_ACTION 			= "action";
@@ -32,8 +34,15 @@ public class ScnTags {
 	public final static String S_PRE_MOD_ACTION		= "pre_mod_action";
 	public final static String S_POST_MOD_ACTION	= "post_mod_action";
 	public final static String S_ON_MOD_ACTION		= "on_mod_action";
+	
+	//--------------------------------------------------------
+	//Scene instantiation specific parameters
+	public final static String  S_A_SCENEMASTER		= "masterscene";
+	
 	//--------------------------------------------------------
 	//Scene Objects' attributes
+	public final static String S_A_PINTCHZOOM		= "pinch_zoom";
+	
 
 	public final static String S_A_STICK_WITH		= "stick_with";
 	public final static String S_A_STICK_MODE		= "stick_mode";
@@ -111,5 +120,15 @@ public class ScnTags {
 	public final static String S_A_NBCOLS			="nbOfColumns"; 
 	public final static String S_A_NBROWS			="nbOfRows";
 	
+	public final static String S_A_PUZZLE_BOX		="puzzleBox";
+	public final static String S_A_PUZZLE_ZONE		="puzzleZone";
+	
+	public final static String S_A_ACTIVE_BORDER	="ActiveBorder";
+	public final static String S_A_ACTIVE_ZONE		="ActiveZone";
+	public final static String S_A_HELPER_IMAGE		="HelperImage";
+	public final static String S_A_HELPER_IMG_ALPHA	="HIAlpha";
+	
+	//Head UP Display
+	public final static String S_A_HUD				="HUD";
 	
 }	

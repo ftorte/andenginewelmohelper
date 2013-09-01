@@ -37,6 +37,7 @@ import com.welmo.andengine.resources.descriptors.components.SoundDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TextureDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TextureRegionDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TiledTextureRegionDescriptor;
+import com.welmo.andengine.utility.TransparentBitmapTextureAtlasSource;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -233,7 +234,16 @@ public class ResourcesManager {
 			throw new IllegalArgumentException("In LoadTexture: Tentative to load a texture already loaded");
 
 		//Create the texture
-		BitmapTextureAtlas pTextureAtlas = new BitmapTextureAtlas(mEngine.getTextureManager(), pTextRegDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTextRegDsc.Parameters[ResTags.R_A_HEIGHT_IDX], TextureOptions.BILINEAR);
+		
+		//FT BitmapTextureAtlas pTextureAtlas=null;
+		//FT BitmapTextureAtlasTextureRegionFactory.createFromSource(pTextureAtlas, 
+		//FT 		new TransparentBitmapTextureAtlasSource(pTextRegDsc.Parameters[ResTags.R_A_WIDTH_IDX]
+		//FT
+		//FT 				,pTextRegDsc.Parameters[ResTags.R_A_HEIGHT_IDX]), 0, 0);
+		
+		BitmapTextureAtlas pTextureAtlas = new BitmapTextureAtlas(mEngine.getTextureManager(),pTextRegDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTextRegDsc.Parameters[ResTags.R_A_HEIGHT_IDX], TextureOptions.BILINEAR);
+		//FT pTextureAtlas.addEmptyTextureAtlasSource(0,0, pTextRegDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTextRegDsc.Parameters[ResTags.R_A_HEIGHT_IDX]);
+		
 		mapBitmapTexturesAtlas.put(pTextRegDsc.Name,pTextureAtlas);
 
 		//iterate to all textureregion define in the texture
@@ -321,6 +331,7 @@ public class ResourcesManager {
 
 		//Create the texture
 		BuildableBitmapTextureAtlas pBuildableTextureAtlas = new BuildableBitmapTextureAtlas(mEngine.getTextureManager(), pTextRegDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTextRegDsc.Parameters[ResTags.R_A_HEIGHT_IDX], TextureOptions.NEAREST);
+		//FT pBuildableTextureAtlas.clearTextureAtlasSources();
 		mapBuildablBitmapTexturesAtlas.put(pTextRegDsc.Name,pBuildableTextureAtlas);
 
 		//iterate to all tiled textures regions define in the texture

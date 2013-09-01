@@ -7,6 +7,9 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.engine.camera.SmoothCamera;
+import org.andengine.engine.camera.ZoomCamera;
+import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
@@ -16,6 +19,8 @@ import org.andengine.entity.modifier.DelayModifier;
 import org.andengine.entity.modifier.ParallelEntityModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
+import org.andengine.entity.primitive.Rectangle;
+import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.menu.MenuScene;
 import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
@@ -25,6 +30,12 @@ import org.andengine.entity.scene.menu.item.decorator.ColorMenuItemDecorator;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.extension.svg.opengl.texture.atlas.bitmap.SVGBitmapTextureAtlasTextureRegionFactory;
+import org.andengine.input.touch.TouchEvent;
+import org.andengine.input.touch.detector.PinchZoomDetector;
+import org.andengine.input.touch.detector.ScrollDetector;
+import org.andengine.input.touch.detector.SurfaceScrollDetector;
+import org.andengine.input.touch.detector.PinchZoomDetector.IPinchZoomDetectorListener;
+import org.andengine.input.touch.detector.ScrollDetector.IScrollDetectorListener;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.region.ITextureRegion;
@@ -37,7 +48,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
@@ -45,26 +58,29 @@ import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SceneManager;
 import com.welmo.andengine.resources.descriptors.components.ParserXMLResourcesDescriptor;
 import com.welmo.andengine.scenes.IManageableScene;
+import com.welmo.andengine.scenes.ManageableScene;
 import com.welmo.andengine.scenes.MemoryScene;
 import com.welmo.andengine.scenes.ProgressDialogScene;
 import com.welmo.andengine.scenes.components.CardSprite;
+import com.welmo.andengine.scenes.components.IActivitySceneListener;
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.ParserXMLSceneDescriptor;
 import com.welmo.andengine.utility.AsyncResourcesScenesLoader;
 import com.welmo.andengine.utility.IAsyncCallBack;
 
 
-public class SimpleWelmoActivity extends SimpleBaseGameActivity{
+public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActivitySceneListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	private static final String TAG = "SimpleWelmoActivity";
+	private static final String 			TAG = "SimpleWelmoActivity";
+	private final static int 				DPI_ON_160	  			= 32;
+	private final static float				MIN_ICON_DIM_IN_INCH 	= 0.2f;
+	private final static float				MIN_ICO_INT_DIM_IN_INC 	= 0.15f;
 
 	//default values
-	//private static final int 		CAMERA_WIDTH 	= 800;
-	//private static final int 		CAMERA_HEIGHT 	= 480;
-	final String 					FONTHBASEPATH 	= "font/";
-	final String 					TEXTUREBASEPATH = "gfx/";
+	final String 							FONTHBASEPATH 	= "font/";
+	final String 							TEXTUREBASEPATH = "gfx/";
 	
 	private enum RESOURCETYPE{
 		TEXTURES, SOUNDS, MUSICS,TILEDTEXTURES,
@@ -73,17 +89,25 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 	// ===========================================================
 	// Fields
 	// ===========================================================	
-	BitmapTextureAtlas 	pTextureAtals;
-	ITextureRegion		pTextureRegion;
-	int 				nCameraWidth	= 800;
-	int					nCameraHeight 	= 480;
+	BitmapTextureAtlas 						pTextureAtals;
+	ITextureRegion							pTextureRegion;
+	int 									nCameraWidth	= 800;
+	int										nCameraHeight 	= 480;
+	
+	Display 								display			= null;
 	
 	// ===========================================================
 	// Fields
 	// ===========================================================
 	protected SceneManager 					mSceneManager;
 	protected ResourcesManager 				mResourceManager;
-	protected Camera 						mCamera;
+	protected SmoothCamera 					mSmoothCamera;
+	protected HUDisplay						mHUD;
+	
+	private SurfaceScrollDetector 			mScrollDetector;
+	private PinchZoomDetector 				mPinchZoomDetector;
+	private float 							mPinchZoomStartedCameraZoomFactor;
+	
 	protected IProgressListener 			progressDialog=null;
 	protected int							progressDone=0;
 	protected boolean						bIsOnBackgroundLoading=false;
@@ -151,15 +175,25 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 	@Override
 	public EngineOptions onCreateEngineOptions() {
 		
-		this.mCamera = new Camera(0, 0, nCameraWidth, nCameraHeight);
+		//this.mCamera = new Camera(0, 0, nCameraWidth, nCameraHeight);
+		this.mSmoothCamera = new SmoothCamera(0, 0, nCameraWidth, nCameraHeight, 10, 10, 1.0f);
+
+		
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, 
-				new RatioResolutionPolicy(nCameraWidth, nCameraHeight), mCamera);
+				new RatioResolutionPolicy(nCameraWidth, nCameraHeight), mSmoothCamera);
 
 		//Enable Z depth to +- 1000px
-		mCamera.setZClippingPlanes(-1000, 1000);
+		mSmoothCamera.setZClippingPlanes(-1000, 1000);
 		//Enable audio option for both music and sound effects
 		engineOptions.getAudioOptions().setNeedsMusic(true);
 		engineOptions.getAudioOptions().setNeedsSound(true);
+		
+		//get display metric
+		display = getWindowManager().getDefaultDisplay(); 
+		DisplayMetrics dm = new DisplayMetrics();
+		
+		display.getMetrics(dm);
+		
 		return engineOptions;
 
 	}
@@ -171,6 +205,8 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 		mResourceManager.init(this, this.mEngine);
 
 		//read descriptors for the resources necessaries for the first scene, the thanks scene  
+		readResourceDescriptions(mStartResourceDscFile);
+		//FT For test to be deletes
 		readResourceDescriptions(mStartResourceDscFile);
 		//read descriptors for the first scene and the thanks scene  
 		readScenesDescriptions(mStartSceneDscFile);		
@@ -192,6 +228,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 		//initialize scene manager
 		mSceneManager = new SceneManager(this);
 		mSceneManager.init(this.getEngine(), this);
+		
+		this.mScrollDetector = new SurfaceScrollDetector(this);
+		this.mPinchZoomDetector = new PinchZoomDetector(this);
 		
 		//get the first scene
 		if((mFirstScene = mSceneManager.getScene(mFirstSceneName)) == null){
@@ -235,6 +274,10 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 			}
 		}).start();
 		
+		//add HUD
+		mHUD = new HUDisplay(this.mEngine);
+		mSmoothCamera.setHUD(mHUD);
+		mHUD.setDisplayMetrics(display);
 		return mFirstScene;
 	}
 	private void lauchResourceSceneBackGroundLoading(){
@@ -333,7 +376,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 	}
 	protected final void loadScenes(String[] Scenes,int pctWorkLoad) {
 		for (String sceneName:Scenes ){
-			mSceneManager.BuildScenes(sceneName); 
+			mSceneManager.getScene(sceneName); 
 		}
 		Log.i(TAG,"Scenes Loaded");
 	}
@@ -424,4 +467,136 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity{
 		mgr.PauseGame();
 	}
 	
+	/*//@Override
+	public boolean onActionChangeScene(String nextScene) {
+		ManageableScene psc = (ManageableScene) mSceneManager.getScene(nextScene);
+		if(psc != null){
+			psc.resetScene();
+			mEngine.setScene(psc);
+			if(psc.hasHUD()){
+				mHUD.init();
+	        	mHUD.setVisible(true);
+	        }
+	        else	
+	        	mHUD.setVisible(false);
+			
+			return true;
+		}
+		else
+			return false;
+	}*/
+	
+	//-----------------------------------------------------------------------------------------------------------------------------------------
+	// Pinch and zoom detector
+	//-----------------------------------------------------------------------------------------------------------------------------------------
+	@Override
+	public void onScrollStarted(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
+		final float zoomFactor = this.mSmoothCamera.getZoomFactor();
+		this.mSmoothCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
+	}
+
+	@Override
+	public void onScroll(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
+		final float zoomFactor = this.mSmoothCamera.getZoomFactor();
+		this.mSmoothCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
+	}
+	
+	@Override
+	public void onScrollFinished(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
+		final float zoomFactor = this.mSmoothCamera.getZoomFactor();
+		this.mSmoothCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
+	}
+
+	@Override
+	public void onPinchZoomStarted(final PinchZoomDetector pPinchZoomDetector, final TouchEvent pTouchEvent) {
+		this.mPinchZoomStartedCameraZoomFactor = this.mSmoothCamera.getZoomFactor();
+		
+	}
+
+	@Override
+	public void onPinchZoom(final PinchZoomDetector pPinchZoomDetector, final TouchEvent pTouchEvent, final float pZoomFactor) {
+		//this.mSmoothCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
+		if (pZoomFactor != 1)
+	    {
+	        // check bounds
+	        float newZoomFactor = mPinchZoomStartedCameraZoomFactor * pZoomFactor;
+	        if (newZoomFactor <= 1)
+	        	mSmoothCamera.setZoomFactor(1f);
+	        else if (newZoomFactor >= 1.5)
+	        	mSmoothCamera.setZoomFactor(1.5f);
+	        else
+	        	mSmoothCamera.setZoomFactor(newZoomFactor);
+	    }
+		
+	}
+
+	@Override
+	public void onPinchZoomFinished(final PinchZoomDetector pPinchZoomDetector, final TouchEvent pTouchEvent, final float pZoomFactor) {
+		//this.mSmoothCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
+		if (pZoomFactor != 1)
+	    {
+	        // check bounds
+	        float newZoomFactor = mPinchZoomStartedCameraZoomFactor * pZoomFactor;
+	        if (newZoomFactor <= 1)
+	        	mSmoothCamera.setZoomFactor(1f);
+	        else if (newZoomFactor >= 1.5)
+	        	mSmoothCamera.setZoomFactor(1.5f);
+	        else
+	        	mSmoothCamera.setZoomFactor(newZoomFactor);
+	    }
+	}
+
+
+	@Override
+	public boolean onSceneTouchEvent(final Scene pScene, final TouchEvent pSceneTouchEvent) {
+		this.mPinchZoomDetector.onTouchEvent(pSceneTouchEvent);
+
+		if(this.mPinchZoomDetector.isZooming()) {
+			this.mScrollDetector.setEnabled(false);
+		} else {
+			if(pSceneTouchEvent.isActionDown()) {
+				this.mScrollDetector.setEnabled(true);
+			}
+			this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
+		}
+
+		return true;
+	}
+	// ------------------------------------------------------------------------------
+	// Implement IActivitySceneListener decetor
+	// ------------------------------------------------------------------------------
+	public void Zoom() {
+		this.mSmoothCamera.setZoomFactorDirect(1.5f);
+	}
+	@Override
+	public void unZoom() {
+		this.mSmoothCamera.setZoomFactorDirect(1);
+	}
+	//@Override
+	public boolean onChangeScene(String nextScene) {
+		ManageableScene psc = (ManageableScene) mSceneManager.getScene(nextScene);
+		if(psc != null){
+			if(this.mSmoothCamera.getZoomFactor() != 1){
+				this.mSmoothCamera.setZoomFactorDirect(1f);
+			}
+			psc.resetScene();
+			mEngine.setScene(psc);
+			if(psc.hasHUD()){
+				mHUD.init();
+	        	mHUD.setVisible(true);
+	        }
+	        else	
+	        	mHUD.setVisible(false);
+			
+			return true;
+		}
+		else
+			return false;
+	}
+	@Override
+	public void setIActivitySceneListener(IActivitySceneListener pListener) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

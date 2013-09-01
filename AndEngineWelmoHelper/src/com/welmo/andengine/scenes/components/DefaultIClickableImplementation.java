@@ -3,21 +3,25 @@ package com.welmo.andengine.scenes.components;
 import java.util.HashMap;
 
 import org.andengine.entity.IEntity;
+import org.andengine.entity.shape.IAreaShape;
 import org.andengine.input.touch.TouchEvent;
 
 import android.util.Log;
 
+import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
-public class DefaultIClickableImplementation implements IClickable{
+public class DefaultIClickableImplementation implements IClickable {
+// IActivitySceneListener {
+//, IActionOnSceneListener{
 	
 	private final static String 							TAG				= "DefaultIClickableImplementation";
 	protected int 											nID				=-1;
 	protected HashMap<Events,IComponentEventHandler> 		hmEventHandlers = null;
-	protected IActionOnSceneListener   						mActionListener	= null;
+	//protected IActionOnSceneListener   						mActionListener	= null;
 	protected IEntity										mParent			= null;
 	protected boolean										on_move			= false;
 	protected TouchEvent									lastTouchEvent	= null;
@@ -28,20 +32,16 @@ public class DefaultIClickableImplementation implements IClickable{
 		hmEventHandlers	= new HashMap<Events,IComponentEventHandler>();
 		lastTouchEvent = new TouchEvent();
 	}
+	// -----------------------------------------------------------------------------------------
+	// Implement Interfaces
+	// -----------------------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------
+	// IBasicComponent
 	public IEntity getParent() {
 		return mParent;
 	}
 	public void setParent(IEntity mParent) {
 		this.mParent = mParent;
-	}
-	public void addEventsHandler(Events theEvent, IComponentEventHandler oCmpDefEventHandler){
-		hmEventHandlers.put(theEvent, oCmpDefEventHandler);
-	}
-	public void setActionOnSceneListener(IActionOnSceneListener actionLeastner) {
-		this.mActionListener=actionLeastner;
-	}
-	public IActionOnSceneListener getActionOnSceneListener(){
-		return mActionListener;
 	}
 	public int getID() {
 		return nID;
@@ -49,6 +49,25 @@ public class DefaultIClickableImplementation implements IClickable{
 	public void setID(int ID) {
 		this.nID = ID;
 	}
+	// -----------------------------------------------------------------------------------------
+	// IClickable
+	public void addEventsHandler(Events theEvent, IComponentEventHandler oCmpDefEventHandler){
+		hmEventHandlers.put(theEvent, oCmpDefEventHandler);
+	}
+	@Override
+	public IActionOnSceneListener getActionOnSceneListener() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void onFireEventAction(Events event, ActionType type){
+		if(hmEventHandlers == null){
+			throw new NullPointerException("onFireAction no eventshmEventHandlers is null");
+		}
+		IComponentEventHandler handlerEvent = hmEventHandlers.get(event);
+		handlerEvent.onFireAction(type, mParent);
+	}
+	@Override
 	public boolean onTouched(TouchEvent pSceneTouchEvent,
 			float pTouchAreaLocalX, float pTouchAreaLocalY) {
 
@@ -97,14 +116,6 @@ public class DefaultIClickableImplementation implements IClickable{
 			return managed;
 		}
 		return false;
-	}
-
-	public void onFireEventAction(Events event, ActionType type){
-		if(hmEventHandlers == null){
-			throw new NullPointerException("onFireAction no eventshmEventHandlers is null");
-		}
-		IComponentEventHandler handlerEvent = hmEventHandlers.get(event);
-		handlerEvent.onFireAction(type, mParent);
-	}
+	}	
 }
 

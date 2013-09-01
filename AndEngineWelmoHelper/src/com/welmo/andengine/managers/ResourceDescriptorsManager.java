@@ -14,9 +14,9 @@ import com.welmo.andengine.resources.descriptors.components.SoundDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TextureDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TextureRegionDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TiledTextureRegionDescriptor;
+import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.MultiViewSceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ParserXMLSceneDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.SceneDescriptor;
 
 
 public class ResourceDescriptorsManager {
