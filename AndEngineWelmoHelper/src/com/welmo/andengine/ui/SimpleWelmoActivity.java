@@ -277,7 +277,6 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		//add HUD
 		mHUD = new HUDisplay(this.mEngine);
 		mSmoothCamera.setHUD(mHUD);
-		mHUD.setDisplayMetrics(display);
 		return mFirstScene;
 	}
 	private void lauchResourceSceneBackGroundLoading(){
