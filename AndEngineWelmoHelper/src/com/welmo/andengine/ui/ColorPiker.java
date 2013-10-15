@@ -105,6 +105,9 @@ public class ColorPiker extends Rectangle{
 		@Override
 		public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y)
 		{
+			if(!theToolbar.isVisible())
+				return false;
+			
 			if (touchEvent.isActionUp())
 			{
 				theToolbar.setSelectedButton(nID);	
@@ -137,6 +140,8 @@ public class ColorPiker extends Rectangle{
 				theButton.setPosition(index*(BUTTOEXTDIM),0);
 				pTheScene.registerTouchArea(theButton);
 			}
+			//[FT]
+			//pTheScene.registerTouchArea(this);
 			
 		}
 		ToolBarButton getButton(int index){
