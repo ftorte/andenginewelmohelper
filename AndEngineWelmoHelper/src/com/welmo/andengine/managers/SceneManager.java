@@ -141,7 +141,7 @@ public class SceneManager {
 			throw new NullPointerException("In BuildScenes: the scene: " + strSceneName + " cannot being created");
 
 		//manage Pinch and zoom scene
-		if(theApplication instanceof IOnSceneTouchListener && iManageableScene.isPinchAndZoom() ){
+		if(theApplication instanceof IOnSceneTouchListener && iManageableScene.hasPinchAndZoomActive()){
 			//enable pinch & zoom for the scene
 			((ManageableScene)iManageableScene).setOnAreaTouchTraversalFrontToBack();
 			((ManageableScene)iManageableScene).setOnSceneTouchListener((IOnSceneTouchListener)theApplication);

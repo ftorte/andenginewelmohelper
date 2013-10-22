@@ -20,6 +20,7 @@ public class ScnTags {
 	public final static String S_CLICKABLE_SPRITE 	= "clickable_sprite";
 	public final static String S_ANIMATED_SPRITE 	= "animated_sprite";
 	public final static String S_COMPOUND_SPRITE 	= "compound_sprite";
+	public final static String S_COLORING_SPRITE	= "coloring_sprite";
 	public final static String S_TEXT 				= "text";
 	public final static String S_BACKGROUND 		= "background";
 	public final static String S_PUZZLE_SPRITE		= "puzzle_sprite";

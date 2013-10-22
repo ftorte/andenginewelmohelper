@@ -31,6 +31,7 @@ import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.extension.svg.opengl.texture.atlas.bitmap.SVGBitmapTextureAtlasTextureRegionFactory;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.input.touch.controller.MultiTouch;
 import org.andengine.input.touch.detector.PinchZoomDetector;
 import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.input.touch.detector.SurfaceScrollDetector;
@@ -57,6 +58,7 @@ import android.widget.Toast;
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SceneManager;
 import com.welmo.andengine.resources.descriptors.components.ParserXMLResourcesDescriptor;
+import com.welmo.andengine.scenes.ColoringScene;
 import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.ManageableScene;
 import com.welmo.andengine.scenes.MemoryScene;
@@ -176,11 +178,22 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	public EngineOptions onCreateEngineOptions() {
 		
 		//this.mCamera = new Camera(0, 0, nCameraWidth, nCameraHeight);
-		this.mSmoothCamera = new SmoothCamera(0, 0, nCameraWidth, nCameraHeight, 10, 10, 1.0f);
+		this.mSmoothCamera = new SmoothCamera(0, 0, nCameraWidth, nCameraHeight, 1000, 1000, 1.0f);
 
 		
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, 
 				new RatioResolutionPolicy(nCameraWidth, nCameraHeight), mSmoothCamera);
+
+		//enable multitouch
+		if(MultiTouch.isSupported(this)) {
+			if(MultiTouch.isSupportedDistinct(this)) {
+				gameToast("MultiTouch detected --> Both controls will work properly!");
+			} else {
+				gameToast("MultiTouch detected, but your device has problems distinguishing between fingers.\n\nControls are placed at different vertical locations.");
+			}
+		} else {
+			gameToast("Sorry your device does NOT support MultiTouch!\n\n(Falling back to SingleTouch.)\n\nControls are placed at different vertical locations.");
+		}
 
 		//Enable Z depth to +- 1000px
 		mSmoothCamera.setZClippingPlanes(-1000, 1000);
@@ -195,7 +208,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		display.getMetrics(dm);
 		
 		return engineOptions;
-
+	
 	}
 
 	@Override
@@ -465,64 +478,50 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		ResourcesManager mgr = ResourcesManager.getInstance();
 		mgr.PauseGame();
 	}
-	
-	/*//@Override
-	public boolean onActionChangeScene(String nextScene) {
-		ManageableScene psc = (ManageableScene) mSceneManager.getScene(nextScene);
-		if(psc != null){
-			psc.resetScene();
-			mEngine.setScene(psc);
-			if(psc.hasHUD()){
-				mHUD.init();
-	        	mHUD.setVisible(true);
-	        }
-	        else	
-	        	mHUD.setVisible(false);
-			
-			return true;
-		}
-		else
-			return false;
-	}*/
+
 	
 	//-----------------------------------------------------------------------------------------------------------------------------------------
 	// Pinch and zoom detector
 	//-----------------------------------------------------------------------------------------------------------------------------------------
 	@Override
 	public void onScrollStarted(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
+		Log.i(TAG,"onScrollStarted");
 		final float zoomFactor = this.mSmoothCamera.getZoomFactor();
-		this.mSmoothCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
+		this.mSmoothCamera.offsetCenter(-pDistanceX, -pDistanceY);
 	}
 
 	@Override
 	public void onScroll(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
+		Log.i(TAG,"onScroll");
 		final float zoomFactor = this.mSmoothCamera.getZoomFactor();
-		this.mSmoothCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
+		this.mSmoothCamera.offsetCenter(-pDistanceX, -pDistanceY);
 	}
 	
 	@Override
 	public void onScrollFinished(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
+		Log.i(TAG,"onScrollFinished");
 		final float zoomFactor = this.mSmoothCamera.getZoomFactor();
-		this.mSmoothCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
+		this.mSmoothCamera.offsetCenter(-pDistanceX, -pDistanceY);
 	}
 
 	@Override
 	public void onPinchZoomStarted(final PinchZoomDetector pPinchZoomDetector, final TouchEvent pTouchEvent) {
+		Log.i(TAG,"onPinchZoomStarted");
 		this.mPinchZoomStartedCameraZoomFactor = this.mSmoothCamera.getZoomFactor();
-		
 	}
 
 	@Override
 	public void onPinchZoom(final PinchZoomDetector pPinchZoomDetector, final TouchEvent pTouchEvent, final float pZoomFactor) {
 		//this.mSmoothCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
+		Log.i(TAG,"onPinchZoom");
 		if (pZoomFactor != 1)
 	    {
 	        // check bounds
 	        float newZoomFactor = mPinchZoomStartedCameraZoomFactor * pZoomFactor;
 	        if (newZoomFactor <= 1)
 	        	mSmoothCamera.setZoomFactor(1f);
-	        else if (newZoomFactor >= 1.5)
-	        	mSmoothCamera.setZoomFactor(1.5f);
+	        else if (newZoomFactor >= 2.5)
+	        	mSmoothCamera.setZoomFactor(2.5f);
 	        else
 	        	mSmoothCamera.setZoomFactor(newZoomFactor);
 	    }
@@ -532,14 +531,15 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	@Override
 	public void onPinchZoomFinished(final PinchZoomDetector pPinchZoomDetector, final TouchEvent pTouchEvent, final float pZoomFactor) {
 		//this.mSmoothCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
+		Log.i(TAG,"onPinchZoomFinished");
 		if (pZoomFactor != 1)
 	    {
 	        // check bounds
 	        float newZoomFactor = mPinchZoomStartedCameraZoomFactor * pZoomFactor;
 	        if (newZoomFactor <= 1)
 	        	mSmoothCamera.setZoomFactor(1f);
-	        else if (newZoomFactor >= 1.5)
-	        	mSmoothCamera.setZoomFactor(1.5f);
+	        else if (newZoomFactor >= 2.5)
+	        	mSmoothCamera.setZoomFactor(2.5f);
 	        else
 	        	mSmoothCamera.setZoomFactor(newZoomFactor);
 	    }
@@ -548,12 +548,15 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 
 	@Override
 	public boolean onSceneTouchEvent(final Scene pScene, final TouchEvent pSceneTouchEvent) {
+		Log.i(TAG,"onSceneTouchEvent");
 		this.mPinchZoomDetector.onTouchEvent(pSceneTouchEvent);
 
 		if(this.mPinchZoomDetector.isZooming()) {
+			Log.i(TAG,"onSceneTouchEvent isZooming");
 			this.mScrollDetector.setEnabled(false);
 		} else {
 			if(pSceneTouchEvent.isActionDown()) {
+				Log.i(TAG,"onSceneTouchEvent isScroling");
 				this.mScrollDetector.setEnabled(true);
 			}
 			this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
@@ -565,7 +568,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	// Implement IActivitySceneListener decetor
 	// ------------------------------------------------------------------------------
 	public void Zoom() {
-		this.mSmoothCamera.setZoomFactorDirect(1.5f);
+		this.mSmoothCamera.setZoomFactorDirect(2.5f);
 	}
 	@Override
 	public void unZoom() {
@@ -579,13 +582,22 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 				this.mSmoothCamera.setZoomFactorDirect(1f);
 			}
 			psc.resetScene();
-			mEngine.setScene(psc);
+			
 			if(psc.hasHUD()){
 				mHUD.init();
 	        	mHUD.setVisible(true);
+	        	mHUD.setSceneMessageHandler((ColoringScene)psc);
 	        }
 	        else	
 	        	mHUD.setVisible(false);
+			
+			if(psc.hasPinchAndZoomActive()){
+				psc.setOnSceneTouchListener(this);
+				psc.setTouchAreaBindingOnActionDownEnabled(true);
+			}
+			
+			//add scene to the engine
+			mEngine.setScene(psc);
 			
 			return true;
 		}

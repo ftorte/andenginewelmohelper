@@ -13,6 +13,6 @@ public interface IManageableScene {
 	public void initScene(SceneManager pSM, Engine theEngine, Context ctx, BaseGameActivity activity);
 	public void resetScene();
 	public String getFatherScene();
-	public boolean isPinchAndZoom();
+	public boolean hasPinchAndZoomActive();
 	public boolean hasHUD();
 }

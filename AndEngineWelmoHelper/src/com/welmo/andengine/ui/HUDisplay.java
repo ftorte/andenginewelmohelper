@@ -14,6 +14,7 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 
 import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.scenes.ColoringScene;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 
 public class HUDisplay extends HUD{
@@ -25,11 +26,11 @@ public class HUDisplay extends HUD{
 	private final static int 							START 				= 0;
 	private final static int 							CONFIGURED 			= 1;
 	private final static int 							INITIALIZED  		= 2;
-	//private final static int 							ICON_DIM_IN_dp		= 80;
-	//private final static float						ICON_INT_DIM_IN_dp	= 66;
 	
 	//only for test
-	boolean  FLAG = false;					
+	boolean 	 										FLAG 				= false;					
+	ColoringScene 										psc					= null;
+	
 	//-----------------------------------------------------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------------------------------
@@ -43,8 +44,9 @@ public class HUDisplay extends HUD{
 	protected 	boolean							mbConfigured 		= false;
 	protected 	Engine							mEngine 			= null;
 	protected 	int								mStatus				= START;
-	//Display										mDisplay			= null;
+	//Display									mDisplay			= null;
 	List<Sprite>								mButtonsList		= null;
+	
 	
 	// -----------------------------------------------------------------------------------------------------------------------------
 	// Constructor
@@ -60,7 +62,7 @@ public class HUDisplay extends HUD{
 		//FT Temporary if(!configured)
 		//FT Temporary 	throw new NullPointerException("HUD Not Configurrd");
 		if(mStatus == INITIALIZED)
-			throw new NullPointerException("HUD Initialization: initialization already called");
+			return;
 		
 		ColorPiker theColorPiker = new ColorPiker(this.mEngine.getVertexBufferObjectManager(),this);
 		
@@ -68,6 +70,14 @@ public class HUDisplay extends HUD{
 		theColorPiker.setRotationCenter(0, 0);
 		theColorPiker.setRotation(-90);
 		theColorPiker.setPosition(0,800);
+		this.registerTouchArea(theColorPiker);
+		
+		ToolsBar theToolsBar = new ToolsBar(this.mEngine.getVertexBufferObjectManager(),this);
+		
+		this.attachChild(theToolsBar);
+		theToolsBar.setRotationCenter(0, 0);
+		theToolsBar.setRotation(-90);
+		theToolsBar.setPosition(1280 - theToolsBar.getHeight(),800);
 		this.registerTouchArea(theColorPiker);
 		
         mStatus = INITIALIZED;
@@ -81,5 +91,12 @@ public class HUDisplay extends HUD{
 		this.mDescriptor 	= pDescriptor;
 		this.mbConfigured 	= true;
 		mStatus = CONFIGURED;
+	}
+	
+	public void HandleMessage(int msg, int param){
+		psc.setColorFill(param);
+	}
+	public void setSceneMessageHandler(ColoringScene psc){
+		this.psc = psc;
 	}
 }

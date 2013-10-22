@@ -213,6 +213,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 
 		if (localName.equalsIgnoreCase(ScnTags.S_SPRITE))
 			newDescriptor = readSpriteDescription(attributes);
+		else if (localName.equalsIgnoreCase(ScnTags.S_COLORING_SPRITE))
+			newDescriptor = readColoringSpriteDescription(attributes);
 		else if (localName.equalsIgnoreCase(ScnTags.S_COMPOUND_SPRITE))
 			newDescriptor = readCupondSprite(attributes);
 		else if (localName.equalsIgnoreCase(ScnTags.S_TEXT))
@@ -583,6 +585,24 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	
 		return pSpriteDsc;
 	}	
+	
+	private SpriteObjectDescriptor readColoringSpriteDescription(Attributes attr){
+	Log.i(TAG,"\t\t readColoringSpriteDescription");
+		
+		pSpriteDsc = new SpriteObjectDescriptor();
+		
+		// Read the sprite
+		pSpriteDsc.ID=Integer.parseInt(attr.getValue(ScnTags.S_A_ID));
+		
+		//parse position, dimension & orientation attributes
+		this.parseAttributesPosition(pSpriteDsc.getIPosition(),attr);
+		this.parseAttributesDimensions(pSpriteDsc.getIDimension(),attr);
+		this.parseAttributesOrientation(pSpriteDsc.getIOriantation(),attr);
+		this.parseAttributesCharacteristics(pSpriteDsc.getICharacteristis(),attr);
+	
+		return pSpriteDsc;
+	}
+	
 	private PuzzleObjectDescriptor readPuzzleDescription(Attributes attr){
 		Log.i(TAG,"\t\t readPuzzleDescription");
 
@@ -906,6 +926,12 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		case STATUS_PARSE_COMPONENT:
 			if (localName.equalsIgnoreCase(ScnTags.S_SPRITE)){
 				Log.i(TAG,"\t\t end Element SPRITE");
+				pSpriteDsc = null;
+				removeLastComponentDescriptor();
+				nComponents--;
+			}
+			else if (localName.equalsIgnoreCase(ScnTags.S_COLORING_SPRITE)){
+				Log.i(TAG,"\t\t end Element COLOTING_SPRITE");
 				pSpriteDsc = null;
 				removeLastComponentDescriptor();
 				nComponents--;

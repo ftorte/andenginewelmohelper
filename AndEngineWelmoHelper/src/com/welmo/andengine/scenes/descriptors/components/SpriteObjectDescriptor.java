@@ -4,7 +4,7 @@ package com.welmo.andengine.scenes.descriptors.components;
 public class SpriteObjectDescriptor extends BasicObjectDescriptor{
 	// enumerators to manage object types & object events
 	public enum SpritesTypes {
-	    NO_TYPE, STATIC, CLICKABLE, COMPOUND_SPRITE, ANIMATED
+	    NO_TYPE, STATIC, CLICKABLE, COMPOUND_SPRITE, ANIMATED, COLORING_SPRITE
 	}
 	
 	protected SpritesTypes 		type;
