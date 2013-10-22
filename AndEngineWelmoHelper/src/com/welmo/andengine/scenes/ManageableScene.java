@@ -438,8 +438,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 			nLockTouch=0;
 		Log.i(TAG,"\t unLocked Touch = " + nLockTouch);
 	}
-	@Override
-	public boolean isPinchAndZoom() {
+	public boolean hasPinchAndZoomActive() {
 		return this.bImplementPinchAndZoom;
 	}
 	@Override
@@ -447,7 +446,6 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		// TODO Auto-generated method stub
 		
 	}
-	@Override
 	public boolean hasHUD() {
 		return bHasHUD;
 	}

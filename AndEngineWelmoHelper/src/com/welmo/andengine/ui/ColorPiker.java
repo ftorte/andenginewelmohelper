@@ -8,6 +8,8 @@ import org.andengine.input.touch.detector.HoldDetector;
 import org.andengine.input.touch.detector.HoldDetector.IHoldDetectorListener;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
+import com.welmo.andengine.scenes.ColoringScene;
+
 import android.os.Handler;
 import android.util.Log;
 
@@ -121,9 +123,12 @@ public class ColorPiker extends Rectangle{
 		ToolBarButton[] 	pButtons;
 		int 				nSelectedButton = 0;
 		ToolBarButton		pFatherButtonToolBar = null;
+		HUDisplay			theHUD;
 		
 		public ColorToolBar(VertexBufferObjectManager pRectangleVertexBufferObject,Scene theScene,int[] colors) {
 			super(0,0,SCENEHEIGHT,BUTTOEXTDIM, pRectangleVertexBufferObject);
+			
+			theHUD = (HUDisplay) theScene;
 			
 			//create the array of buttons
 			pButtons = new ToolBarButton[NBOFBUTTON];
@@ -140,8 +145,6 @@ public class ColorPiker extends Rectangle{
 				theButton.setPosition(index*(BUTTOEXTDIM),0);
 				pTheScene.registerTouchArea(theButton);
 			}
-			//[FT]
-			//pTheScene.registerTouchArea(this);
 			
 		}
 		ToolBarButton getButton(int index){
@@ -164,7 +167,8 @@ public class ColorPiker extends Rectangle{
 			pButtons[nSelectedButton].setColorSelectorVisible(true);
 			if (pFatherButtonToolBar != null) 
 				this.pFatherButtonToolBar.setButtonColor(pButtons[nSelectedButton].getButtonColor());
-			
+			else
+				theHUD.HandleMessage(1, pButtons[nSelectedButton].getButtonColor());
 		}
 	}
 	

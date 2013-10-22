@@ -19,14 +19,18 @@ import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
+import org.andengine.opengl.texture.atlas.bitmap.source.EmptyBitmapTextureAtlasSource;
 import org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSource;
+import org.andengine.opengl.texture.atlas.bitmap.source.decorator.BaseBitmapTextureAtlasSourceDecorator;
 import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtlasBuilder;
 import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder.TextureAtlasBuilderException;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
+import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.util.color.Color;
 import org.andengine.util.debug.Debug;
+import org.andengine.util.modifier.IModifier.DeepCopyNotSupportedException;
 
 import com.welmo.andengine.resources.descriptors.components.BuildableTextureDescriptor;
 import com.welmo.andengine.resources.descriptors.components.ColorDescriptor;
@@ -41,6 +45,9 @@ import com.welmo.andengine.utility.TransparentBitmapTextureAtlasSource;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.util.Log;
@@ -76,10 +83,21 @@ public class ResourcesManager {
 	private HashMap<String, ITiledTextureRegion>  			mapTiledTextureRegions;
 	private HashMap<String, Music> 							mapMusics;
 	private HashMap<String, SoundContainer>  				mapSound;
+	private HashMap<String, DecoratedTextures>				mapDecoratedTextures;
 	
 	// singleton Instance
 	private static ResourcesManager 	mInstance=null;
 	
+	// -----------------------------------------------------------------
+	//[FT] Temporary varaibles to manage the decorated textures
+	// [FT] Bitmap balloon = null;
+	Bitmap baloonworking = null;
+	
+	private int[] pixelsCopy	=	new int[1024*750];
+	private int[] stack			= 	new int[1024*750];
+	//[FT] Temporary varaibles to manage the decorated textures
+	// -----------------------------------------------------------------
+	// Inner classess
 	// -----------------------------------------------------------------
 	// Inner class SoundExtended
 	public class SoundContainer{
@@ -117,19 +135,111 @@ public class ResourcesManager {
 		}
 	}
 	
+	// Inner class PixelImageContainter
+	public class DecoratedTextures{
+		
+		Bitmap 								theBitmap 					= null;
+		Bitmap 								theBitmapOrg 				= null;
+		
+		ITextureRegion  					mDecoratedTextureRegion		= null;
+		private int[] 						pixelsCopy					= null;
+		private int							width 						= 0;
+		private int							height 						= 0;
+		private BitmapTextureAtlas 			theTextureAtlas				= null;
+		private IBitmapTextureAtlasSource 	decoratedTextureAtlasSource = null;
+		private Context						theCtx						= null;
+		public final int					MAX_WIDTH					= 2048;
+		public final int					MAX_HEIGHT					= 2048;
+		private String						strName						= "";
+		
+		
+		public DecoratedTextures(Context ctx , String imageSource, BitmapTextureAtlas bitmapTextureAtlas) {
+		
+			this.pixelsCopy 		= new int[MAX_WIDTH*MAX_HEIGHT];
+			this.theTextureAtlas 	= bitmapTextureAtlas;
+			this.theCtx 			= ctx;
+			this.strName			= imageSource;
+			try {
+				theBitmapOrg 	= BitmapFactory.decodeStream(theCtx.getAssets().open(imageSource));
+				this.width 		= theBitmapOrg.getWidth();
+				this.height		= theBitmapOrg.getHeight();
+				theBitmap 		= theBitmapOrg.copy(Bitmap.Config.ARGB_8888, true);
+				theBitmap.getPixels(pixelsCopy, 0, width, 0, 0, width, height);
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			//Decorate the texture atlas with the image
+			decoratedTextureAtlasSource = new BaseBitmapTextureAtlasSourceDecorator(new EmptyBitmapTextureAtlasSource(1024, 750)) {
+				@Override
+				protected void onDecorateBitmap(Canvas pCanvas) throws Exception {
+					pCanvas.drawBitmap(theBitmap, 0, 0, this.mPaint);
+				}
+				
+				@Override
+				public BaseBitmapTextureAtlasSourceDecorator deepCopy() {
+					throw new DeepCopyNotSupportedException();
+				}
+			};
+
+			mDecoratedTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromSource(bitmapTextureAtlas, decoratedTextureAtlasSource, 0, 0);			
+		}
+		public int getWidth(){return width;};
+		public int getHeight(){return height;};
+		public ITextureRegion getTexture(){return this.mDecoratedTextureRegion;};
+		
+		public void loadImage(String newImage){
+			
+			if (strName.equalsIgnoreCase(newImage))
+				return;
+			
+			this.strName = newImage;
+			
+			try {
+				theBitmapOrg 	= BitmapFactory.decodeStream(theCtx.getAssets().open(newImage));
+				height 			= theBitmapOrg.getHeight();
+				width 			= theBitmapOrg.getWidth();
+				theBitmap 		= theBitmapOrg.copy(Bitmap.Config.ARGB_8888, true);
+				theBitmap.getPixels(pixelsCopy, 0, width, 0, 0, width, height);
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			theTextureAtlas.clearTextureAtlasSources();
+			mDecoratedTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromSource(theTextureAtlas, decoratedTextureAtlasSource, 0, 0);
+		}
+		public String getName(){
+			return strName;
+		}
+		public int[] getPixelsCopy(){
+			return this.pixelsCopy;
+		}
+		public void setPixelsFromCopy(int[] pixelsCopy){
+			theBitmap.setPixels(pixelsCopy, 0, width, 0, 0, width, height);
+		}
+		public void reloadBitmap(){
+			theTextureAtlas.clearTextureAtlasSources();
+			mDecoratedTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromSource(theTextureAtlas, decoratedTextureAtlasSource, 0, 0);
+		}
+		
+	}
 	// ===========================================================
 	// Constructors
 	// ===========================================================
 	private ResourcesManager(){
-		mapFonts = new HashMap<String, Font>();
-		mapTextureRegions = new HashMap<String, ITextureRegion>();
-		mapBitmapTexturesAtlas = new HashMap<String, BitmapTextureAtlas>();
-		mapColors = new HashMap<String, Color>();
-		mapBuildablBitmapTexturesAtlas = new HashMap<String, BuildableBitmapTextureAtlas>();
-		mapTiledTextureRegions = new HashMap<String, ITiledTextureRegion>();
-		mapMusics = new HashMap<String, Music>();
-		mapSound = new HashMap<String, SoundContainer>();
-		initialized = false;
+		mapFonts 						= new HashMap<String, Font>();
+		mapTextureRegions 				= new HashMap<String, ITextureRegion>();
+		mapBitmapTexturesAtlas 			= new HashMap<String, BitmapTextureAtlas>();
+		mapColors 						= new HashMap<String, Color>();
+		mapBuildablBitmapTexturesAtlas 	= new HashMap<String, BuildableBitmapTextureAtlas>();
+		mapTiledTextureRegions 			= new HashMap<String, ITiledTextureRegion>();
+		mapMusics 						= new HashMap<String, Music>();
+		mapSound 						= new HashMap<String, SoundContainer>();
+		mapDecoratedTextures 			= new HashMap<String, DecoratedTextures>();
+		initialized 					= false;
 	}
 	@method
 	public synchronized static ResourcesManager getInstance(){
@@ -146,6 +256,7 @@ public class ResourcesManager {
 			mapColors.clear();
 			mapBuildablBitmapTexturesAtlas.clear();
 			mapTiledTextureRegions.clear();
+			mapDecoratedTextures.clear();
 			initialized = false;
 		}
 		if(!initialized){
@@ -234,18 +345,11 @@ public class ResourcesManager {
 			throw new IllegalArgumentException("In LoadTexture: Tentative to load a texture already loaded");
 
 		//Create the texture
-		
-		//FT BitmapTextureAtlas pTextureAtlas=null;
-		//FT BitmapTextureAtlasTextureRegionFactory.createFromSource(pTextureAtlas, 
-		//FT 		new TransparentBitmapTextureAtlasSource(pTextRegDsc.Parameters[ResTags.R_A_WIDTH_IDX]
-		//FT
-		//FT 				,pTextRegDsc.Parameters[ResTags.R_A_HEIGHT_IDX]), 0, 0);
-		
-		BitmapTextureAtlas pTextureAtlas = new BitmapTextureAtlas(mEngine.getTextureManager(),pTextRegDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTextRegDsc.Parameters[ResTags.R_A_HEIGHT_IDX], TextureOptions.BILINEAR);
-		//FT pTextureAtlas.addEmptyTextureAtlasSource(0,0, pTextRegDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTextRegDsc.Parameters[ResTags.R_A_HEIGHT_IDX]);
-		
+		BitmapTextureAtlas pTextureAtlas = new BitmapTextureAtlas(mEngine.getTextureManager(),pTextRegDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTextRegDsc.Parameters[ResTags.R_A_HEIGHT_IDX], TextureOptions.NEAREST);		
 		mapBitmapTexturesAtlas.put(pTextRegDsc.Name,pTextureAtlas);
 
+		pTextureAtlas.clearTextureAtlasSources();
+		
 		//iterate to all textureregion define in the texture
 		for (TextureRegionDescriptor pTRDsc:pTextRegDsc.Regions){	
 
@@ -289,6 +393,32 @@ public class ResourcesManager {
 		//return the found or loaded texture region
 		return theTexture;
 	}
+	public DecoratedTextures getDecoratedTextureRegion(String DecoratorName, String ImageName){
+		
+		BitmapTextureAtlas mBitmapTextureAtlas;
+		
+		if((mBitmapTextureAtlas = mapBitmapTexturesAtlas.get(DecoratorName))==null){
+			//Creation Bitmap Texture Atlas will contain the texture region
+			mBitmapTextureAtlas = new BitmapTextureAtlas(this.mEngine.getTextureManager(), 1024, 750, TextureOptions.BILINEAR);
+			mapBitmapTexturesAtlas.put(ImageName,mBitmapTextureAtlas);
+		
+			//Create the texture region container
+			DecoratedTextures imgContainer = new DecoratedTextures(this.mCtx,ImageName,mBitmapTextureAtlas);
+		
+			this.mapDecoratedTextures.put(ImageName, imgContainer);
+			//load the texture region into the engine
+			mBitmapTextureAtlas.load();
+			return imgContainer;	
+		}
+		else
+		{
+			DecoratedTextures imgContainer = mapDecoratedTextures.get(DecoratorName);
+			if(! imgContainer.getName().equalsIgnoreCase(ImageName))
+				imgContainer.loadImage(ImageName);
+			return imgContainer;
+		}
+	}
+	
 	// =============================================================================
 	// COLOR
 	// =============================================================================
@@ -296,16 +426,16 @@ public class ResourcesManager {
 		Log.i(TAG,"loadColor:" + colorName);
 		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
 		ColorDescriptor pColorDsc = pResDscMng.getColor(colorName);
-		
+
 		//create color
 		Color newColor = null;
 		newColor = new Color((float)(pColorDsc.Parameters[ResTags.R_A_RED_IDX]/255.0), 
 				(float)(pColorDsc.Parameters[ResTags.R_A_GREEN_IDX]/255.0),
-						(float)( pColorDsc.Parameters[ResTags.R_A_BLUE_IDX]/255.0));	
-		
+				(float)( pColorDsc.Parameters[ResTags.R_A_BLUE_IDX]/255.0));	
+
 		//add font to font manger
 		this.mapColors.put(colorName,newColor);
-		
+
 		//return the new font just created
 		return newColor;
 	}
@@ -316,7 +446,7 @@ public class ResourcesManager {
 			theColor = loadColor(colorName);
 		//return the found or loaded texture region
 		return theColor;
-		
+
 	}
 	// =============================================================================
 	// TILED TEXTURE REGION
@@ -324,7 +454,7 @@ public class ResourcesManager {
 	public synchronized ITexture loadBuildableTexture(String textureName){
 		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
 		BuildableTextureDescriptor pTextRegDsc = pResDscMng.getBuildableTexture(textureName);
-	
+
 		//check if texture already exists
 		if(mapBuildablBitmapTexturesAtlas.get(pTextRegDsc.Name)!=null)
 			throw new IllegalArgumentException("In LoadTexture: Tentative to load a texture already loaded");
