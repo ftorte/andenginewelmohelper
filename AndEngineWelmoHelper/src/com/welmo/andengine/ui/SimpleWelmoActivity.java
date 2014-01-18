@@ -6,30 +6,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.SmoothCamera;
-import org.andengine.engine.camera.ZoomCamera;
-import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
-import org.andengine.entity.IEntity;
-import org.andengine.entity.modifier.AlphaModifier;
-import org.andengine.entity.modifier.DelayModifier;
-import org.andengine.entity.modifier.ParallelEntityModifier;
-import org.andengine.entity.modifier.ScaleModifier;
-import org.andengine.entity.modifier.SequenceEntityModifier;
-import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.menu.MenuScene;
-import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
-import org.andengine.entity.scene.menu.item.IMenuItem;
-import org.andengine.entity.scene.menu.item.TextMenuItem;
-import org.andengine.entity.scene.menu.item.decorator.ColorMenuItemDecorator;
-import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
-import org.andengine.extension.svg.opengl.texture.atlas.bitmap.SVGBitmapTextureAtlasTextureRegionFactory;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.input.touch.controller.MultiTouch;
 import org.andengine.input.touch.detector.PinchZoomDetector;
@@ -37,13 +20,9 @@ import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.input.touch.detector.SurfaceScrollDetector;
 import org.andengine.input.touch.detector.PinchZoomDetector.IPinchZoomDetectorListener;
 import org.andengine.input.touch.detector.ScrollDetector.IScrollDetectorListener;
-import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
-import org.andengine.util.color.Color;
-import org.andengine.util.modifier.IModifier;
-import org.andengine.util.modifier.IModifier.IModifierListener;
 import org.andengine.util.progress.IProgressListener;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -52,20 +31,15 @@ import org.xml.sax.XMLReader;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SceneManager;
 import com.welmo.andengine.resources.descriptors.components.ParserXMLResourcesDescriptor;
-import com.welmo.andengine.scenes.ColoringScene;
 import com.welmo.andengine.scenes.IManageableScene;
+import com.welmo.andengine.scenes.ISceneMessageHandler;
 import com.welmo.andengine.scenes.ManageableScene;
-import com.welmo.andengine.scenes.MemoryScene;
-import com.welmo.andengine.scenes.ProgressDialogScene;
-import com.welmo.andengine.scenes.components.CardSprite;
 import com.welmo.andengine.scenes.components.IActivitySceneListener;
-import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.ParserXMLSceneDescriptor;
 import com.welmo.andengine.utility.AsyncResourcesScenesLoader;
 import com.welmo.andengine.utility.IAsyncCallBack;
@@ -76,9 +50,6 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	// Constants
 	// ===========================================================
 	private static final String 			TAG = "SimpleWelmoActivity";
-	private final static int 				DPI_ON_160	  			= 32;
-	private final static float				MIN_ICON_DIM_IN_INCH 	= 0.2f;
-	private final static float				MIN_ICO_INT_DIM_IN_INC 	= 0.15f;
 
 	//default values
 	final String 							FONTHBASEPATH 	= "font/";
@@ -108,7 +79,8 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	
 	private SurfaceScrollDetector 			mScrollDetector;
 	private PinchZoomDetector 				mPinchZoomDetector;
-	private float 							mPinchZoomStartedCameraZoomFactor;
+	private IScrollDetectorListener   		mScrollListener;
+	private IPinchZoomDetectorListener   	mPinchZoomlListener;
 	
 	protected IProgressListener 			progressDialog=null;
 	protected int							progressDone=0;
@@ -207,6 +179,16 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		
 		display.getMetrics(dm);
 		
+		Runtime rt = Runtime.getRuntime();
+		long maxMemory = rt.maxMemory();
+		
+		//create smart list to manage pinch&zoom and scroll
+		//mBKPITouchAreas = new SmartList<ITouchArea>();
+		
+		Log.v("onCreate", "maxMemory:" + Long.toString(maxMemory));
+		
+		gameToast("maxMemory:" + Long.toString(maxMemory));
+		
 		return engineOptions;
 	
 	}
@@ -242,8 +224,10 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		mSceneManager = new SceneManager(this);
 		mSceneManager.init(this.getEngine(), this);
 		
+		//creat pinch & zoom detectors
 		this.mScrollDetector = new SurfaceScrollDetector(this);
 		this.mPinchZoomDetector = new PinchZoomDetector(this);
+		
 		
 		//get the first scene
 		if((mFirstScene = mSceneManager.getScene(mFirstSceneName)) == null){
@@ -251,7 +235,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			this.mFirstScene = new Scene();
 		}
 		
-		//get the thank scene
+		//get the thanks scene
 		if(mThanksSceneName.length() > 0)
 			if((mThanksScene = mSceneManager.getScene(mThanksSceneName))== null){
 				gameToast("Wrong ThankScene Configuration");
@@ -288,7 +272,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		}).start();
 		
 		//add HUD
-		mHUD = new HUDisplay(this.mEngine);
+		mHUD = new HUDisplay(this.mEngine, nCameraWidth,nCameraHeight);
+		mScrollListener = mHUD;
+		mPinchZoomlListener = mHUD;
 		mSmoothCamera.setHUD(mHUD);
 		return mFirstScene;
 	}
@@ -481,71 +467,46 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 
 	
 	//-----------------------------------------------------------------------------------------------------------------------------------------
-	// Pinch and zoom detector
+	// Scroll detector listener
 	//-----------------------------------------------------------------------------------------------------------------------------------------
 	@Override
 	public void onScrollStarted(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
-		Log.i(TAG,"onScrollStarted");
-		final float zoomFactor = this.mSmoothCamera.getZoomFactor();
-		this.mSmoothCamera.offsetCenter(-pDistanceX, -pDistanceY);
+		mScrollListener.onScrollStarted(pScollDetector,pPointerID,pDistanceX,pDistanceY);
 	}
 
 	@Override
 	public void onScroll(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
-		Log.i(TAG,"onScroll");
-		final float zoomFactor = this.mSmoothCamera.getZoomFactor();
-		this.mSmoothCamera.offsetCenter(-pDistanceX, -pDistanceY);
+		mScrollListener.onScroll(pScollDetector,pPointerID,pDistanceX,pDistanceY);
 	}
 	
 	@Override
 	public void onScrollFinished(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
-		Log.i(TAG,"onScrollFinished");
-		final float zoomFactor = this.mSmoothCamera.getZoomFactor();
-		this.mSmoothCamera.offsetCenter(-pDistanceX, -pDistanceY);
+		mScrollListener.onScrollFinished(pScollDetector,pPointerID,pDistanceX,pDistanceY);
 	}
-
+	//-----------------------------------------------------------------------------------------------------------------------------------------
+	// Pinch and zoom detector
+	//-----------------------------------------------------------------------------------------------------------------------------------------	
 	@Override
 	public void onPinchZoomStarted(final PinchZoomDetector pPinchZoomDetector, final TouchEvent pTouchEvent) {
-		Log.i(TAG,"onPinchZoomStarted");
-		this.mPinchZoomStartedCameraZoomFactor = this.mSmoothCamera.getZoomFactor();
+		if(mPinchZoomlListener!= null)
+			mPinchZoomlListener.onPinchZoomStarted(pPinchZoomDetector,pTouchEvent);		
 	}
 
 	@Override
 	public void onPinchZoom(final PinchZoomDetector pPinchZoomDetector, final TouchEvent pTouchEvent, final float pZoomFactor) {
-		//this.mSmoothCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
-		Log.i(TAG,"onPinchZoom");
-		if (pZoomFactor != 1)
-	    {
-	        // check bounds
-	        float newZoomFactor = mPinchZoomStartedCameraZoomFactor * pZoomFactor;
-	        if (newZoomFactor <= 1)
-	        	mSmoothCamera.setZoomFactor(1f);
-	        else if (newZoomFactor >= 2.5)
-	        	mSmoothCamera.setZoomFactor(2.5f);
-	        else
-	        	mSmoothCamera.setZoomFactor(newZoomFactor);
-	    }
-		
+		if(mPinchZoomlListener!= null)
+			mPinchZoomlListener.onPinchZoom(pPinchZoomDetector,pTouchEvent,pZoomFactor);		
 	}
 
 	@Override
 	public void onPinchZoomFinished(final PinchZoomDetector pPinchZoomDetector, final TouchEvent pTouchEvent, final float pZoomFactor) {
-		//this.mSmoothCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
-		Log.i(TAG,"onPinchZoomFinished");
-		if (pZoomFactor != 1)
-	    {
-	        // check bounds
-	        float newZoomFactor = mPinchZoomStartedCameraZoomFactor * pZoomFactor;
-	        if (newZoomFactor <= 1)
-	        	mSmoothCamera.setZoomFactor(1f);
-	        else if (newZoomFactor >= 2.5)
-	        	mSmoothCamera.setZoomFactor(2.5f);
-	        else
-	        	mSmoothCamera.setZoomFactor(newZoomFactor);
-	    }
+		if(mPinchZoomlListener!= null)
+			mPinchZoomlListener.onPinchZoomFinished(pPinchZoomDetector,pTouchEvent,pZoomFactor);		
 	}
 
-
+	// ------------------------------------------------------------------------------
+	// Override BaseGameActivity Methods
+	// ------------------------------------------------------------------------------
 	@Override
 	public boolean onSceneTouchEvent(final Scene pScene, final TouchEvent pSceneTouchEvent) {
 		Log.i(TAG,"onSceneTouchEvent");
@@ -565,40 +526,43 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		return true;
 	}
 	// ------------------------------------------------------------------------------
-	// Implement IActivitySceneListener decetor
+	// Implement IActivitySceneListener detector
 	// ------------------------------------------------------------------------------
-	public void Zoom() {
-		this.mSmoothCamera.setZoomFactorDirect(2.5f);
-	}
-	@Override
-	public void unZoom() {
-		this.mSmoothCamera.setZoomFactorDirect(1);
-	}
+	//public void Zoom() {
+	//	this.mSmoothCamera.setZoomFactorDirect(2.5f);
+	//}
+	//@Override
+	//public void unZoom() {
+	//	this.mSmoothCamera.setZoomFactorDirect(1);
+	//}
 	//@Override
 	public boolean onChangeScene(String nextScene) {
 		ManageableScene psc = (ManageableScene) mSceneManager.getScene(nextScene);
 		if(psc != null){
-			if(this.mSmoothCamera.getZoomFactor() != 1){
-				this.mSmoothCamera.setZoomFactorDirect(1f);
-			}
+			//Cancel any zoom factor
+			unZoom();
+			// Cancel any scroll movements (position the camera center to the origin)
+			this.mSmoothCamera.setCenterDirect(nCameraWidth/2, nCameraHeight/2);
+			//reset the scene to initial state
 			psc.resetScene();
-			
+			// configure the HUD if any
 			if(psc.hasHUD()){
-				mHUD.init();
+				mHUD.config(psc.getHUDDsc(),(psc instanceof ISceneMessageHandler ? (ISceneMessageHandler)psc : null),this.mResourceManager);
 	        	mHUD.setVisible(true);
-	        	mHUD.setSceneMessageHandler((ColoringScene)psc);
 	        }
 	        else	
 	        	mHUD.setVisible(false);
-			
+			//Activate the pinch & zoom and the scroll if any
 			if(psc.hasPinchAndZoomActive()){
 				psc.setOnSceneTouchListener(this);
 				psc.setTouchAreaBindingOnActionDownEnabled(true);
 			}
-			
-			//add scene to the engine
+			else{
+				psc.setOnSceneTouchListener(null);
+				psc.setTouchAreaBindingOnActionDownEnabled(false);
+			}
+			//add scene to the engine to be displayed
 			mEngine.setScene(psc);
-			
 			return true;
 		}
 		else
@@ -606,6 +570,10 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	}
 	@Override
 	public void setIActivitySceneListener(IActivitySceneListener pListener) {
+		// TODO Auto-generated method stub
+	}
+	@Override
+	public void unZoom() {
 		// TODO Auto-generated method stub
 		
 	}
