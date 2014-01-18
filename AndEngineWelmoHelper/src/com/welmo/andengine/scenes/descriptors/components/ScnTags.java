@@ -16,7 +16,7 @@ public class ScnTags {
 	
 	//--------------------------------------------------------
 	//Scene Objects
-	public final static String S_SPRITE 			= "sprite";
+	public final static String S_O_SPRITE 			= "sprite";
 	public final static String S_CLICKABLE_SPRITE 	= "clickable_sprite";
 	public final static String S_ANIMATED_SPRITE 	= "animated_sprite";
 	public final static String S_COMPOUND_SPRITE 	= "compound_sprite";
@@ -25,6 +25,9 @@ public class ScnTags {
 	public final static String S_BACKGROUND 		= "background";
 	public final static String S_PUZZLE_SPRITE		= "puzzle_sprite";
 	public final static String S_HUD				= "HUD";
+	public static final String S_TOOLBAR 			= "toolbar";
+	public static final String S_BUTTON 			= "button";
+
 	
 	//Event handler
 	public final static String S_ACTION 			= "action";
@@ -52,6 +55,7 @@ public class ScnTags {
 	public final static String S_A_NEXT_SCENE		= "next_scene";
 	public final static String S_A_SCENE_CHANGE 	= "scene_change";
 	public final static String S_A_ID 				= "ID";
+	public final static String S_A_CLASSNAME 		= "ClassName";
 	public final static String S_A_TYPE				= "type";
 	public final static String S_A_RESOURCE_NAME 	= "resourceName";
 	
@@ -131,5 +135,18 @@ public class ScnTags {
 	
 	//Head UP Display
 	public final static String S_A_HUD				="HUD";
+	public final static String S_A_HASCOLORPICKER	="hasColorPicker";
+	public static final String S_A_HASSCROLLDETECTOR = "hasScrollDetector";
+	public static final String S_A_HASPINCHANDZOOM 	= "hasPinchAndZoom";
 	
+	//tools bar
+	public static final String S_A_TOLLBARPOSITION  ="position";
+	public static final String S_A_TOOLS 			="tools";
+	
+	//Button
+	public static final String S_A_BG_TEXTURE 		= "texture_BG";
+	public static final String S_A_ON_TEXTURE 		= "texture_ON";
+	public static final String S_A_OFF_TEXTURE 		= "texture_OFF";
+	public static final String S_A_EXT_DIM 			= "ext_dim";
+	public static final String S_A_INT_DIM 			= "int_dim";
 }	

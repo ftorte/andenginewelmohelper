@@ -9,6 +9,7 @@ import org.andengine.input.touch.TouchEvent;
 import android.util.Log;
 
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
+import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
@@ -116,6 +117,11 @@ public class DefaultIClickableImplementation implements IClickable {
 			return managed;
 		}
 		return false;
+	}
+	@Override
+	public void build(BasicDescriptor pDsc) {
+		// TODO Auto-generated method stub
+		
 	}	
 }
 
