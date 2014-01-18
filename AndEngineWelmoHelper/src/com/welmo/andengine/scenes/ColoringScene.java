@@ -3,12 +3,12 @@ package com.welmo.andengine.scenes;
 import java.util.Map;
 import com.welmo.andengine.scenes.components.ColoringSprite;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
-public class ColoringScene extends ManageableScene implements IConfigurableScene{
+public class ColoringScene extends ManageableScene implements IConfigurableScene, ISceneMessageHandler {
 	
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	private static final String TAG = "SplashScreen";
+	private static final String TAG = "ColoringScene";
 	private ColoringSprite	theColoringImage = null;
 
 
@@ -45,6 +45,20 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 	
 	public void setColorFill(int color){
 		theColoringImage.setColorFill(color);
+	}
+
+
+	// ===========================================================
+	// ISceneMessageHandler Methods
+	// ===========================================================	
+	@Override
+	public void SendMessage(Message msg) {
+		switch(msg.type){
+			case SET_COLOR:
+				setColorFill(msg.parameters.get(0));
+				break;
+		}// TODO Auto-generated method stub
+		
 	}
 	
 }
