@@ -104,7 +104,6 @@ public class MemoryScene extends ManageableScene {
 	// ===========================================================
 	// private & protected member function
 	// ===========================================================
-	//
 	public void configureMemory(MemorySceneDescriptor pdsc){
 		nMaxLevelAllowed 	= pdsc.getMaxLevelAllowed();
 		nTopBottomBorder 	= pdsc.getTopBottomBorder();
@@ -118,7 +117,6 @@ public class MemoryScene extends ManageableScene {
 		fFlipTime			= pdsc.getFlipTime();
 		fWaitBackFlip		= pdsc.getWaitBackFlip();
 	}
-	
 	protected void ResetSymbolList(){
 		alSymbolIDList.clear();
 		for(int i = 0; i < nMaxNbOfSymbols; i++)
@@ -127,7 +125,7 @@ public class MemoryScene extends ManageableScene {
 		}
 	}
 	/**
-	 * InitCardDeck: 	create a memory deck containing 2 equal card per available symbol. 
+	 * InitCardDeck: create a memory deck containing 2 equal card per available symbol. 
 	 * 					Shuffle the memory deck
 	 * 
 	 */
@@ -213,7 +211,7 @@ public class MemoryScene extends ManageableScene {
 			px += nCardWidth + nVIntraBorder + nDeltaBorderX;
 		}
 	}
-	public void ResetGeometry(){
+	protected void ResetGeometry(){
 		//get camera dimension
 		float camera_height = this.mEngine.getCamera().getHeight();
 		float camera_width = this.mEngine.getCamera().getWidth();
@@ -249,8 +247,7 @@ public class MemoryScene extends ManageableScene {
 		Log.i(TAG,"Border Delta X & DealtY = " + nDeltaBorderX + " " + nDeltaBorderY);
 		
 	}	
-	
-	void InitializeEventHandler(){
+	protected void InitializeEventHandler(){
 
 		//initialize Scene Event Handlers
 		for (ComponentEventHandlerDescriptor ehDsc:pSCDescriptor.pGlobalEventHandlerList){
@@ -259,8 +256,7 @@ public class MemoryScene extends ManageableScene {
 			this.hmEventHandlers.put(ehDsc.getID(), newEventHandler);
 		}
 	}
-
-	void InitializeCards(){
+	protected void InitializeCards(){
 
 			for(BasicDescriptor scObjDsc:pSCDescriptor.pChild.values()){
 				//reset dimension to fit memory layout
@@ -276,11 +272,13 @@ public class MemoryScene extends ManageableScene {
 				}
 			}
 			//TODO put code to check the if the allCads has less the 2*Number of max symbol exception
-	}
-			
-	// ===========================================================
-	// Interfaces & Superclass
-	// ===========================================================
+	}		
+	// ===========================================================================================
+	// Interfaces & Superclass implementation & overloading
+	// ===========================================================================================
+	// ===========================================================================================
+	// Interface IManageableScene
+	// ===========================================================================================
 	@Override
 	public void loadScene(SceneDescriptor sceneDescriptor) {
 		
@@ -348,7 +346,7 @@ public class MemoryScene extends ManageableScene {
 		RestartGame();
 	}
 
-	// ===========================================================
+	// ===========================================================================================
 	// Interface IOnActionSceneLeastener
 	@Override
 	public void onFlipCard(int CardID,CardSide CurrentSide){
@@ -452,10 +450,10 @@ public class MemoryScene extends ManageableScene {
 			playsequence.start();   
 		}
 	}
-	// ===========================================================		
-	// ===========================================================
+	// ===========================================================================================
+	// ===========================================================================================
 	// Public Methods
-	// ===========================================================
+	// ===========================================================================================
 	public void changeDifficulty(GameLevel newLevel){
 		switch(newLevel){
 		case EASY: 

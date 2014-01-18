@@ -17,6 +17,7 @@ import org.andengine.opengl.util.GLState;
 import org.andengine.opengl.vbo.DrawType;
 
 import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
@@ -220,6 +221,11 @@ public class CardSprite extends TiledSprite implements IClickable, IActionOnScen
 	}
 	public void setIActionOnSceneListener(IActionOnSceneListener pListener){
 		mIActionSceneListnerImpmementation = pListener;
+	}
+	@Override
+	public void build(BasicDescriptor pDsc) {
+		// TODO Auto-generated method stub
+		
 	}
 }
 

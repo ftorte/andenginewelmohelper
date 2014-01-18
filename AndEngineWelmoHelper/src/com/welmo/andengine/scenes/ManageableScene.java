@@ -41,6 +41,7 @@ import com.welmo.andengine.scenes.components.puzzle.PuzzleSprites;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
@@ -71,7 +72,9 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	protected HashMap<String, SoundSequence> 				mapOfPhrases;
 	protected boolean										bImplementPinchAndZoom;
 	protected boolean										bHasHUD;
+	protected HUDDescriptor									pHUDDsc;
 	
+
 	protected SceneDescriptor 								pSCDescriptor;
 	protected HashMap<Integer, IComponentEventHandler> 		hmEventHandlers;
 	protected int											nLockTouch=0;
@@ -88,7 +91,10 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		bImplementPinchAndZoom = false;
 	}
 	// ===========================================================================================
-	// Load the scene
+	// Interfaces & Superclass implementation & overloading
+	// ===========================================================================================
+	// ===========================================================================================
+	// Interface IManageableScene
 	// ===========================================================================================
 	public void loadScene(SceneDescriptor sceneDescriptor) {
 		pSCDescriptor = sceneDescriptor;
@@ -96,6 +102,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		//Init default value by reading configuration
 		bImplementPinchAndZoom 	= sceneDescriptor.isPinchAndZoom();
 		bHasHUD					= sceneDescriptor.hasHUD();
+		pHUDDsc					= sceneDescriptor.getHUDDsc();
 		
 		for (ComponentEventHandlerDescriptor ehDsc:pSCDescriptor.pGlobalEventHandlerList){
 			ComponentDefaultEventHandler newEventHandler= new ComponentDefaultEventHandler();
@@ -103,6 +110,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 			this.hmEventHandlers.put(ehDsc.getID(), newEventHandler);
 		}
 
+		//load each components constituting the scene
 		for(BasicDescriptor scObjDsc:pSCDescriptor.pChild.values()){
 			loadComponent(scObjDsc, this);
 		}
@@ -448,5 +456,11 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	}
 	public boolean hasHUD() {
 		return bHasHUD;
+	}
+	public HUDDescriptor getHUDDsc() {
+		return pHUDDsc;
+	}
+	public void setHUDDsc(HUDDescriptor pHUDDsc) {
+		this.pHUDDsc = pHUDDsc;
 	}
 }

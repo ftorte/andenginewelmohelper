@@ -1,6 +1,5 @@
 package com.welmo.andengine.scenes.components;
 
-import java.util.HashMap;
 
 import org.andengine.engine.Engine;
 import org.andengine.entity.shape.IAreaShape;
@@ -10,15 +9,10 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.IFont;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
-
 import android.util.Log;
-
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.Alignment;
-import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
-import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
@@ -107,5 +101,10 @@ public class TextComponent extends Text implements IBasicComponent, IClickable{
 	@Override
 	public void onFireEventAction(Events event, ActionType type) {
 		mIClicakableImpmementation.onFireEventAction(event, type);
+	}
+	@Override
+	public void build(BasicDescriptor pDsc) {
+		// TODO Auto-generated method stub
+		
 	}
 }

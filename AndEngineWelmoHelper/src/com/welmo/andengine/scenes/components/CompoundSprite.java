@@ -17,6 +17,7 @@ import android.util.Log;
 
 import com.welmo.andengine.managers.EventDescriptionsManager;
 import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
@@ -157,5 +158,10 @@ public class CompoundSprite extends Rectangle implements IBasicComponent, IClick
 	@Override
 	public void onFireEventAction(Events event, ActionType type) {
 		mIClicakableImpmementation.onFireEventAction(event, type);
+	}
+	@Override
+	public void build(BasicDescriptor pDsc) {
+		// TODO Auto-generated method stub
+		
 	}
 }

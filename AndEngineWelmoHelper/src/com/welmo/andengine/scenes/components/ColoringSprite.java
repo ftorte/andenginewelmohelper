@@ -1,19 +1,24 @@
 package com.welmo.andengine.scenes.components;
 
+
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-
 import android.util.Log;
-
 import com.welmo.andengine.managers.ResourcesManager.DecoratedTextures;
+import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 
 public class ColoringSprite  extends Sprite implements IBasicComponent{
 	
 	// --------------------------------------------------------------------------------
 	// Constant
 	// --------------------------------------------------------------------------------
-	final static String 				TAG 					="ColoringSprite";
+	final static String 				TAG 					= "ColoringSprite";
+	final static int					LONG_CLICK_MASK			= 0X03;
+	final static int					NANOSEC_PER_CENTSEC		= 10000000;
+	final static long					MIN_CLICK_TIME_IN_CENTSEC=5;
+	final static long					MAX_CLICK_TIME_IN_CENTSEC=20;
+	
 	// --------------------------------------------------------------------------------
 	// Memeber Variables
 	// --------------------------------------------------------------------------------
@@ -21,6 +26,12 @@ public class ColoringSprite  extends Sprite implements IBasicComponent{
 	private int 						ID						= 0;
 	private int							colorFill				= 0xFFFFFFFF;
 	private PixelsStack 				theStack 				= null;
+	private int							nLongClick				= 0x0;
+	protected long						lTimeStartInCentSec		= 0l;
+	protected long						lMinClickTime			= MIN_CLICK_TIME_IN_CENTSEC;
+	protected long						lMaxClickTime			= MAX_CLICK_TIME_IN_CENTSEC;
+	
+	
 	
 	// --------------------------------------------------------------
 	// Inner class to manage stack of pixels
@@ -67,13 +78,14 @@ public class ColoringSprite  extends Sprite implements IBasicComponent{
 		super(pX, pY, pDecoratedTextureRegion.getTexture(), pVertexBufferObjectManager);
 		theDecoratedTexture = pDecoratedTextureRegion;
 		theStack = new PixelsStack(1024, 1024);
+		nLongClick = 0x0;
 	}
 	
 	//--------------------------------------------------------------------------
 	// Load a new Image
-	// @imageName 		theNewfilename with the path from the resource to load the image example "gfx/monster01.png"
+	// @imageName 	theNewfilename with the path from the resource to load the image example "gfx/monster01.png"
 	//
-	public void loadImage(String imageName) {// TODO Auto-generated method stub
+	public void loadImage(String imageName) {
 		theDecoratedTexture.loadImage(imageName);
 	}
 	//--------------------------------------------------------------------------
@@ -104,25 +116,47 @@ public class ColoringSprite  extends Sprite implements IBasicComponent{
 	// Override interface ITouchArea
 	// --------------------------------------------------------------------------------	
 	@Override
-	public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
-		Log.i(TAG," Coloring sprite onAreaTouched");	
-		if(pSceneTouchEvent.isActionDown()){
-			Log.i(TAG," Sprite touched isActionDown");			
-			int[] pixelsCopy = theDecoratedTexture.getPixelsCopy();
-			int OldColor = pixelsCopy[convertXYtoID((int)pTouchAreaLocalX,(int)pTouchAreaLocalY)];
-			
-			floodFillScanlineStack(pixelsCopy,(int)pTouchAreaLocalX, (int)pTouchAreaLocalY, colorFill, OldColor);
-			
-			theDecoratedTexture.setPixelsFromCopy(pixelsCopy);
-			theDecoratedTexture.reloadBitmap();
-			
-			return true;
-		}
-		else if(pSceneTouchEvent.isActionUp()){
-			Log.i(TAG," Sprite touched isActionUp");	
-			return false;
+	public boolean onAreaTouched(TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+		Log.i(TAG," Coloring sprite onAreaTouched");
+		int action = pSceneTouchEvent.getAction();
+		
+		switch(action){
+			case TouchEvent.ACTION_UP:
+				long lCurrentTimeInCentSec = System.nanoTime()/NANOSEC_PER_CENTSEC;
+				Log.i(TAG," Coloring sprite onAreaTouched ACTION_UP time [" + lCurrentTimeInCentSec + "]");
+				long deltaTime = lCurrentTimeInCentSec - lTimeStartInCentSec;
+				Log.i(TAG," Coloring sprite onAreaTouched ACTION_UP click time [" + deltaTime + "]");
+				if((deltaTime >= lMinClickTime) & (deltaTime <= lMaxClickTime )){
+					flood((int) pTouchAreaLocalX, (int)pTouchAreaLocalY);
+					Log.i(TAG," Coloring sprite onAreaTouched ACTION_UP FLOOD");
+				}
+				lTimeStartInCentSec = 0;
+				break;
+			case TouchEvent.ACTION_DOWN:
+				lTimeStartInCentSec = System.nanoTime()/NANOSEC_PER_CENTSEC;
+				Log.i(TAG," Coloring sprite onAreaTouched ACTION_DOWN time [" + lTimeStartInCentSec + "]");
+				break; 
+			case TouchEvent.ACTION_MOVE:
+				break;
+			case TouchEvent.ACTION_OUTSIDE:
+			case TouchEvent.INVALID_POINTER_ID:
+			case TouchEvent.ACTION_CANCEL:
+				lTimeStartInCentSec = 0;
+				nLongClick = 0;
+				Log.i(TAG," Coloring sprite onAreaTouched ACTION_OTHERS nLongClick= " + nLongClick);
+				break;
 		}
 		return false;
+	}
+	// --------------------------------------------------------------------------------
+	// Color flood algorithm
+	// --------------------------------------------------------------------------------		
+	public void flood(int X, int Y){
+		int[] pixelsCopy = theDecoratedTexture.getPixelsCopy();
+		int OldColor = pixelsCopy[convertXYtoID(X,Y)];
+		floodFillScanlineStack(pixelsCopy,X, Y, colorFill, OldColor);
+		theDecoratedTexture.setPixelsFromCopy(pixelsCopy);
+		theDecoratedTexture.reloadBitmap();
 	}
 	public int convertXYtoID(int X, int Y){
 		return (Y << 10) | X;
@@ -156,7 +190,7 @@ public class ColoringSprite  extends Sprite implements IBasicComponent{
 	        
 	        spanLeft = spanRight = false;
 	        
-	        while(y1 < theStack.height && screenBuffer[convertXYtoID(x,y1)] == oldColor )
+	        while(y1 <= theStack.height && screenBuffer[convertXYtoID(x,y1)] == oldColor )
 	        {
 	        	screenBuffer[convertXYtoID(x,y1)] = newColor;
 	        	
@@ -181,5 +215,11 @@ public class ColoringSprite  extends Sprite implements IBasicComponent{
 	        	y1++;
 	        }
 	    }
+	}
+
+	@Override
+	public void build(BasicDescriptor pDsc) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -1,7 +1,9 @@
 package com.welmo.andengine.scenes.descriptors.components;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.andengine.entity.primitive.Rectangle;
 import org.xml.sax.Attributes;
@@ -9,42 +11,64 @@ import org.xml.sax.Attributes;
 import android.util.Log;
 
 public class HUDDescriptor extends BasicObjectDescriptor {
+
 	// -----------------------------------------------------------------------------------------------------------------------------
 	// Constants
-	private final static String 						TAG = "HUDisplay";
+	private final static String 						TAG 			= "HUDisplay";
+	//Member variables
+	private boolean										hasColorPicker 		= false;
+	private boolean										hasScrollDetector	= false;
+	private boolean										hasPinchAndZoom		= false;
 	
 	
-	public HUDDescriptor readHUDXMLDescription(Attributes attr){
-		Log.i(TAG,"\t\t readSpriteDescription");
-
-		HUDDescriptor pHUDDsc = new HUDDescriptor();
-
-		/*
-		// Read the sprite
-		pSpriteDsc.ID=Integer.parseInt(attr.getValue(ScnTags.S_A_ID));
-		Log.i(TAG,"\t\t readSpriteDescription ID " + pSpriteDsc.ID);
-		pSpriteDsc.textureName = new String(attr.getValue(ScnTags.S_A_RESOURCE_NAME));
-		if(attr.getValue(ScnTags.S_A_TYPE)!= null)
-			pSpriteDsc.type = SpriteObjectDescriptor.SpritesTypes.valueOf(attr.getValue(ScnTags.S_A_TYPE));
-		else
-			pSpriteDsc.type = SpriteObjectDescriptor.SpritesTypes.valueOf("STATIC");
-
-		//parse position, dimension & orientation attributes
-		this.parseAttributesPosition(pSpriteDsc.getIPosition(),attr);
-		this.parseAttributesDimensions(pSpriteDsc.getIDimension(),attr);
-		this.parseAttributesOrientation(pSpriteDsc.getIOriantation(),attr);
-		this.parseAttributesCharacteristics(pSpriteDsc.getICharacteristis(),attr);
-
-		if(attr.getValue(ScnTags.S_CLASS_NAME)!= null)
-			pSpriteDsc.className = new String(attr.getValue(ScnTags.S_CLASS_NAME));
-
-		if((attr.getValue(ScnTags.S_A_SIDEA)!= null) && (attr.getValue(ScnTags.S_A_SIDEB) != null)){
-			pSpriteDsc.nSideATile = Integer.parseInt(attr.getValue(ScnTags.S_A_SIDEA));
-			pSpriteDsc.nSideBTile = Integer.parseInt(attr.getValue(ScnTags.S_A_SIDEB));
-		}
-		 */
-
-		return pHUDDsc;
+	public boolean hasColorPicker() {
+		return hasColorPicker;
 	}
-
+	public boolean hasScrollDetector() {
+		return hasScrollDetector;
+	}
+	public boolean hasPinchAndZoom() {
+		return hasPinchAndZoom;
+	}
+	/***************************************************************
+	 * Constructor 
+	 ***************************************************************/
+	public HUDDescriptor() {
+		super();
+	}
+	/***************************************************************
+	 * Overrided functions 
+	 ***************************************************************/
+	@Override
+	public void readXMLDescription(Attributes attr){
+		Log.i(TAG,"\t\t readSpriteDescription");
+		
+		//call XML parser for class parent parameters
+		super.readXMLDescription(attr);
+	
+		String value;
+		// read if has colorPiker
+		if((value = attr.getValue(ScnTags.S_A_HASCOLORPICKER))!=null) hasColorPicker=Boolean.parseBoolean(value);
+		// read if has has Scroll Detector
+		if((value = attr.getValue(ScnTags.S_A_HASSCROLLDETECTOR))!=null) hasScrollDetector=Boolean.parseBoolean(value);
+		// read if has has Pinch AndZoom
+		if((value = attr.getValue(ScnTags.S_A_HASPINCHANDZOOM))!=null) hasPinchAndZoom=Boolean.parseBoolean(value);
+	}
+	/***************************************************************
+	 * Setters & Getters 
+	 ***************************************************************/
+	public List<ToolsBarDescriptor> getToolBarDescriptors() {
+		List<ToolsBarDescriptor> pToolsBars = new ArrayList<ToolsBarDescriptor>();
+		Iterator<Entry<Integer, BasicDescriptor>> pChildsIterator =  pChild.entrySet().iterator();
+		while(pChildsIterator.hasNext()){
+			Entry<Integer, BasicDescriptor> element = pChildsIterator.next();
+			if(element.getValue() instanceof ToolsBarDescriptor)
+				pToolsBars.add((ToolsBarDescriptor)element.getValue());
+		}
+		return pToolsBars;
+	}
+	public void setHasColorPicker(boolean hasColorPicker) {
+		this.hasColorPicker = hasColorPicker;
+	}
+	
 }
