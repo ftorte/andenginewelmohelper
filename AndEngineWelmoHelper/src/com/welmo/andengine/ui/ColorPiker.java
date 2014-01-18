@@ -11,9 +11,9 @@ import org.andengine.input.touch.detector.HoldDetector.IHoldDetectorListener;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import com.welmo.andengine.scenes.ColoringScene;
-import com.welmo.andengine.scenes.ISceneMessageHandler;
-import com.welmo.andengine.scenes.ISceneMessageHandler.Message;
-import com.welmo.andengine.scenes.ISceneMessageHandler.MessageTypes;
+import com.welmo.andengine.scenes.messages.ISceneMessageHandler;
+import com.welmo.andengine.scenes.messages.ISceneMessageHandler.MessageTypes;
+import com.welmo.andengine.scenes.messages.Message;
 
 import android.os.Handler;
 import android.util.Log;
