@@ -106,7 +106,7 @@ public class SceneManager {
 		if(!initialized)
 			throw new NullPointerException("Scene Manager not initialized"); 
 		
-		// Get the scene descriptor. If descriptor don't exist trow an error
+		// Get the scene descriptor. If descriptor don't exist throw an exception
 		SceneDescriptor pSCDercriptor = null;
 		if((pSCDercriptor = pSDM.getScene(strSceneName))== null)
 			throw new NullPointerException("Scene Descriptor not found for scene " + strSceneName); 
