@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
-import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 
 public class EventHandlersManager {
 	
