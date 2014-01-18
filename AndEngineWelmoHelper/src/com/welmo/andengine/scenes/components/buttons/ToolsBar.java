@@ -9,10 +9,11 @@ import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.Scene;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-import com.welmo.andengine.scenes.ISceneMessageHandler;
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ToolsBarDescriptor;
+import com.welmo.andengine.scenes.messages.ISceneMessageHandler;
+import com.welmo.andengine.scenes.messages.Message;
 import com.welmo.andengine.utility.ColorHelper;
 
 /******************************************************************************************************************
@@ -94,7 +95,7 @@ public class ToolsBar extends Rectangle implements ISceneMessageHandler{
 	// Implement Interface ISceneMessageHandler
 	// ----------------------------------------------------------------------------
 	@Override
-	public void SendMessage(ISceneMessageHandler.Message msg) {
+	public void SendMessage(Message msg) {
 		if(this.pMsgHandler != null)
 			pMsgHandler.SendMessage(msg);
 	}

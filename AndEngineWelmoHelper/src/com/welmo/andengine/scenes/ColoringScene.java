@@ -1,8 +1,12 @@
 package com.welmo.andengine.scenes;
 
 import java.util.Map;
+
 import com.welmo.andengine.scenes.components.ColoringSprite;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
+import com.welmo.andengine.scenes.messages.ISceneMessageHandler;
+import com.welmo.andengine.scenes.messages.Message;
+
 public class ColoringScene extends ManageableScene implements IConfigurableScene, ISceneMessageHandler {
 	
 	// ===========================================================
@@ -59,6 +63,5 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 				break;
 		}// TODO Auto-generated method stub
 		
-	}
-	
+	}	
 }

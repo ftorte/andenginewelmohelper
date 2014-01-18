@@ -2,9 +2,11 @@ package com.welmo.andengine.scenes.components.buttons;
 
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import com.welmo.andengine.scenes.ISceneMessageHandler;
-import com.welmo.andengine.scenes.ISceneMessageHandler.MessageTypes;
+
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
+import com.welmo.andengine.scenes.messages.ISceneMessageHandler;
+import com.welmo.andengine.scenes.messages.ISceneMessageHandler.MessageTypes;
+import com.welmo.andengine.scenes.messages.Message;
 
 public class ButtonOnOff extends ButtonBasic{
 	
@@ -15,16 +17,16 @@ public class ButtonOnOff extends ButtonBasic{
 	
 	boolean 								bON 		= false;
 	
-	protected ISceneMessageHandler.Message  msgON		= null;
-	protected ISceneMessageHandler.Message	msgOFF		= null;
+	protected Message  						msgON		= null;
+	protected Message						msgOFF		= null;
 	
 	
 	public ButtonOnOff(ButtonDescriptor parameters, ISceneMessageHandler messageHandler,
 			VertexBufferObjectManager pVertexBufferObjectManager) {
 		super(parameters,messageHandler,pVertexBufferObjectManager);
 		
-		msgON = new ISceneMessageHandler.Message(MessageTypes.ON,null);
-		msgOFF = new ISceneMessageHandler.Message(MessageTypes.OFF,null);
+		msgON = new Message(MessageTypes.ON,0);
+		msgOFF = new Message(MessageTypes.OFF,0);
 	}
 	@Override
 	public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
@@ -61,5 +63,10 @@ public class ButtonOnOff extends ButtonBasic{
 			this.insButtonON.setVisible(false);
 			this.insButtonOFF.setVisible(true);
 		}
+	}
+	@Override
+	public void parseMessage(ButtonDescriptor pDsc) {
+		// TODO Auto-generated method stub
+		
 	}
 }

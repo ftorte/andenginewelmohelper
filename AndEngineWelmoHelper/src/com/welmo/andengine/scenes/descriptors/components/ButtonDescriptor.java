@@ -1,5 +1,7 @@
 package com.welmo.andengine.scenes.descriptors.components;
 
+import java.util.List;
+
 import org.xml.sax.Attributes;
 
 import android.util.Log;
@@ -29,7 +31,7 @@ public class ButtonDescriptor extends BasicDescriptor{
 	public int							nInternalDimension			= 0;
 	
 	//messages
-	public List<Strings>				lEventMessages				= null;
+	public List<String>				lEventMessages				= null;
 	
 	void copy(ButtonDescriptor prt){
 		bSpriteBased					= prt.bSpriteBased;

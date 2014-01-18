@@ -11,7 +11,6 @@ import org.andengine.entity.shape.IAreaShape;
 import org.andengine.input.touch.TouchEvent;
 
 import android.util.Log;
-import com.welmo.andengine.scenes.components.IBasicComponent;
 
 public class PuzzleElementContainer extends Rectangle{
 

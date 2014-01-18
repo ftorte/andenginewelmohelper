@@ -1,8 +1,6 @@
 package com.welmo.andengine.scenes.components;
 
 import org.andengine.entity.shape.IAreaShape;
-
-import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.Alignment;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IPosition;
 

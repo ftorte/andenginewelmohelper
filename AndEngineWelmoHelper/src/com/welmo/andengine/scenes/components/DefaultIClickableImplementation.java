@@ -3,16 +3,11 @@ package com.welmo.andengine.scenes.components;
 import java.util.HashMap;
 
 import org.andengine.entity.IEntity;
-import org.andengine.entity.shape.IAreaShape;
 import org.andengine.input.touch.TouchEvent;
-
 import android.util.Log;
-
-import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
-import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
 public class DefaultIClickableImplementation implements IClickable {

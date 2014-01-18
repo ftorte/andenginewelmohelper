@@ -2,8 +2,6 @@ package com.welmo.andengine.scenes.descriptors.events;
 
 import java.util.LinkedList;
 
-import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
-
 public class ComponentEventHandlerDescriptor extends BasicModifierDescriptor{
 	public static enum Events {
 		NO_EVENT, ON_MOVE, ON_CLICK

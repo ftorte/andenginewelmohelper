@@ -123,18 +123,14 @@ public class ColoringSprite  extends Sprite implements IBasicComponent{
 		switch(action){
 			case TouchEvent.ACTION_UP:
 				long lCurrentTimeInCentSec = System.nanoTime()/NANOSEC_PER_CENTSEC;
-				Log.i(TAG," Coloring sprite onAreaTouched ACTION_UP time [" + lCurrentTimeInCentSec + "]");
 				long deltaTime = lCurrentTimeInCentSec - lTimeStartInCentSec;
-				Log.i(TAG," Coloring sprite onAreaTouched ACTION_UP click time [" + deltaTime + "]");
 				if((deltaTime >= lMinClickTime) & (deltaTime <= lMaxClickTime )){
 					flood((int) pTouchAreaLocalX, (int)pTouchAreaLocalY);
-					Log.i(TAG," Coloring sprite onAreaTouched ACTION_UP FLOOD");
 				}
 				lTimeStartInCentSec = 0;
 				break;
 			case TouchEvent.ACTION_DOWN:
 				lTimeStartInCentSec = System.nanoTime()/NANOSEC_PER_CENTSEC;
-				Log.i(TAG," Coloring sprite onAreaTouched ACTION_DOWN time [" + lTimeStartInCentSec + "]");
 				break; 
 			case TouchEvent.ACTION_MOVE:
 				break;
@@ -143,7 +139,6 @@ public class ColoringSprite  extends Sprite implements IBasicComponent{
 			case TouchEvent.ACTION_CANCEL:
 				lTimeStartInCentSec = 0;
 				nLongClick = 0;
-				Log.i(TAG," Coloring sprite onAreaTouched ACTION_OTHERS nLongClick= " + nLongClick);
 				break;
 		}
 		return false;

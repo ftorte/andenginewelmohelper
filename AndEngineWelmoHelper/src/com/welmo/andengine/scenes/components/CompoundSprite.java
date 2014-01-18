@@ -1,30 +1,17 @@
 package com.welmo.andengine.scenes.components;
-
-import java.util.HashMap;
-import java.util.List;
-
-import org.andengine.engine.Engine;
-import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
-import org.andengine.entity.IEntityMatcher;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.shape.IAreaShape;
-import org.andengine.entity.shape.IShape;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.util.Log;
 
-import com.welmo.andengine.managers.EventDescriptionsManager;
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
-import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
-import com.welmo.andengine.scenes.descriptors.events.SceneActions;
-import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
-import com.welmo.andengine.utility.MLOG;
 
 public class CompoundSprite extends Rectangle implements IBasicComponent, IClickable{
 
