@@ -37,10 +37,10 @@ import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SceneManager;
 import com.welmo.andengine.resources.descriptors.components.ParserXMLResourcesDescriptor;
 import com.welmo.andengine.scenes.IManageableScene;
-import com.welmo.andengine.scenes.ISceneMessageHandler;
 import com.welmo.andengine.scenes.ManageableScene;
 import com.welmo.andengine.scenes.components.IActivitySceneListener;
 import com.welmo.andengine.scenes.descriptors.components.ParserXMLSceneDescriptor;
+import com.welmo.andengine.scenes.messages.ISceneMessageHandler;
 import com.welmo.andengine.utility.AsyncResourcesScenesLoader;
 import com.welmo.andengine.utility.IAsyncCallBack;
 

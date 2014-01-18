@@ -1,6 +1,7 @@
 package com.welmo.andengine.ui;
 
 import java.util.Iterator;
+
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.SmoothCamera;
@@ -11,13 +12,16 @@ import org.andengine.input.touch.detector.PinchZoomDetector;
 import org.andengine.input.touch.detector.PinchZoomDetector.IPinchZoomDetectorListener;
 import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.input.touch.detector.ScrollDetector.IScrollDetectorListener;
+
 import android.util.Log;
+
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.scenes.ISceneMessageHandler;
 import com.welmo.andengine.scenes.components.buttons.ToolsBar;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.Positioning;
 import com.welmo.andengine.scenes.descriptors.components.ToolsBarDescriptor;
+import com.welmo.andengine.scenes.messages.ISceneMessageHandler;
+import com.welmo.andengine.scenes.messages.Message;
 
 /*
  * 
