@@ -90,8 +90,8 @@ public class SceneManager {
 		//if is not a configure try to build the scene
 		if(theScene == null)
 			return (Scene) BuildScenes(strSceneName);
-		else
-			return null;
+		
+		return null;
 	}
 	// ===========================================================
 	// private methods
