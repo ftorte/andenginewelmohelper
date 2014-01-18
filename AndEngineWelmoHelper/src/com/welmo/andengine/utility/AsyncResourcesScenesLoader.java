@@ -20,6 +20,5 @@ public class AsyncResourcesScenesLoader extends Thread{
 	public void run(){
 		_params.workToDo();
 		_params.onComplete();
-
 	}
 }
