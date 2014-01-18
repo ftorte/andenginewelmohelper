@@ -7,14 +7,9 @@ import org.andengine.entity.sprite.TiledSprite;
 //import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.entity.sprite.vbo.HighPerformanceTiledSpriteVertexBufferObject;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
-import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.DrawType;
-
-import android.util.Log;
-
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 
 public class PuzzleSprites extends Entity{
 	int 			nbRows				= 0;

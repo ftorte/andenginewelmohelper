@@ -21,14 +21,11 @@ import org.andengine.util.modifier.IModifier;
 import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.managers.ResourcesManager.SoundContainer;
-import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentModifierDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentModifierListDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ExecutionOrder;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
-import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
 public class ComponentDefaultEventHandler implements IEntityModifierListener, IComponentEventHandler{

@@ -11,11 +11,13 @@ import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.scenes.ISceneMessageHandler;
 import com.welmo.andengine.scenes.components.IBasicComponent;
 import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
+import com.welmo.andengine.scenes.messages.ISceneMessageHandler;
+import com.welmo.andengine.scenes.messages.Message;
 import com.welmo.andengine.utility.ColorHelper;
 
 /*
@@ -51,7 +53,7 @@ public abstract class ButtonBasic extends Rectangle implements IBasicComponent{
 	public static int								INITIALIZED 			= 1;
 	
 	//EventMessage
-	List<ISceneMessageHandler.Message>				mMessages				=null;
+	List<Message>				mMessages				=null;
 
 	public ButtonBasic(ButtonDescriptor parameters, ISceneMessageHandler messageHandler, VertexBufferObjectManager pVertexBufferObjectManager) {
 		
@@ -63,7 +65,7 @@ public abstract class ButtonBasic extends Rectangle implements IBasicComponent{
 		//Init Variables
 		
 		mMessageHandler = messageHandler;
-		mMessages = new ArrayList<ISceneMessageHandler.Message>();
+		mMessages = new ArrayList<Message>();
 		pVBO = pVertexBufferObjectManager;
 		configure(parameters);
 	}
