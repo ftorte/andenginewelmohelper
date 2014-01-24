@@ -20,14 +20,14 @@ import com.welmo.andengine.scenes.components.buttons.ToolsBar;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.Positioning;
 import com.welmo.andengine.scenes.descriptors.components.ToolsBarDescriptor;
-import com.welmo.andengine.scenes.messages.ISceneMessageHandler;
-import com.welmo.andengine.scenes.messages.Message;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
+import com.welmo.andengine.scenes.operations.Operation;
 
 /*
  * 
  */
 
-public class HUDisplay extends HUD implements ISceneMessageHandler, IScrollDetectorListener,IPinchZoomDetectorListener{
+public class HUDisplay extends HUD implements IOperationHandler, IScrollDetectorListener,IPinchZoomDetectorListener{
 
 	//-----------------------------------------------------------------------------------------------------------------------------
 	// Constants
@@ -59,7 +59,7 @@ public class HUDisplay extends HUD implements ISceneMessageHandler, IScrollDetec
 	
 	protected	int								mHeight				= 800;
 	protected 	int								mStatus				= START;
-	protected 	ISceneMessageHandler			mMsgHandler			= null;
+	protected 	IOperationHandler				mMsgHandler			= null;
 	protected 	float 							mPinchZoomStartedCameraZoomFactor = 0;
 	protected 	ResourcesManager				mResMgr				= null;
 	//Camera scroll
@@ -80,6 +80,9 @@ public class HUDisplay extends HUD implements ISceneMessageHandler, IScrollDetec
 	// -----------------------------------------------------------------------------------------------------------------------------
 	// Private function
 	private void init(ResourcesManager pResManger){
+		//configure hold event for tools bars
+		this.setTouchAreaBindingOnActionDownEnabled(true);
+		this.setTouchAreaBindingOnActionMoveEnabled(true);
 		
 		//if not configured generate an exception
 		if(this.mStatus < CONFIGURED)
@@ -101,7 +104,7 @@ public class HUDisplay extends HUD implements ISceneMessageHandler, IScrollDetec
 		while(toolBarDscIter.hasNext()){
 			ToolsBarDescriptor toolBarDsc = toolBarDscIter.next();
 			
-			//Create button toolBar
+			//Create the ToolBar
 			ToolsBar theToolsBar = new ToolsBar(this.mEngine.getVertexBufferObjectManager(),this, toolBarDsc);
 			
 			//set position of the toolBar
@@ -110,19 +113,19 @@ public class HUDisplay extends HUD implements ISceneMessageHandler, IScrollDetec
 			switch (position){
 				case TOP:
 					theToolsBar.setRotation(0);
-					theToolsBar.setPosition(0,0);
+					theToolsBar.setPosition(toolBarDsc.getX(),0);
 					break;
 				case BOTTOM:	
 					theToolsBar.setRotation(0);
-					theToolsBar.setPosition(0,mHeight-theToolsBar.getHeight());
+					theToolsBar.setPosition(toolBarDsc.getX(),mHeight-theToolsBar.getHeight());
 					break;
 				case LEFT:
 					theToolsBar.setRotation(-90);
-					theToolsBar.setPosition(0,mHeight);
+					theToolsBar.setPosition(0,mHeight-toolBarDsc.getY());
 					break;
 				case RIGHT:	
 					theToolsBar.setRotation(-90);
-					theToolsBar.setPosition(this.mWidth-theToolsBar.getHeight(),mHeight);
+					theToolsBar.setPosition(this.mWidth-theToolsBar.getHeight(),mHeight-toolBarDsc.getY());
 					break;
 			}
 			//Register toolsbar for touch and attach to the HUD
@@ -160,7 +163,7 @@ public class HUDisplay extends HUD implements ISceneMessageHandler, IScrollDetec
 	}
 	// -----------------------------------------------------------------------------------------------------------------------------
 	// Public function
-	public void config(HUDDescriptor pDescriptor, ISceneMessageHandler msgHandler, ResourcesManager pResManger){
+	public void config(HUDDescriptor pDescriptor, IOperationHandler msgHandler, ResourcesManager pResManger){
 		if(pDescriptor == null)
 			throw new NullPointerException("HUD Configuration: passed descriptor is null");
 		this.mMsgHandler 	= msgHandler;
@@ -171,12 +174,22 @@ public class HUDisplay extends HUD implements ISceneMessageHandler, IScrollDetec
 	public boolean isScrollDetectorON(){
 		return bScrollDetectorON;
 	}
-	// -----------------------------------------------------------------------------------------------------------------------------
-	// Interface ISceneMessageHandler
+	// ----------------------------------------------------------------------------
+	// Implement Interface IOperationHandler
+	// ----------------------------------------------------------------------------
 	@Override
-	public void SendMessage(Message msg) {
-		if (mMsgHandler != null)
-			mMsgHandler.SendMessage(msg);
+	public void doOperation(Operation msg) {
+		if(this.mMsgHandler != null){
+			//save current object chain
+			msg.pushHander(this);
+			//dispatch message
+			mMsgHandler.doOperation(msg);
+		}
+	}
+	@Override
+	public void undoOperation(Operation msg) {
+		IOperationHandler hdOperation = msg.getHander();// TODO Auto-generated method stub
+		hdOperation.undoOperation(msg);
 	}
 	//-----------------------------------------------------------------------------------------------------------------------------------------
 	// Scroll detector listener methods

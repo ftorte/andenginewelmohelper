@@ -7,10 +7,10 @@ public class SpriteObjectDescriptor extends BasicObjectDescriptor{
 	    NO_TYPE, STATIC, CLICKABLE, COMPOUND_SPRITE, ANIMATED, COLORING_SPRITE
 	}
 	
-	protected SpritesTypes 		type;
-	protected String 			textureName;
-	protected int 				nSideATile =0;
-	protected int 				nSideBTile =0;
+	public SpritesTypes 		type;
+	public String 			textureName;
+	public int 				nSideATile =0;
+	public int 				nSideBTile =0;
 	protected String 			soundName = "";
 	
 	public String getSoundName() {

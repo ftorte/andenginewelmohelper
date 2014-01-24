@@ -149,4 +149,6 @@ public class ScnTags {
 	public static final String S_A_OFF_TEXTURE 		= "texture_OFF";
 	public static final String S_A_EXT_DIM 			= "ext_dim";
 	public static final String S_A_INT_DIM 			= "int_dim";
+	public static final String S_A_ON_CLIK_MESSAGE 	= "on_click_message";
+	
 }	

@@ -9,11 +9,14 @@ import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
 
 public class Operation {
 
-	public 		OperationTypes 	type;			//	type of message
-	public 		List<Integer> 	parameters;		//  Parameter of the message
-	protected 	Deque<Operation> 	qObjectChain 	= new LinkedList<Operation>(); //Contain the Object path the massage has made from the source to the final object
+	public 		OperationTypes 				type;			//	type of message
+	public 		List<Integer> 				parameters;		//  Parameter of the message
+	protected 	IOperationHandler 			hdHandler = null; //  Contain the Object path the massage has made 
+															//  from the source to the final object
 	
-	//Constructor
+	//--------------------------------------------------------------------------------------
+	//Constructors
+	//--------------------------------------------------------------------------------------
 	public Operation(OperationTypes type, List<Integer> parameter){
 		this.type=type;
 		parameters = new ArrayList<Integer>();
@@ -23,11 +26,21 @@ public class Operation {
 				parameters.add(new Integer(parameter.get(i)));
 		}
 	}
-	//Constructor
+	public Operation(Operation copy){
+		this.type=copy.type;
+		this.parameters = new ArrayList<Integer>();
+		this.parameters.clear();
+		if(copy.parameters != null){
+			for(int i=0; i < copy.parameters.size();i++)
+				this.parameters.add(new Integer(copy.parameters.get(i)));
+		}
+		this.hdHandler = copy.hdHandler;
+	}
 	public Operation(){
 		this.type=OperationTypes.NULL;
 		parameters = new ArrayList<Integer>();
 		parameters.clear();
+
 	}
 	public Operation(OperationTypes type, Integer parameter){
 		this.type=type;
@@ -40,6 +53,7 @@ public class Operation {
 		parameters = new ArrayList<Integer>();
 		parameters.clear();
 	}
+	//--------------------------------------------------------------------------------------
 	public OperationTypes getType(){
 		return type;
 	}
@@ -47,9 +61,9 @@ public class Operation {
 		type=theType;
 	}
 	public int getParameter(int id){
-		if(id > parameters.size() || id < 1)
+		if(id >= parameters.size() || id < 0)
 			throw new NullPointerException("The message don't has the requested parameter");
-		return parameters.get(id-1);
+		return parameters.get(id);
 	}
 	public void setParameter(int... params) {
 		parameters.clear();
@@ -62,5 +76,11 @@ public class Operation {
 	    for (int i = 0; i < arParameters.size(); ++i){
 	    	parameters.add(arParameters.get(i));
 	    }
+	}
+	public void pushHander(IOperationHandler hdOper){
+		hdHandler = hdOper;
+	}
+	public IOperationHandler getHander(){
+		return hdHandler;
 	}
 }

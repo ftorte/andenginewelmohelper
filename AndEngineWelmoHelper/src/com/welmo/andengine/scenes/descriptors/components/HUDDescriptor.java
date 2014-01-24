@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 import org.andengine.entity.primitive.Rectangle;
 import org.xml.sax.Attributes;
 
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
+
 import android.util.Log;
 
 public class HUDDescriptor extends BasicObjectDescriptor {

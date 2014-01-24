@@ -6,13 +6,12 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 
-public class SceneDescriptor extends BasicObjectDescriptor {
+public class SceneDescriptor extends BasicDescriptor /*BasicObjectDescriptor*/ {
 	// =======================================================================================
 	// Constants
 	// =======================================================================================
@@ -22,11 +21,11 @@ public class SceneDescriptor extends BasicObjectDescriptor {
 	// =======================================================================================
 	public String 										sceneName="";
 	public String 										sceneFather="";
-	public LinkedList<ComponentEventHandlerDescriptor> pGlobalEventHandlerList;
+	public LinkedList<ComponentEventHandlerDescriptor>  pGlobalEventHandlerList;
 	
-	protected GameLevel									gameLevel=GameLevel.EASY;
+	protected GameLevel									gameLevel		=GameLevel.EASY;
 	protected HashMap<String,String[]> 					phrasesMap;
-	protected SceneType									sceneType=SceneType.DEFAULT;
+	protected SceneType									sceneType		=SceneType.DEFAULT;
 	
 	private boolean 									bPinchAndZoom	= false;
 	private boolean 									bHasHUD 		= false;

@@ -17,7 +17,7 @@ import org.andengine.opengl.util.GLState;
 import org.andengine.opengl.vbo.DrawType;
 
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
@@ -25,6 +25,7 @@ import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
 //import com.welmo.andengine.managers.ResourcesManager;
 //import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
+
 
 import android.opengl.GLES20;
 import android.util.Log;

@@ -9,17 +9,17 @@ import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.Scene;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ToolsBarDescriptor;
-import com.welmo.andengine.scenes.messages.ISceneMessageHandler;
-import com.welmo.andengine.scenes.messages.Message;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
+import com.welmo.andengine.scenes.operations.Operation;
 import com.welmo.andengine.utility.ColorHelper;
 
 /******************************************************************************************************************
  * ToolsBar class is a rectangle containing a set of button. 
  ******************************************************************************************************************/
-public class ToolsBar extends Rectangle implements ISceneMessageHandler{
+public class ToolsBar extends Rectangle implements IOperationHandler{
 
 	// -----------------------------------------------------------------------------------------
 	// Constants
@@ -33,28 +33,25 @@ public class ToolsBar extends Rectangle implements ISceneMessageHandler{
 	protected int 									nStatus					= START;
 	protected VertexBufferObjectManager				pVBO 					= null;
 	protected Scene									pTheScene				= null;
-	protected ISceneMessageHandler					pMsgHandler				= null;
+	protected IOperationHandler					pMsgHandler				= null;
 	
 	//buttons list
-	List<ButtonBasic> 								nListOfButtons;
+	List<ButtonBasic> 								nListOfButtons			= new ArrayList<ButtonBasic>();;
 	int 											nSelectedButton = 0;
 	ToolsBarDescriptor								pToolBarDecsriptor = null;
 
 	public ToolsBar(VertexBufferObjectManager pRectangleVertexBufferObject,Scene theScene, ToolsBarDescriptor pDescriptor){
 		super(0,0,pDescriptor.getWidth(),pDescriptor.getHeight(), pRectangleVertexBufferObject);
 		
-		pTheScene = theScene;
-		pVBO = pRectangleVertexBufferObject;
-		
-		nListOfButtons = new ArrayList<ButtonBasic>();
-		
-		pToolBarDecsriptor = pDescriptor;
+		pTheScene 			= theScene;
+		pVBO 				= pRectangleVertexBufferObject;
+		pToolBarDecsriptor 	= pDescriptor;
 		
 		//Check that the linked scene can accept messages
-		if(! (theScene instanceof ISceneMessageHandler))
+		if(! (theScene instanceof IOperationHandler))
 			throw new NullPointerException("the message handler is not right class type");
 		
-		pMsgHandler = (ISceneMessageHandler)theScene;
+		pMsgHandler = (IOperationHandler)theScene;
 		
 		init();
 	}
@@ -73,30 +70,48 @@ public class ToolsBar extends Rectangle implements ISceneMessageHandler{
 		
 		while(btnDscIterator.hasNext()) {
 			Entry<Integer,BasicDescriptor> entry = btnDscIterator.next();
+			if(!(entry.getValue() instanceof ButtonDescriptor))
+				throw new NullPointerException ("ToolBar accept only button descriptors");
+			
 			ButtonDescriptor pBtnDsc = (ButtonDescriptor) entry.getValue();
-			
-			ButtonOnOff theButton = new ButtonOnOff(pBtnDsc,this,pVBO);
-			theButton.build(pBtnDsc);
-			
-			theButton.nID = ButtonIndex++;
-			
-			nListOfButtons.add(theButton);
-			
-			this.attachChild(theButton);
-			
-			theButton.setPosition(lastXPosition,0);
-			
+			ButtonBasic newButton = null;
+			switch (ButtonBasic.Types.valueOf(pBtnDsc.getSubType())){
+				case BASIC:
+					break;
+				case CLICK:
+					newButton = new ButtonClick(pBtnDsc,this,pVBO);
+					break;
+				case ON_OFF:
+					newButton = new ButtonOnOff(pBtnDsc,this,pVBO);
+					break;
+				case ON_OFF_WITH_TIMER:
+					newButton = new ButtonOnOffwithTimer(pBtnDsc,this,pVBO);
+					break;
+				case PULSE:
+					newButton = new ButtonPulse(pBtnDsc,this,pVBO);
+					break;	
+			}
+			newButton.build(pBtnDsc);
+			newButton.nID = ButtonIndex++;
+			nListOfButtons.add(newButton);
+			this.attachChild(newButton);
+			newButton.setPosition(lastXPosition,0);
 			lastXPosition = lastXPosition + pBtnDsc.nExternaDimension;
-			
-			pTheScene.registerTouchArea(theButton);
+			pTheScene.registerTouchArea(newButton);
 		}
 	}
 	// ----------------------------------------------------------------------------
-	// Implement Interface ISceneMessageHandler
+	// Implement Interface IOperationHandler
 	// ----------------------------------------------------------------------------
 	@Override
-	public void SendMessage(Message msg) {
-		if(this.pMsgHandler != null)
-			pMsgHandler.SendMessage(msg);
+	public void doOperation(Operation msg) {
+		if(this.pMsgHandler != null){
+			pMsgHandler.doOperation(msg);
+		}
+	}
+	@Override
+	public void undoOperation(Operation msg) {
+		IOperationHandler hdOperation = msg.getHander();// TODO Auto-generated method stub
+		hdOperation.undoOperation(msg);
 	}
 }

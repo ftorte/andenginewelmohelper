@@ -4,9 +4,9 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
-import com.welmo.andengine.scenes.messages.ISceneMessageHandler;
-import com.welmo.andengine.scenes.messages.ISceneMessageHandler.MessageTypes;
-import com.welmo.andengine.scenes.messages.Message;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
+import com.welmo.andengine.scenes.operations.Operation;
+import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
 
 public class ButtonOnOff extends ButtonBasic{
 	
@@ -17,16 +17,16 @@ public class ButtonOnOff extends ButtonBasic{
 	
 	boolean 								bON 		= false;
 	
-	protected Message  						msgON		= null;
-	protected Message						msgOFF		= null;
+	protected Operation  						msgON		= null;
+	protected Operation						msgOFF		= null;
 	
 	
-	public ButtonOnOff(ButtonDescriptor parameters, ISceneMessageHandler messageHandler,
+	public ButtonOnOff(ButtonDescriptor parameters, IOperationHandler messageHandler,
 			VertexBufferObjectManager pVertexBufferObjectManager) {
 		super(parameters,messageHandler,pVertexBufferObjectManager);
 		
-		msgON = new Message(MessageTypes.ON,0);
-		msgOFF = new Message(MessageTypes.OFF,0);
+		msgON = new Operation(OperationTypes.ON,0);
+		msgOFF = new Operation(OperationTypes.OFF,0);
 	}
 	@Override
 	public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
@@ -35,11 +35,11 @@ public class ButtonOnOff extends ButtonBasic{
 			if(this.mParameters.bSpriteBased){
 				if(bON) {
 					this.setOFF();
-					this.mMessageHandler.SendMessage(msgON);
+					this.mMessageHandler.doOperation(msgON);
 				}
 				else{
 					this.setON();
-					this.mMessageHandler.SendMessage(msgOFF);
+					this.mMessageHandler.doOperation(msgOFF);
 				}
 			}
 			else{
@@ -66,7 +66,6 @@ public class ButtonOnOff extends ButtonBasic{
 	}
 	@Override
 	public void parseMessage(ButtonDescriptor pDsc) {
-		// TODO Auto-generated method stub
-		
+		pDsc.getOnClickMessage();
 	}
 }

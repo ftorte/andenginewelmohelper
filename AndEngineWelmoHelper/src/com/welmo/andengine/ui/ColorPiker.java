@@ -11,9 +11,9 @@ import org.andengine.input.touch.detector.HoldDetector.IHoldDetectorListener;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import com.welmo.andengine.scenes.ColoringScene;
-import com.welmo.andengine.scenes.messages.ISceneMessageHandler;
-import com.welmo.andengine.scenes.messages.ISceneMessageHandler.MessageTypes;
-import com.welmo.andengine.scenes.messages.Message;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
+import com.welmo.andengine.scenes.operations.Operation;
+import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
 
 import android.os.Handler;
 import android.util.Log;
@@ -61,7 +61,7 @@ public class ColorPiker extends Rectangle{
 	protected int 									nStatus					= START;
 	protected VertexBufferObjectManager				pVBO 					= null;
 	protected Scene									pTheScene				= null;
-	protected ISceneMessageHandler					pSceneMessageHandler	= null;
+	protected IOperationHandler					pSceneMessageHandler	= null;
 	protected ColorPickerToolBar					pColorPicker			= null;
 	//protected ColorToolBar[]						pColorPikers			= null;
 	
@@ -118,7 +118,7 @@ public class ColorPiker extends Rectangle{
 				theToolbar.onClickButton(nID);	
 				return true;
 			}
-			return false;
+			return true;
 		};
 	};
 	
@@ -164,16 +164,26 @@ public class ColorPiker extends Rectangle{
 		public void onClickButton(int ID){};
 		public void onChangeColorButton(int ID,int color){};
 	}
-	
+	//ColorPickerToolBar is the toolbar conaining the colors to select the color
 	private class ColorPickerToolBar extends ColorToolBar {
 		
-		ISceneMessageHandler			theMessageHandler 	= null;
-		ArrayList<ColorSelectorToolBar> listSelector		= null;
+		IOperationHandler				theMessageHandler 	= null;
+		ArrayList<ColorSelectorToolBar> listSelector	= null;
+		Runnable 						rHideSelector		= null;
 		
-		public ColorPickerToolBar(VertexBufferObjectManager pRectangleVertexBufferObject,int[] colors, int ID, ISceneMessageHandler msgHandler) {
+		public ColorPickerToolBar(VertexBufferObjectManager pRectangleVertexBufferObject,int[] colors, int ID, IOperationHandler msgHandler) {
 			super(pRectangleVertexBufferObject, colors,ID);
 			theMessageHandler = msgHandler;
 			listSelector = new ArrayList<ColorSelectorToolBar>();
+			
+			rHideSelector = new Runnable()
+			{
+			    public void run() 
+			    {
+			    	listSelector.get(nSelectedButton).setVisible(false);
+			    }
+			};
+			
 		}
 
 		public void addColorSelector(ColorSelectorToolBar theSelector){
@@ -198,18 +208,21 @@ public class ColorPiker extends Rectangle{
 			pButtons[nSelectedButton].setColor(Red(SELCTEDTOOLBACKGROUND),Green(SELCTEDTOOLBACKGROUND),Blue(SELCTEDTOOLBACKGROUND));
 			listSelector.get(ID).setVisible(true);
 			// send message to the scene
-			theMessageHandler.SendMessage(new Message(MessageTypes.SET_COLOR,pButtons[nSelectedButton].getButtonColor())); 
+			theMessageHandler.doOperation(new Operation(OperationTypes.SET_COLOR,pButtons[nSelectedButton].getButtonColor())); 
+			
+			// TODO Lauch the task to hide the selector with a delay of 2 seconds
+
 		}
 		@Override
 		public void onChangeColorButton(int theID,int color){
 			pButtons[theID].setButtonColor(color);
 			listSelector.get(theID).setVisible(false);
 			// send message to the scene
-			theMessageHandler.SendMessage(new Message(MessageTypes.SET_COLOR,color)); 
+			theMessageHandler.doOperation(new Operation(OperationTypes.SET_COLOR,color)); 
 		};
 		
 	}
-	
+	// ColorSelectorToolBar is the toolbar containing the set of 8 colors to select a new color
 	private class ColorSelectorToolBar extends ColorToolBar {
 		
 		protected ColorToolBar			pParentToolBar 	= null; // different from null if is a selector for a button
@@ -244,7 +257,7 @@ public class ColorPiker extends Rectangle{
 	//-------------------------------------------------------------------------------------------------------
 	// END PRIVATE INNER CLASSES
 	//-------------------------------------------------------------------------------------------------------
-	public ColorPiker(VertexBufferObjectManager pRectangleVertexBufferObject,Scene theScene, ISceneMessageHandler theMessageHandler){
+	public ColorPiker(VertexBufferObjectManager pRectangleVertexBufferObject,Scene theScene, IOperationHandler theMessageHandler){
 		super(0,0,SCENEHEIGHT,BUTTOEXTDIM, pRectangleVertexBufferObject);
 		pTheScene 				= theScene;
 		pSceneMessageHandler 	= theMessageHandler;

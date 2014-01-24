@@ -5,6 +5,7 @@ import org.andengine.ui.activity.BaseGameActivity;
 
 import com.welmo.andengine.managers.SceneManager;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
 
 import android.content.Context;
 
@@ -15,4 +16,5 @@ public interface IManageableScene {
 	public String getFatherScene();
 	public boolean hasPinchAndZoomActive();
 	public boolean hasHUD();
+	public void setFatherSceneMessageHandler(IOperationHandler pMgsHnd);
 }

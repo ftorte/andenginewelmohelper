@@ -9,9 +9,11 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.IFont;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
+
 import android.util.Log;
+
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
