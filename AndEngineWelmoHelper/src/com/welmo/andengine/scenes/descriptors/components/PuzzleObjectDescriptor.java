@@ -3,7 +3,7 @@ package com.welmo.andengine.scenes.descriptors.components;
 public class PuzzleObjectDescriptor extends BasicObjectDescriptor {
 	protected int 			nbColumns			= 0;
 	protected int			nbRows				= 0;
-	protected String 		textureName			="";
+	public String 		textureName			="";
 	protected float[]		mPiecesBox			= {0,0,0,0};
 	protected float[]		mPuzzleZone			= {0,0,0,0};
 	protected boolean		hasActiveBorder		= false;		//if true the pieces and container have borders

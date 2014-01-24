@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.xml.sax.Attributes;
 
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
+
 import android.util.Log;
 
 public class ButtonDescriptor extends BasicDescriptor{
@@ -31,9 +33,10 @@ public class ButtonDescriptor extends BasicDescriptor{
 	public int							nInternalDimension			= 0;
 	
 	//messages
-	public List<String>				lEventMessages				= null;
+	public List<String>				    lEventMessages				= null;
 	
-	void copy(ButtonDescriptor prt){
+	
+	private void copy(ButtonDescriptor prt){
 		bSpriteBased					= prt.bSpriteBased;
 		if(bSpriteBased){
 			sBackGroundTextureName 		= new String(prt.sBackGroundTextureName);
@@ -46,7 +49,11 @@ public class ButtonDescriptor extends BasicDescriptor{
 		}
 		nExternaDimension			= prt.nExternaDimension;
 		nInternalDimension			= prt.nInternalDimension;
+		
+		lEventMessages				= prt.lEventMessages;
 	}	
+	//Constructor copy temporary disabled
+	/*
 	public ButtonDescriptor(ButtonDescriptor prt){
 		if(prt!=null)
 			this.copy(prt);
@@ -56,7 +63,7 @@ public class ButtonDescriptor extends BasicDescriptor{
 			sButtonTextureON 			= new String("");
 			sButtonTextureOFF 			= new String("");
 		}
-	}
+	}*/
 	public ButtonDescriptor(){
 	}
 	/***************************************************************

@@ -39,13 +39,14 @@ import com.welmo.andengine.resources.descriptors.components.ParserXMLResourcesDe
 import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.ManageableScene;
 import com.welmo.andengine.scenes.components.IActivitySceneListener;
-import com.welmo.andengine.scenes.descriptors.components.ParserXMLSceneDescriptor;
-import com.welmo.andengine.scenes.messages.ISceneMessageHandler;
+import com.welmo.andengine.scenes.descriptors.ParserXMLSceneDescriptor;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
+import com.welmo.andengine.scenes.operations.Operation;
 import com.welmo.andengine.utility.AsyncResourcesScenesLoader;
 import com.welmo.andengine.utility.IAsyncCallBack;
 
 
-public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActivitySceneListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
+public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActivitySceneListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener ,IOperationHandler{
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -349,7 +350,6 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			Log.e("SAX XML", "sax parse io error", ioe); 
 		} 
 	}
-	
 	protected final void readScenesDescriptions(String[] filesNames){
 		try { 
 			SAXParserFactory spf = SAXParserFactory.newInstance(); 
@@ -378,9 +378,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		}
 		Log.i(TAG,"Scenes Loaded");
 	}
-	
-	
-	private final void loadResource(RESOURCETYPE type, String[] resources, int pctWorkLoad){
+	protected final void loadResource(RESOURCETYPE type, String[] resources, int pctWorkLoad){
 		//if list is null make the progress = to pctWorkLoad
 		if(resources.length <= 0){
 			if(pctWorkLoad>0)
@@ -412,7 +410,6 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			if(progressDialog != null)
 				progressDialog.onProgressChanged(progressDone);
 		}
-		
 	}
 	protected final void loadTextures(String[] textures, int pctWorkLoad) { 
 		loadResource(RESOURCETYPE.TEXTURES, textures, pctWorkLoad);
@@ -426,7 +423,6 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	protected final void loadMusics(String[] musics,int pctWorkLoad) {
 		loadResource(RESOURCETYPE.MUSICS, musics, pctWorkLoad);
 	}
-	
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
@@ -456,7 +452,6 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	public synchronized void onCustomResumeGame(){
 		
 	}
-
 	@Override
 	public synchronized void onPauseGame() {
 		// TODO Auto-generated method stub
@@ -464,8 +459,6 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		ResourcesManager mgr = ResourcesManager.getInstance();
 		mgr.PauseGame();
 	}
-
-	
 	//-----------------------------------------------------------------------------------------------------------------------------------------
 	// Scroll detector listener
 	//-----------------------------------------------------------------------------------------------------------------------------------------
@@ -473,12 +466,10 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	public void onScrollStarted(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
 		mScrollListener.onScrollStarted(pScollDetector,pPointerID,pDistanceX,pDistanceY);
 	}
-
 	@Override
 	public void onScroll(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
 		mScrollListener.onScroll(pScollDetector,pPointerID,pDistanceX,pDistanceY);
 	}
-	
 	@Override
 	public void onScrollFinished(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
 		mScrollListener.onScrollFinished(pScollDetector,pPointerID,pDistanceX,pDistanceY);
@@ -491,19 +482,16 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		if(mPinchZoomlListener!= null)
 			mPinchZoomlListener.onPinchZoomStarted(pPinchZoomDetector,pTouchEvent);		
 	}
-
 	@Override
 	public void onPinchZoom(final PinchZoomDetector pPinchZoomDetector, final TouchEvent pTouchEvent, final float pZoomFactor) {
 		if(mPinchZoomlListener!= null)
 			mPinchZoomlListener.onPinchZoom(pPinchZoomDetector,pTouchEvent,pZoomFactor);		
 	}
-
 	@Override
 	public void onPinchZoomFinished(final PinchZoomDetector pPinchZoomDetector, final TouchEvent pTouchEvent, final float pZoomFactor) {
 		if(mPinchZoomlListener!= null)
 			mPinchZoomlListener.onPinchZoomFinished(pPinchZoomDetector,pTouchEvent,pZoomFactor);		
 	}
-
 	// ------------------------------------------------------------------------------
 	// Override BaseGameActivity Methods
 	// ------------------------------------------------------------------------------
@@ -528,13 +516,6 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	// ------------------------------------------------------------------------------
 	// Implement IActivitySceneListener detector
 	// ------------------------------------------------------------------------------
-	//public void Zoom() {
-	//	this.mSmoothCamera.setZoomFactorDirect(2.5f);
-	//}
-	//@Override
-	//public void unZoom() {
-	//	this.mSmoothCamera.setZoomFactorDirect(1);
-	//}
 	//@Override
 	public boolean onChangeScene(String nextScene) {
 		ManageableScene psc = (ManageableScene) mSceneManager.getScene(nextScene);
@@ -543,11 +524,12 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			unZoom();
 			// Cancel any scroll movements (position the camera center to the origin)
 			this.mSmoothCamera.setCenterDirect(nCameraWidth/2, nCameraHeight/2);
+			this.mSmoothCamera.setZoomFactorDirect(1);
 			//reset the scene to initial state
 			psc.resetScene();
 			// configure the HUD if any
 			if(psc.hasHUD()){
-				mHUD.config(psc.getHUDDsc(),(psc instanceof ISceneMessageHandler ? (ISceneMessageHandler)psc : null),this.mResourceManager);
+				mHUD.config(psc.getHUDDsc(),(psc instanceof IOperationHandler ? (IOperationHandler)psc : null),this.mResourceManager);
 	        	mHUD.setVisible(true);
 	        }
 	        else	
@@ -561,6 +543,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 				psc.setOnSceneTouchListener(null);
 				psc.setTouchAreaBindingOnActionDownEnabled(false);
 			}
+			//set father message handler for messages that the scene dont handle
+			psc.setFatherSceneMessageHandler(this);
+			
 			//add scene to the engine to be displayed
 			mEngine.setScene(psc);
 			return true;
@@ -577,5 +562,22 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		// TODO Auto-generated method stub
 		
 	}
-
+	@Override
+	public void doOperation(Operation msg) {
+		switch(msg.type){
+			case RESET_SCROLL_ZOOM:
+				Log.i(TAG,"RESET_SCROLL");
+				// Cancel any scroll movements (position the camera center to the origin)
+				this.mSmoothCamera.setCenterDirect(nCameraWidth/2, nCameraHeight/2);
+				this.mSmoothCamera.setZoomFactorDirect(1);
+				break;
+			default:
+				break;
+		}
+	}
+	@Override
+	public void undoOperation(Operation msg) {
+		IOperationHandler hdOperation = msg.getHander();// TODO Auto-generated method stub
+		hdOperation.undoOperation(msg);
+	}	
 }

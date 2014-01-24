@@ -5,9 +5,9 @@ public class TextObjectDescriptor extends BasicObjectDescriptor{
 	public enum TextTypes {
 		NO_TYPE, SIMPLE
 	}
-	protected TextTypes type = TextTypes.NO_TYPE;;
-	protected String message;
-	protected String FontName;
+	public TextTypes type = TextTypes.NO_TYPE;;
+	public String message;
+	public String FontName;
 	
 	public TextTypes getType() {
 		return type;

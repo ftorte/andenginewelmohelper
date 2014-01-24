@@ -38,9 +38,9 @@ import com.welmo.andengine.scenes.components.Stick;
 import com.welmo.andengine.scenes.components.TextComponent;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.components.puzzle.PuzzleSprites;
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
@@ -48,7 +48,11 @@ import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.utility.SoundSequence;
+
+
+
 
 
 
@@ -77,6 +81,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 
 	protected SceneDescriptor 								pSCDescriptor;
 	protected HashMap<Integer, IComponentEventHandler> 		hmEventHandlers;
+	protected IOperationHandler 							hdFatherSceneMessageHandler = null;
 	protected int											nLockTouch=0;
 	
 	// ===========================================================================================
@@ -368,6 +373,8 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		//Enable audio option
 		mEngine.getEngineOptions().getAudioOptions().setNeedsMusic(true);
 		mEngine.getEngineOptions().getAudioOptions().setNeedsSound(true);
+		this.setTouchAreaBindingOnActionDownEnabled(true);
+		this.setTouchAreaBindingOnActionMoveEnabled(true);
 		pSM = sceneManager;
 	}
 	public void resetScene(){	
@@ -462,5 +469,9 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	}
 	public void setHUDDsc(HUDDescriptor pHUDDsc) {
 		this.pHUDDsc = pHUDDsc;
+	}
+	@Override
+	public void setFatherSceneMessageHandler(IOperationHandler pMgsHnd) {
+		hdFatherSceneMessageHandler = pMgsHnd;
 	}
 }

@@ -10,7 +10,7 @@ public class BackGroundObjectDescriptor extends BasicObjectDescriptor {
 		public String color;
 		public SpriteObjectDescriptor sprite;
 		
-		BackGroundObjectDescriptor(){
+		public BackGroundObjectDescriptor(){
 			type = BackGroundTypes.NO_TYPE;
 			color = "";
 			sprite = null;

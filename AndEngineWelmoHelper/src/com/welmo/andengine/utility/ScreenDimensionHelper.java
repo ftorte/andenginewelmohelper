@@ -20,6 +20,7 @@ public class ScreenDimensionHelper {
 	int orientation; 
 	
 	private ScreenDimensionHelper(Context ctx){
+		
 		WindowManager wm = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
 		display = wm.getDefaultDisplay();
 		width = display.getWidth();

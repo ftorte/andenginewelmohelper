@@ -3,7 +3,17 @@ package com.welmo.andengine.scenes.descriptors.components;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import org.xml.sax.Attributes;
+
+import android.util.Log;
+
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
+import com.welmo.andengine.utility.ScreenDimensionHelper;
+
 public abstract class BasicObjectDescriptor extends BasicDescriptor{
+	
+	public static String 				TAG ="BasicObjectDescriptor";
+	
 	public enum Alignment {
 	    NO_ALIGNEMENT, CENTER, LEFTH, TOP, BOTTOM, RIGHT
 	}
@@ -46,7 +56,6 @@ public abstract class BasicObjectDescriptor extends BasicDescriptor{
 	}
 	//----------------------------------------------------------------------//
 	//Protected members
-	//protected int 			ID;
 	protected int 			pX, pY;
 	protected int			pZOrder;
 	protected int 			width, height;
@@ -163,9 +172,6 @@ public abstract class BasicObjectDescriptor extends BasicDescriptor{
 			}
 		};
 	}
-	/*public int getID(){
-		return ID;
-	}*/
 	public void copyFrom(BasicObjectDescriptor copyfrom) {
 		super.copyFrom(copyfrom);
 		//ID 			= copyfrom.ID;
@@ -180,5 +186,91 @@ public abstract class BasicObjectDescriptor extends BasicDescriptor{
 		colorName	= copyfrom.colorName;
 		horizzontalAlignment 	= copyfrom.horizzontalAlignment; 
 		verticalAlignment		= copyfrom.verticalAlignment;
+	}
+	public void readXMLDescription(Attributes attributes) {
+		super.readXMLDescription(attributes);
+		parseAttributesPosition(this.getIPosition(), attributes);
+		parseAttributesDimensions(this.getIDimension(),attributes);
+		parseAttributesOrientation(this.getIOriantation(),attributes);
+		parseAttributesCharacteristics(this.getICharacteristis(),attributes);
+	}
+	//-------------------------------------------------------------------------------------
+	// Specfic private functions to read the attributes
+	//-------------------------------------------------------------------------------------
+	private void parseAttributesPosition(IPosition pPosition,Attributes attributes){
+		Log.i(TAG,"\t\t\t parseAttributesPosition");
+		if((attributes.getValue(ScnTags.S_A_POSITION_X) != null) && (attributes.getValue(ScnTags.S_A_POSITION_Y) != null)){
+			//pPosition.setX(dimHelper.parsPosition(ScreenDimensionHelper.X,attributes.getValue(ScnTags.S_A_POSITION_X)));
+			//pPosition.setY(dimHelper.parsPosition(ScreenDimensionHelper.Y,attributes.getValue(ScnTags.S_A_POSITION_Y)));
+			pPosition.setX(Integer.parseInt(attributes.getValue(ScnTags.S_A_POSITION_X)));
+			pPosition.setY(Integer.parseInt(attributes.getValue(ScnTags.S_A_POSITION_Y)));
+		}
+		else{
+			pPosition.setX(0);
+			pPosition.setY(0);
+		}
+		//read Z Order
+		if(attributes.getValue(ScnTags.S_A_Z_ORDER) != null){ 
+			pPosition.setZorder(Integer.parseInt(attributes.getValue(ScnTags.S_A_Z_ORDER)));
+		}
+		else{
+			pPosition.setZorder(0);
+		}
+		//read H Alignment
+		if(attributes.getValue(ScnTags.S_A_H_ALIGNEMENT) != null){ 
+			pPosition.setHorizontalAlignment(Alignment.valueOf(attributes.getValue(ScnTags.S_A_H_ALIGNEMENT)));
+		}
+		else{
+			pPosition.setHorizontalAlignment(Alignment.NO_ALIGNEMENT);
+		}
+		//read V Alignment
+		if(attributes.getValue(ScnTags.S_A_H_ALIGNEMENT) != null){ 
+			pPosition.setVerticalAlignment(Alignment.valueOf(attributes.getValue(ScnTags.S_A_V_ALIGNEMENT)));
+		}
+		else{
+			pPosition.setVerticalAlignment(Alignment.NO_ALIGNEMENT);
+		}
+	}
+	private void parseAttributesDimensions(IDimension pDimensions,Attributes attributes){
+		Log.i(TAG,"\t\t\t parseAttributesDimensions");
+		if((attributes.getValue(ScnTags.S_A_WIDTH) != null) && (attributes.getValue(ScnTags.S_A_WIDTH) != null)){
+			//pDimensions.setWidth(dimHelper.parsLenght(ScreenDimensionHelper.W, attributes.getValue(ScnTags.S_A_WIDTH)));
+			//pDimensions.setHeight(dimHelper.parsLenght(ScreenDimensionHelper.H, attributes.getValue(ScnTags.S_A_HEIGHT)));
+			pDimensions.setWidth(Integer.parseInt(attributes.getValue(ScnTags.S_A_WIDTH)));
+			pDimensions.setHeight(Integer.parseInt(attributes.getValue(ScnTags.S_A_HEIGHT)));
+		}
+		else{
+			pDimensions.setWidth(100);
+			pDimensions.setHeight(100);
+		}
+	}
+	private void parseAttributesOrientation(IOrientation pDimensions,Attributes attributes){
+		Log.i(TAG,"\t\t\t parseAttributesOrientation");
+
+		if(attributes.getValue(ScnTags.S_A_ORIENTATION) != null)
+			pDimensions.setOrientation(Float.parseFloat(attributes.getValue(ScnTags.S_A_ORIENTATION)));
+		else
+			pDimensions.setOrientation(0f);
+
+		if(attributes.getValue(ScnTags.S_A_ROTAION_CENTER_X) != null)
+			pDimensions.setRotationCenterX(Float.parseFloat(attributes.getValue(ScnTags.S_A_ROTAION_CENTER_X)));
+		else
+			pDimensions.setRotationCenterX(0f);
+
+		if(attributes.getValue(ScnTags.S_A_ROTAION_CENTER_Y) != null)
+			pDimensions.setRotationCenterY(Float.parseFloat(attributes.getValue(ScnTags.S_A_ROTAION_CENTER_Y)));
+		else
+			pDimensions.setRotationCenterY(0f);
+
+	}
+	private void parseAttributesCharacteristics(ICharacteristics pCharacteristics,Attributes attributes){
+		Log.i(TAG,"\t\t\t parseAttributesCharacteristics");
+		if(attributes.getValue(ScnTags.S_A_COLOR) != null){
+			Log.i(TAG,"parseAttributesCharacteristics Color = " + attributes.getValue(ScnTags.S_A_COLOR));
+			pCharacteristics.setColor(attributes.getValue(ScnTags.S_A_COLOR));
+			Log.i(TAG,"parseAttributesCharacteristics Color Set-up= " + pCharacteristics.getColor());
+		}
+		else
+			pCharacteristics.setColor("");
 	}
 }

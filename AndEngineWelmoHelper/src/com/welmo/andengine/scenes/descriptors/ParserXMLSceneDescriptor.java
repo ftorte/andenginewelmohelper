@@ -1,8 +1,10 @@
-package com.welmo.andengine.scenes.descriptors.components;
+package com.welmo.andengine.scenes.descriptors;
 
 
 import java.util.LinkedList;
 import java.util.StringTokenizer;
+
+
 
 
 import org.json.JSONArray;
@@ -18,16 +20,25 @@ import android.util.Log;
 import com.welmo.andengine.managers.EventDescriptionsManager;
 import com.welmo.andengine.managers.SceneDescriptorsManager;
 import com.welmo.andengine.scenes.components.Stick;
-import com.welmo.andengine.scenes.descriptors.ConfiguredSceneDescriptor;
-import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
-import com.welmo.andengine.scenes.descriptors.SceneType;
-import com.welmo.andengine.scenes.descriptors.MemorySceneDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.GameLevel;
+import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.MultiViewSceneDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ScnTags;
+import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ToolsBarDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor.BackGroundTypes;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.Alignment;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.ICharacteristics;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IDimension;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IOrientation;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IPosition;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor.SpritesTypes;
+import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor.TextTypes;
 import com.welmo.andengine.scenes.descriptors.events.BasicModifierDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;

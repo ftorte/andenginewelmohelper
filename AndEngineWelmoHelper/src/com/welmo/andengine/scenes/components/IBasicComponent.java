@@ -1,7 +1,8 @@
 package com.welmo.andengine.scenes.components;
 
 import org.andengine.entity.IEntity;
-import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
+
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 
 public interface IBasicComponent {
 	int getID();

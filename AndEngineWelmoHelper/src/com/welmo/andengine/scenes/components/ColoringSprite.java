@@ -4,11 +4,15 @@ package com.welmo.andengine.scenes.components;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import android.util.Log;
-import com.welmo.andengine.managers.ResourcesManager.DecoratedTextures;
-import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
 
-public class ColoringSprite  extends Sprite implements IBasicComponent{
+import android.util.Log;
+
+import com.welmo.andengine.managers.ResourcesManager.DecoratedTextures;
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
+import com.welmo.andengine.scenes.operations.Operation;
+
+public class ColoringSprite  extends Sprite implements IBasicComponent, IOperationHandler{
 	
 	// --------------------------------------------------------------------------------
 	// Constant
@@ -30,7 +34,7 @@ public class ColoringSprite  extends Sprite implements IBasicComponent{
 	protected long						lTimeStartInCentSec		= 0l;
 	protected long						lMinClickTime			= MIN_CLICK_TIME_IN_CENTSEC;
 	protected long						lMaxClickTime			= MAX_CLICK_TIME_IN_CENTSEC;
-	
+	protected Operation					msgClickMessage			= null;
 	
 	
 	// --------------------------------------------------------------
@@ -79,6 +83,7 @@ public class ColoringSprite  extends Sprite implements IBasicComponent{
 		theDecoratedTexture = pDecoratedTextureRegion;
 		theStack = new PixelsStack(1024, 1024);
 		nLongClick = 0x0;
+		msgClickMessage = new Operation (IOperationHandler.OperationTypes.COLORING_CKIK,0);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -125,7 +130,14 @@ public class ColoringSprite  extends Sprite implements IBasicComponent{
 				long lCurrentTimeInCentSec = System.nanoTime()/NANOSEC_PER_CENTSEC;
 				long deltaTime = lCurrentTimeInCentSec - lTimeStartInCentSec;
 				if((deltaTime >= lMinClickTime) & (deltaTime <= lMaxClickTime )){
-					flood((int) pTouchAreaLocalX, (int)pTouchAreaLocalY);
+					int oldColor = theDecoratedTexture.getPixelsCopy()[convertXYtoID((int)pTouchAreaLocalX,(int)pTouchAreaLocalY)];
+					msgClickMessage.setParameter((int) pTouchAreaLocalX, (int)pTouchAreaLocalY,colorFill,oldColor);
+					msgClickMessage.pushHander(this);
+					this.doOperation(msgClickMessage);
+					//Dispatch to parent to store in the undo queue
+					if(getParent() instanceof IOperationHandler){
+						((IOperationHandler)getParent()).doOperation(msgClickMessage);
+					}
 				}
 				lTimeStartInCentSec = 0;
 				break;
@@ -146,12 +158,13 @@ public class ColoringSprite  extends Sprite implements IBasicComponent{
 	// --------------------------------------------------------------------------------
 	// Color flood algorithm
 	// --------------------------------------------------------------------------------		
-	public void flood(int X, int Y){
+	public int flood(final int X, final int Y, int newColor){
 		int[] pixelsCopy = theDecoratedTexture.getPixelsCopy();
 		int OldColor = pixelsCopy[convertXYtoID(X,Y)];
-		floodFillScanlineStack(pixelsCopy,X, Y, colorFill, OldColor);
+		floodFillScanlineStack(pixelsCopy,X, Y, newColor, OldColor);
 		theDecoratedTexture.setPixelsFromCopy(pixelsCopy);
 		theDecoratedTexture.reloadBitmap();
+		return OldColor;
 	}
 	public int convertXYtoID(int X, int Y){
 		return (Y << 10) | X;
@@ -216,5 +229,37 @@ public class ColoringSprite  extends Sprite implements IBasicComponent{
 	public void build(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void doOperation(Operation msg) {
+		switch(msg.type){
+			case COLORING_CKIK:
+				Log.i(TAG,"COLORING_CKIK");
+				// Cancel any scroll movements (position the camera center to the origin)
+				flood(msg.getParameter(0),msg.getParameter(1),msg.getParameter(2));
+				break;
+			default:
+				break;
+		}
+	}
+
+	@Override
+	public void undoOperation(Operation ope) {
+		IOperationHandler handler = ope.getHander();
+		if(handler == this){
+			switch(ope.type){
+				case COLORING_CKIK:
+					Log.i(TAG,"BACK COLORING_CKIK");
+					// Cancel any scroll movements (position the camera center to the origin)
+					flood(ope.getParameter(0),ope.getParameter(1),ope.getParameter(3));
+				break;
+			default:
+				break;
+		}
+		}
+		else
+			handler.undoOperation(ope);
+			
 	}
 }

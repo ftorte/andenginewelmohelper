@@ -11,5 +11,5 @@ public interface IOperationHandler {
 		UNDO						// undolastoperation
 	}
 	public void doOperation(Operation msg);
-	public void undoOperation(Operation msg, int ObjectID);
+	public void undoOperation(Operation msg);
 }

@@ -8,6 +8,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xml.sax.Attributes;
 
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
+
 import android.util.Log;
 
 public class ToolsBarDescriptor extends BasicDescriptor{
@@ -35,6 +37,8 @@ public class ToolsBarDescriptor extends BasicDescriptor{
 	protected int 						nWidth					= DEFAULT_SCENEHEIGHT;
 	protected int						nNbOfButtons			= NB_OF_TOOLS_PER_BAR;
 	protected int						nBackgroungColor		= TOOLBARBACKGROUND;
+	protected int						nX						= 0;
+	protected int						nY						= 0;
 		
 	/***************************************************************
 	 * Constructor
@@ -54,13 +58,19 @@ public class ToolsBarDescriptor extends BasicDescriptor{
 	public void setHeight(int height) {this.nHeight = height;}
 	/* Get/Set widht */
 	public int 	getWidth() {return nWidth;}
-	public void setWidht(int widht) {this.nWidth = nWidth;}
+	public void setWidht(int widht) {this.nWidth = widht;}
 	/* Get/Set Number of Buttons */
 	public int 	getNbOfButtons() {return nNbOfButtons;}
 	public void setNbOfButtons(int nbOfButtons) {this.nNbOfButtons = nbOfButtons;}
 	/* Get/Set Background Colors */
 	public int getBackgroungColor() {return nBackgroungColor;}
 	public void setBackgroungColor(int nBackgroungColor) {this.nBackgroungColor = nBackgroungColor;}
+	/* Get/Set X */
+	public int 	getX() {return nX;}
+	public void setX(int X) {this.nX = X;}
+	/* Get/Set Y */
+	public int 	getY() {return nY;}
+	public void setY(int Y) {this.nY = Y;}
 
 	/***************************************************************
 	 * Overrided functions 
@@ -74,5 +84,18 @@ public class ToolsBarDescriptor extends BasicDescriptor{
 		// read position
 		if((value = attr.getValue(ScnTags.S_A_TOLLBARPOSITION))!=null) 
 			ePosition=Positioning.valueOf(value);
+		
+		if((value = attr.getValue(ScnTags.S_A_HEIGHT))!=null) 
+			setHeight(Integer.parseInt(value));
+		
+		if((value = attr.getValue(ScnTags.S_A_WIDTH))!=null) 
+			setWidht(Integer.parseInt(value));
+		
+		if((value = attr.getValue(ScnTags.S_A_POSITION_X))!=null) 
+			setX(Integer.parseInt(value));
+		
+		if((value = attr.getValue(ScnTags.S_A_POSITION_Y))!=null) 
+			setY(Integer.parseInt(value));
+		
 	}
 }

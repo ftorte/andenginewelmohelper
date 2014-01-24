@@ -2,6 +2,7 @@ package com.welmo.andengine.scenes.components.buttons;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Rectangle;
@@ -14,10 +15,11 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.components.IBasicComponent;
-import com.welmo.andengine.scenes.descriptors.components.BasicDescriptor;
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
-import com.welmo.andengine.scenes.messages.ISceneMessageHandler;
-import com.welmo.andengine.scenes.messages.Message;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
+import com.welmo.andengine.scenes.operations.Operation;
+import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
 import com.welmo.andengine.utility.ColorHelper;
 
 /*
@@ -32,6 +34,9 @@ import com.welmo.andengine.utility.ColorHelper;
 
 public abstract class ButtonBasic extends Rectangle implements IBasicComponent{
 	
+	public enum Types{
+		BASIC, CLICK, ON_OFF, ON_OFF_WITH_TIMER, PULSE
+	}
 
 	final static String 							TAG 					= "ButtonBasic";
 	public int 										nID 					= -1;
@@ -41,8 +46,9 @@ public abstract class ButtonBasic extends Rectangle implements IBasicComponent{
 	protected Entity								insButtonOFF 			= null;
 	
 	protected int									nStatus					= START;
-
-	protected ISceneMessageHandler					mMessageHandler			= null;
+	protected Types									mtype					= Types.BASIC;
+	
+	protected IOperationHandler					mMessageHandler			= null;
 	protected VertexBufferObjectManager				pVBO 					= null;
 	//Parameters	
 	ButtonDescriptor								mParameters				= null;
@@ -53,25 +59,27 @@ public abstract class ButtonBasic extends Rectangle implements IBasicComponent{
 	public static int								INITIALIZED 			= 1;
 	
 	//EventMessage
-	List<Message>				mMessages				=null;
+	List<Operation>									mMessages				=null;
+	
 
-	public ButtonBasic(ButtonDescriptor parameters, ISceneMessageHandler messageHandler, VertexBufferObjectManager pVertexBufferObjectManager) {
+	public ButtonBasic(ButtonDescriptor parameters, IOperationHandler messageHandler, VertexBufferObjectManager pVertexBufferObjectManager) {
 		
 		super(0, 0, parameters.nExternaDimension, parameters.nExternaDimension, pVertexBufferObjectManager);
 		
-		if(! (messageHandler instanceof ISceneMessageHandler))
+		if(! (messageHandler instanceof IOperationHandler))
 			throw new NullPointerException("the message handler is not right class type");
 		
 		//Init Variables
 		
 		mMessageHandler = messageHandler;
-		mMessages = new ArrayList<Message>();
+		mMessages = new ArrayList<Operation>();
 		pVBO = pVertexBufferObjectManager;
 		configure(parameters);
 	}
 	
 	public void configure(ButtonDescriptor parameters){
-		mParameters = new ButtonDescriptor(parameters);		
+		//Constructor copy disabled mParameters = new ButtonDescriptor(parameters);	
+		mParameters = parameters;	
 		nStatus = this.CONFIGURED;
 		init();
 	}
@@ -159,12 +167,26 @@ public abstract class ButtonBasic extends Rectangle implements IBasicComponent{
 	@Override
 	public void build(BasicDescriptor pDsc) {
 		if(!(pDsc instanceof ButtonDescriptor))
-			throw new NullPointerException("Wrond descriptor type: expected BasicDescriptor");
-		
+			throw new NullPointerException("Wrong descriptor type: expected ButtonDescriptor");
+		if (Types.BASIC != Types.valueOf(pDsc.getSubType()))
+			throw new NullPointerException("Wrong button type");
 		configure((ButtonDescriptor)pDsc);
 		init();
 	}
 	@Override
 	abstract public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y);
-	abstract public void parseMessage(ButtonDescriptor pDsc);
+	public void parseMessage(ButtonDescriptor pDsc){
+		if(pDsc.getOnClickMessage()!=""){
+			StringTokenizer st = new StringTokenizer(pDsc.getOnClickMessage(),",");
+			Operation theMessage = new Operation(OperationTypes.valueOf(st.nextToken()));
+			List<Integer> arParameters = new ArrayList<Integer>();
+			while (st.hasMoreTokens()) {
+				arParameters.add(Integer.parseInt(st.nextToken()));
+			}
+			if(arParameters.size()>0)
+				theMessage.setParameter(arParameters);
+			//add message to message list
+			this.mMessages.add(theMessage);
+		}
+	}
 }
