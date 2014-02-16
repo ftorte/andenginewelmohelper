@@ -270,7 +270,7 @@ public class ParserXMLResourcesDescriptor extends DefaultHandler {
 	// * par la présence de texte entre la balise d'ouverture et
 	// * la balise de fermeture
 	public void characters(char[] ch,int start, int length)	throws SAXException{
-		String lecture = new String(ch,start,length);
+		//String lecture = new String(ch,start,length);
 		//if(buffer != null) buffer.append(lecture);
 	}
 }

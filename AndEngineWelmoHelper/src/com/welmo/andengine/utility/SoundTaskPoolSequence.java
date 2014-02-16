@@ -6,7 +6,6 @@ import org.andengine.audio.sound.exception.SoundReleasedException;
 import com.welmo.andengine.managers.ResourcesManager.SoundContainer;
 import com.welmo.andengine.managers.ResourcesManager.SoundType;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 

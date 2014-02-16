@@ -19,7 +19,6 @@ public class BuildableTextureDescriptor extends ResourceDescriptor {
 	// ===========================================================
 
 
-	@SuppressWarnings("static-access")
 	public BuildableTextureDescriptor() {
 		Regions=new ArrayList<TiledTextureRegionDescriptor>();
 	}

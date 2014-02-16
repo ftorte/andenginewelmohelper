@@ -4,9 +4,7 @@ package com.welmo.andengine.scenes.components;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-
 import android.util.Log;
-
 import com.welmo.andengine.managers.ResourcesManager.DecoratedTextures;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
@@ -29,7 +27,9 @@ public class ColoringSprite  extends Sprite implements IBasicComponent, IOperati
 	private DecoratedTextures 			theDecoratedTexture 	= null;
 	private int 						ID						= 0;
 	private int							colorFill				= 0xFFFFFFFF;
+	private int							colorBorder				= 0xFF000000;
 	private PixelsStack 				theStack 				= null;
+	@SuppressWarnings("unused")
 	private int							nLongClick				= 0x0;
 	protected long						lTimeStartInCentSec		= 0l;
 	protected long						lMinClickTime			= MIN_CLICK_TIME_IN_CENTSEC;
@@ -81,9 +81,13 @@ public class ColoringSprite  extends Sprite implements IBasicComponent, IOperati
 			VertexBufferObjectManager pVertexBufferObjectManager) {
 		super(pX, pY, pDecoratedTextureRegion.getTexture(), pVertexBufferObjectManager);
 		theDecoratedTexture = pDecoratedTextureRegion;
-		theStack = new PixelsStack(1024, 1024);
+		theStack = new PixelsStack(theDecoratedTexture.getWidth(), theDecoratedTexture.getHeight());
 		nLongClick = 0x0;
+		//create the on click message
 		msgClickMessage = new Operation (IOperationHandler.OperationTypes.COLORING_CKIK,0);
+		
+		//transfor the spirte in pure black/white image 
+		//transforToBW();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -92,7 +96,27 @@ public class ColoringSprite  extends Sprite implements IBasicComponent, IOperati
 	//
 	public void loadImage(String imageName) {
 		theDecoratedTexture.loadImage(imageName);
+		//transforToBW();
 	}
+	public void transforToBW(){
+		//get copuy of the image
+		int[] pixelsCopy = theDecoratedTexture.getPixelsCopy();
+		
+		int greyLevel;
+		
+		for(int index=0; index < (theDecoratedTexture.MAX_HEIGHT * theDecoratedTexture.MAX_WIDTH); index++){
+			
+			greyLevel = (((pixelsCopy[index] & 0x0FF0000)>>16) + ((pixelsCopy[index] & 0x000FF00)>>8) + (pixelsCopy[index] & 0x00000FF));
+			if(greyLevel > 250)
+				pixelsCopy[index] = 0xFFFFFFFF;
+			else
+				pixelsCopy[index] = 0xFF000000;				
+		}
+				
+		theDecoratedTexture.setPixelsFromCopy(pixelsCopy);
+		theDecoratedTexture.reloadBitmap();
+	}
+	
 	//--------------------------------------------------------------------------
 	// Getter & Setter
 	//--------------------------------------------------------------------------	
@@ -190,38 +214,46 @@ public class ColoringSprite  extends Sprite implements IBasicComponent, IOperati
 	        x=	theID & 0x03FF;
 	        
 	    	y1 = y;
-	        
-	        while((y1 >= 0) && (screenBuffer[convertXYtoID(x,y1)] == oldColor)) 
+	       
+	    	//colorBorder
+	        //while((y1 >= 0) && (screenBuffer[convertXYtoID(x,y1)] == oldColor)) 
+	        while((y1 >= 0) && (screenBuffer[convertXYtoID(x,y1)] != colorBorder))         
 	        	y1--;
 	        
 	        y1++;
 	        
 	        spanLeft = spanRight = false;
 	        
-	        while(y1 <= theStack.height && screenBuffer[convertXYtoID(x,y1)] == oldColor )
+	        //while(y1 <= theStack.height && screenBuffer[convertXYtoID(x,y1)] == oldColor )
+	        while(y1 <= theStack.height && screenBuffer[convertXYtoID(x,y1)] != colorBorder )
 	        {
 	        	screenBuffer[convertXYtoID(x,y1)] = newColor;
 	        	
-	        	if(!spanLeft && x > 0 && screenBuffer[convertXYtoID(x-1,y1)] == oldColor) 
+	        	//if(!spanLeft && x > 0 && screenBuffer[convertXYtoID(x-1,y1)] == oldColor) 
+	        	if(!spanLeft && x > 0 && (screenBuffer[convertXYtoID(x-1,y1)] != colorBorder) && (screenBuffer[convertXYtoID(x-1,y1)] != newColor)) 
 	        	{
 	        		if(!theStack.push(convertXYtoID(x-1,y1))) return;
 	        		spanLeft = true;
 	        	}
-	        	else if(spanLeft && x > 0 && screenBuffer[convertXYtoID(x-1,y1)] != oldColor)
+	        	//else if(spanLeft && x > 0 && screenBuffer[convertXYtoID(x-1,y1)] != oldColor)
+	        	else if(spanLeft && x > 0 && (screenBuffer[convertXYtoID(x-1,y1)] == colorBorder))
 	        	{
 	        		spanLeft = false;
 	        	}
-	        	if(!spanRight && x < (theStack.width - 1) && screenBuffer[convertXYtoID(x+1,y1)] == oldColor) 
+	        	//if(!spanRight && x < (theStack.width - 1) && screenBuffer[convertXYtoID(x+1,y1)] == oldColor) 
+	        	if(!spanRight && x < (theStack.width - 1) && (screenBuffer[convertXYtoID(x+1,y1)] != colorBorder) && (screenBuffer[convertXYtoID(x+1,y1)] != newColor)) 
 	        	{
 	        		if(!theStack.push(convertXYtoID(x+1,y1))) return;
 	        		spanRight = true;
 	        	}
-	        	else if(spanRight && x < (theStack.width - 1) && screenBuffer[convertXYtoID(x+1,y1)] != oldColor)
+	        	//else if(spanRight && x < (theStack.width - 1) && screenBuffer[convertXYtoID(x+1,y1)] != oldColor)	
+	        	else if(spanRight && x < (theStack.width - 1) && (screenBuffer[convertXYtoID(x+1,y1)]  == colorBorder))
 	        	{
 	        		spanRight = false;
 	        	} 
 	        	y1++;
 	        }
+	        Log.i(TAG,"Point = " + x + " " + y1  );
 	    }
 	}
 

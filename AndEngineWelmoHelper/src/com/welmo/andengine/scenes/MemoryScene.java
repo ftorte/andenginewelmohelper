@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import org.andengine.entity.IEntity;
 import org.andengine.entity.shape.IAreaShape;
-import org.andengine.input.touch.TouchEvent;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.components.CardSprite;
@@ -309,7 +308,7 @@ public class MemoryScene extends ManageableScene {
 		RestartGame();
 	
 		
-		nStatus = this.STATUS_NOSELCTION;
+		nStatus = MemoryScene.STATUS_NOSELCTION;
 		loadScenePhrases(pSCDescriptor);
 	}
 	@Override
@@ -317,7 +316,7 @@ public class MemoryScene extends ManageableScene {
 		Log.i(TAG,"resetScene");
 		super.resetScene();
 		RestartGame();
-		nStatus = this.STATUS_NOSELCTION;
+		nStatus = MemoryScene.STATUS_NOSELCTION;
 	}
 	public void resetScene(GameLevel newLevel){
 		Log.i(TAG,"resetScene with new game level = " + newLevel);

@@ -1,11 +1,5 @@
 package com.welmo.andengine.scenes.descriptors.components;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.xml.sax.Attributes;
 
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;

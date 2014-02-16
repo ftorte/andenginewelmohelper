@@ -1,6 +1,5 @@
 package com.welmo.andengine.scenes.descriptors.events;
 
-import java.util.LinkedList;
 
 public class ComponentModifierDescriptor extends BasicModifierDescriptor{
 	public enum ModifierType {

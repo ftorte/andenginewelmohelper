@@ -19,6 +19,7 @@ public class ScreenDimensionHelper {
 	public static int H = 1;
 	int orientation; 
 	
+	@SuppressWarnings("deprecation")
 	private ScreenDimensionHelper(Context ctx){
 		
 		WindowManager wm = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);

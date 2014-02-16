@@ -26,8 +26,6 @@ import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 //import com.welmo.andengine.managers.ResourcesManager;
 //import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 
-
-import android.opengl.GLES20;
 import android.util.Log;
 
 

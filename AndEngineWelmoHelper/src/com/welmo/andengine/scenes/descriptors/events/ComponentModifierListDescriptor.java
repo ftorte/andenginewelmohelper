@@ -2,9 +2,6 @@ package com.welmo.andengine.scenes.descriptors.events;
 
 import java.util.LinkedList;
 
-import com.welmo.andengine.scenes.descriptors.events.BasicModifierDescriptor.IModifier;
-import com.welmo.andengine.scenes.descriptors.events.BasicModifierDescriptor.IModifierList;
-import com.welmo.andengine.scenes.descriptors.events.ComponentModifierDescriptor.ModifierType;
 
 public class ComponentModifierListDescriptor extends BasicModifierDescriptor{
 	// ========================================================

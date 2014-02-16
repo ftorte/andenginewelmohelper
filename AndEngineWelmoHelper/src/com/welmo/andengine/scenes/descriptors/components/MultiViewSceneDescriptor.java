@@ -20,7 +20,6 @@ public class MultiViewSceneDescriptor extends ResourceDescriptor{
 		// ===========================================================
 
 
-		@SuppressWarnings("static-access")
 		public MultiViewSceneDescriptor() {
 			scScenes=new ArrayList<SceneDescriptor>();
 		}

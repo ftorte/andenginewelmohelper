@@ -214,7 +214,7 @@ public class PuzzleElement extends TiledSprite{
 		mContainer=newRectangle;
 	}
 	public void detachAllNeigborInContainer(PuzzleElementContainer container){
-		for (int i=0; i < this.NUMB_NEIGHBORS; i++){
+		for (int i=0; i < PuzzleElement.NUMB_NEIGHBORS; i++){
 			if(neighbors[i] != null && neighbors[i].mContainer == container)
 					detachNeighbor(i);
 		}
@@ -347,7 +347,7 @@ public class PuzzleElement extends TiledSprite{
 		//see if is near to a neighbor
 		int nearestSprite = this.getNearest();
 
-		if(nearestSprite != this.NOT_VAID_NEIGHBORS){
+		if(nearestSprite != PuzzleElement.NOT_VAID_NEIGHBORS){
 			attachePieceToNearest(nearestSprite);
 			if(!neighbors[nearestSprite].isMemeberOfContainer){
 				//create new container

@@ -8,7 +8,6 @@ import org.andengine.audio.music.MusicFactory;
 import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
-import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.extension.svg.opengl.texture.atlas.bitmap.SVGBitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
@@ -26,8 +25,6 @@ import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtla
 import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder.TextureAtlasBuilderException;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
-import org.andengine.opengl.texture.region.TextureRegion;
-import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.util.color.Color;
 import org.andengine.util.debug.Debug;
 import org.andengine.util.modifier.IModifier.DeepCopyNotSupportedException;
@@ -41,15 +38,12 @@ import com.welmo.andengine.resources.descriptors.components.SoundDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TextureDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TextureRegionDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TiledTextureRegionDescriptor;
-import com.welmo.andengine.utility.TransparentBitmapTextureAtlasSource;
+
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnPreparedListener;
 import android.util.Log;
 
 
@@ -93,8 +87,8 @@ public class ResourcesManager {
 	// [FT] Bitmap balloon = null;
 	Bitmap baloonworking = null;
 	
-	private int[] pixelsCopy	=	new int[1024*750];
-	private int[] stack			= 	new int[1024*750];
+	//private int[] pixelsCopy	=	new int[1024*750];
+	//private int[] stack			= 	new int[1024*750];
 	//[FT] Temporary varaibles to manage the decorated textures
 	// -----------------------------------------------------------------
 	// Inner classess
@@ -151,6 +145,7 @@ public class ResourcesManager {
 		public final int					MAX_WIDTH					= 2048;
 		public final int					MAX_HEIGHT					= 2048;
 		private String						strName						= "";
+		private int							mBackGroundColor			=0xFFFFFF;
 		
 		
 		public DecoratedTextures(Context ctx , String imageSource, BitmapTextureAtlas bitmapTextureAtlas) {
@@ -160,6 +155,7 @@ public class ResourcesManager {
 			this.theCtx 			= ctx;
 			this.strName			= imageSource;
 			try {
+				//create a bitmap usint ghe image in the file that will contains the image
 				theBitmapOrg 	= BitmapFactory.decodeStream(theCtx.getAssets().open(imageSource));
 				this.width 		= theBitmapOrg.getWidth();
 				this.height		= theBitmapOrg.getHeight();

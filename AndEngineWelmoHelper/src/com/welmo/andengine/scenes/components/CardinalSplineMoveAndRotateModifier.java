@@ -5,7 +5,6 @@ import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.CardinalSplineMoveModifier;
 import org.andengine.entity.scene.Scene;
 
-import android.util.Log;
 
 public class CardinalSplineMoveAndRotateModifier extends CardinalSplineMoveModifier{
 

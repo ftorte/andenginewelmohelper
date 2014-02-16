@@ -2,25 +2,19 @@ package com.welmo.andengine.ui;
 import java.util.ArrayList;
 
 import org.andengine.entity.primitive.Rectangle;
-import org.andengine.entity.primitive.vbo.IRectangleVertexBufferObject;
 import org.andengine.entity.scene.Scene;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.input.touch.detector.ContinuousHoldDetector;
-import org.andengine.input.touch.detector.HoldDetector;
-import org.andengine.input.touch.detector.HoldDetector.IHoldDetectorListener;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-import com.welmo.andengine.scenes.ColoringScene;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.scenes.operations.Operation;
 import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
 
-import android.os.Handler;
-import android.util.Log;
 
 public class ColorPiker extends Rectangle{
 
 	// Constants
+	@SuppressWarnings("unused")
 	private final static String 					TAG 					= "ColorPiker";
 		
 	// default values and constants
@@ -32,7 +26,7 @@ public class ColorPiker extends Rectangle{
 	public static int								NBOFBUTTON	 			= 8;
 	public static float								INT_EXT_BUTTON_FACTOR	= 0.75f;
 	public static int								ACTIVE_COLORS 			= NB_OF_PRIMARY_COLORS;
-	public static int								TOOLBARBACKGROUND  		= 0XA6A6A6;
+	public static int								TOOLBARBACKGROUND  		= 0XFFFFFF;
 	public static int								SELCTEDTOOLBACKGROUND  	= 0XAA0000;
 	
 	public int[]				ColorPalletIndex = {0x000000,0x191970,0x006400,0xB8860B,0xB22222,0x800000,0x8B008B,0x800080};
@@ -169,6 +163,7 @@ public class ColorPiker extends Rectangle{
 		
 		IOperationHandler				theMessageHandler 	= null;
 		ArrayList<ColorSelectorToolBar> listSelector	= null;
+		@SuppressWarnings("unused")
 		Runnable 						rHideSelector		= null;
 		
 		public ColorPickerToolBar(VertexBufferObjectManager pRectangleVertexBufferObject,int[] colors, int ID, IOperationHandler msgHandler) {
@@ -270,7 +265,7 @@ public class ColorPiker extends Rectangle{
 		nStatus			= START;
 		//create tool-bar
 		pTheScene.registerTouchArea(this);
-		pTheScene.setColor(Red(TOOLBARBACKGROUND),Green(TOOLBARBACKGROUND),Blue(TOOLBARBACKGROUND));
+		//pTheScene.setColor(Red(TOOLBARBACKGROUND),Green(TOOLBARBACKGROUND),Blue(TOOLBARBACKGROUND));
 
 		pColorPicker = new ColorPickerToolBar(pVBO,ColorPalletIndex,INVALID,pSceneMessageHandler);
 		this.attachChild(pColorPicker);

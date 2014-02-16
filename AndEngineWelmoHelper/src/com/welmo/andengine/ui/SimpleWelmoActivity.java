@@ -272,11 +272,10 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			}
 		}).start();
 		
-		//add HUD
+		//Create the HUD
 		mHUD = new HUDisplay(this.mEngine, nCameraWidth,nCameraHeight);
 		mScrollListener = mHUD;
 		mPinchZoomlListener = mHUD;
-		mSmoothCamera.setHUD(mHUD);
 		return mFirstScene;
 	}
 	private void lauchResourceSceneBackGroundLoading(){
@@ -531,9 +530,12 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			if(psc.hasHUD()){
 				mHUD.config(psc.getHUDDsc(),(psc instanceof IOperationHandler ? (IOperationHandler)psc : null),this.mResourceManager);
 	        	mHUD.setVisible(true);
+	        	mSmoothCamera.setHUD(mHUD);
 	        }
-	        else	
+	        else{	
 	        	mHUD.setVisible(false);
+	        	mSmoothCamera.setHUD(null);
+	        }
 			//Activate the pinch & zoom and the scroll if any
 			if(psc.hasPinchAndZoomActive()){
 				psc.setOnSceneTouchListener(this);

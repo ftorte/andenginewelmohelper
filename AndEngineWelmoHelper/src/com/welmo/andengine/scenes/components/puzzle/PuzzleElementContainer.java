@@ -7,7 +7,6 @@ import org.andengine.entity.IEntity;
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.primitive.vbo.IRectangleVertexBufferObject;
-import org.andengine.entity.shape.IAreaShape;
 import org.andengine.input.touch.TouchEvent;
 
 import android.util.Log;

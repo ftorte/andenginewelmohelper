@@ -7,11 +7,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.andengine.engine.Engine;
-import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
-import org.andengine.entity.modifier.LoopEntityModifier;
-import org.andengine.entity.modifier.CardinalSplineMoveModifier.CardinalSplineMoveModifierConfig;
-import org.andengine.entity.modifier.PathModifier.Path;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.scene.background.IBackground;
@@ -25,7 +21,6 @@ import org.andengine.ui.activity.BaseGameActivity;
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.ResourcesManager.SoundType;
 import com.welmo.andengine.managers.SceneManager;
-import com.welmo.andengine.scenes.components.CardinalSplineMoveAndRotateModifier;
 import com.welmo.andengine.scenes.components.ClickableSprite;
 import com.welmo.andengine.scenes.components.ComponentDefaultEventHandler;
 import com.welmo.andengine.scenes.components.CompoundSprite;
@@ -50,6 +45,7 @@ import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.utility.SoundSequence;
+
 
 
 
@@ -162,10 +158,8 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		
 		if(scObjDsc instanceof BackGroundObjectDescriptor){
 			this.setBackground(createBackground((BackGroundObjectDescriptor)scObjDsc));
-			//no childrens
 			return newEntity;
 		}
-		
 		if(scObjDsc instanceof SpriteObjectDescriptor){
 			SpriteObjectDescriptor pSprtDsc = (SpriteObjectDescriptor)scObjDsc;
 			switch(pSprtDsc.getType()){	
@@ -413,6 +407,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 			return super.onSceneTouchEvent(pSceneTouchEvent);
 	}
 	
+	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void onStick(IAreaShape currentShapeToStick,
 			SceneActions stickActionDescription) {
