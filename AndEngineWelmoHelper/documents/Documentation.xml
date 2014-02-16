@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--  
+	BACKGROUND 
+	There are 2 types of backgrounds: SPRITE & COLOR
+-->
+<!--  
+	COLOR BACKGROUND 
+	Parameters
+	Objectt ID 	=> must be unique in the scene
+	type		=> COLOR
+	color		=> name of a color defined in the resource descriptor
+-->
+<background ID="100" type="COLOR" color="LightSalmon" />     
+<!--  
+	SPRITE BACKGROUND 
+	Parameters
+	Objectt ID 	=> must be unique in the scene
+	type		=> SPRITE
+	<sprite>	=> the sprite object
+-->
+<background
+    ID="100"
+    type="SPRITE" >
+    <sprite ID="101" width="1280" height="800" pz="0" px="0" py="0" resourceName="Sky" type="STATIC"></sprite>
+</background>

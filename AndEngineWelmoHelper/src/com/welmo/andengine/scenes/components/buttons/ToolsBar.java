@@ -24,6 +24,7 @@ public class ToolsBar extends Rectangle implements IOperationHandler{
 	// -----------------------------------------------------------------------------------------
 	// Constants
 	// -----------------------------------------------------------------------------------------
+	@SuppressWarnings("unused")
 	private final static String 					TAG 					= "ToolsBar";
 	
 	public static int								START 					= 0;

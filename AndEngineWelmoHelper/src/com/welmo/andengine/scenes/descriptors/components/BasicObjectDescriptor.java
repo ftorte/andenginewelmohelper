@@ -1,14 +1,11 @@
 package com.welmo.andengine.scenes.descriptors.components;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 
 import org.xml.sax.Attributes;
 
 import android.util.Log;
 
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
-import com.welmo.andengine.utility.ScreenDimensionHelper;
 
 public abstract class BasicObjectDescriptor extends BasicDescriptor{
 	

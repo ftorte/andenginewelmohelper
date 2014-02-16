@@ -53,8 +53,7 @@ public class SceneDescriptor extends BasicObjectDescriptor {
 	// ===========================================================
 	// Constructor(s)
 	// ===========================================================
-	@SuppressWarnings("static-access")
-	public SceneDescriptor() {
+		public SceneDescriptor() {
 		pGlobalEventHandlerList = new LinkedList<ComponentEventHandlerDescriptor> ();
 		phrasesMap				= new HashMap<String,String[]>();
 	}

@@ -20,7 +20,6 @@ public class TextureDescriptor extends ResourceDescriptor {
 	// ===========================================================
 
 	
-	@SuppressWarnings("static-access")
 	public TextureDescriptor() {
 		Regions=new ArrayList<TextureRegionDescriptor>();
 	}

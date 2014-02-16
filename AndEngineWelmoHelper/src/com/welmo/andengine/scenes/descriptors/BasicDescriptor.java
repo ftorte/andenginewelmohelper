@@ -1,13 +1,11 @@
 package com.welmo.andengine.scenes.descriptors;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 import org.xml.sax.Attributes;
 
 import com.welmo.andengine.scenes.descriptors.components.ScnTags;
-import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 
 public class BasicDescriptor {

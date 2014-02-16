@@ -1,8 +1,6 @@
 package com.welmo.andengine.scenes.operations;
 
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;

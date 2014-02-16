@@ -7,6 +7,9 @@ import java.util.StringTokenizer;
 
 
 
+
+
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,8 +24,8 @@ import com.welmo.andengine.managers.EventDescriptionsManager;
 import com.welmo.andengine.managers.SceneDescriptorsManager;
 import com.welmo.andengine.scenes.components.Stick;
 import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ColoringSpriteDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.MultiViewSceneDescriptor;
@@ -31,14 +34,12 @@ import com.welmo.andengine.scenes.descriptors.components.ScnTags;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ToolsBarDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor.BackGroundTypes;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.Alignment;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.ICharacteristics;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IDimension;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IOrientation;
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IPosition;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor.SpritesTypes;
-import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor.TextTypes;
 import com.welmo.andengine.scenes.descriptors.events.BasicModifierDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
@@ -124,7 +125,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	// ===========================================================
 	public void startDocument() throws SAXException {
 		super.startDocument();
-		nStatus 						= this.STATUS_BEGIN;
+		nStatus 						= ParserXMLSceneDescriptor.STATUS_BEGIN;
 		pSceneDescManager 				= SceneDescriptorsManager.getInstance();
 	}
 	@Override
@@ -235,7 +236,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		if (localName.equalsIgnoreCase(ScnTags.S_O_SPRITE))
 			newDescriptor = readSpriteDescription(attributes);
 		else if (localName.equalsIgnoreCase(ScnTags.S_COLORING_SPRITE))
-			newDescriptor = readColoringSpriteDescription(attributes);
+			//newDescriptor = readColoringSpriteDescription(attributes);
+			(newDescriptor = new ColoringSpriteDescriptor()).readXMLDescription(attributes);	
 		else if (localName.equalsIgnoreCase(ScnTags.S_COMPOUND_SPRITE))
 			newDescriptor = readCupondSprite(attributes);
 		else if (localName.equalsIgnoreCase(ScnTags.S_TEXT))
@@ -605,6 +607,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	
 		return pSpriteDsc;
 	}	
+	@SuppressWarnings("unused")
 	private SpriteObjectDescriptor readColoringSpriteDescription(Attributes attr){
 	Log.i(TAG,"\t\t readColoringSpriteDescription");
 		
@@ -743,6 +746,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		pDescriptor.event=ComponentEventHandlerDescriptor.Events.valueOf(attributes.getValue(ScnTags.S_A_EVENT));
 		return pDescriptor;
 	}
+	@SuppressWarnings("incomplete-switch")
 	private ComponentModifierDescriptor readComponentModifierDescriptor(Attributes attributes){
 		Log.i(TAG,"\t\t readComponentModifierDescriptor");
 		//create new action
@@ -948,7 +952,6 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			}
 			else if (localName.equalsIgnoreCase(ScnTags.S_COLORING_SPRITE)){
 				Log.i(TAG,"\t\t end Element COLOTING_SPRITE");
-				pSpriteDsc = null;
 				removeLastComponentDescriptor();
 				nComponents--;
 			}
@@ -1027,6 +1030,6 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	}
 
 	public void characters(char[] ch,int start, int length)	throws SAXException{
-		String lecture = new String(ch,start,length);
+		//String lecture = new String(ch,start,length);
 	}
 }

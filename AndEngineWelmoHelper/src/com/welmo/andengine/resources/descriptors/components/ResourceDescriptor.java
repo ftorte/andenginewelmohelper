@@ -25,10 +25,9 @@ public class ResourceDescriptor {
 	// Constructor
 	// ===========================================================
 
-	//@SuppressWarnings("static-access")
 	public ResourceDescriptor(int id, int type, String name) {
 		this.ID = id;
-		Name.copyValueOf(name.toCharArray());
+		Name = String.copyValueOf(name.toCharArray());
 		Parameters= new int[10];
 	}
 	//@SuppressWarnings("static-access")

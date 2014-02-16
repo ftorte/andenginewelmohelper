@@ -36,6 +36,7 @@ public class ButtonDescriptor extends BasicDescriptor{
 	public List<String>				    lEventMessages				= null;
 	
 	
+	@SuppressWarnings("unused")
 	private void copy(ButtonDescriptor prt){
 		bSpriteBased					= prt.bSpriteBased;
 		if(bSpriteBased){

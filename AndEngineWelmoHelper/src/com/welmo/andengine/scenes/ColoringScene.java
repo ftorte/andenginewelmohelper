@@ -7,11 +7,12 @@ import java.util.Map;
 import android.util.Log;
 
 import com.welmo.andengine.scenes.components.ColoringSprite;
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ColoringSpriteDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ScnTags;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.scenes.operations.Operation;
-import com.welmo.andengine.ui.SimpleWelmoActivity;
-
 public class ColoringScene extends ManageableScene implements IConfigurableScene, IOperationHandler {
 	
 	// ===========================================================
@@ -19,6 +20,8 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 	// ===========================================================
 	private static final String 	TAG 				= "ColoringScene";
 	private ColoringSprite			theColoringImage 	= null;
+	@SuppressWarnings("unused")
+	private String					sImageFileName		= null;
 
 	// ===========================================================
 	// Fields
@@ -27,9 +30,10 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 
 	@Override
 	public void configure(Map<String,String> parameterList) {
-		
-		this.bImplementPinchAndZoom = true;
-		this.resetScene();
+		// To complete
+		//read parameters
+		this.bImplementPinchAndZoom = Boolean.parseBoolean(parameterList.get(ScnTags.S_A_HASPINCHANDZOOM));
+		this.bHasHUD				= Boolean.parseBoolean(parameterList.get(ScnTags.S_A_HUD));
 		this.loadScene(this.pSCDescriptor);
 		this.resetScene();
 	}
@@ -40,14 +44,22 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 	public void loadScene(SceneDescriptor sceneDescriptor) {
 		super.loadScene(sceneDescriptor);
 		
-		if(theColoringImage== null){
-			theColoringImage = new ColoringSprite(100, 0, pRM.getDecoratedTextureRegion("MonsterColor","gfx/monster05BW.png"), this.mEngine.getVertexBufferObjectManager());
-			this.attachChild(theColoringImage);
-			this.registerTouchArea(theColoringImage);
-		}
-		else{
-			theColoringImage.loadImage("gfx/monster05BW.png");
-			return;
+		String imageFileName=null;
+
+		//after having loaded the default component of the scene with superclass load the coloring sprite is exist
+		for(BasicDescriptor scObjDsc:sceneDescriptor.pChild.values()){
+			if(scObjDsc instanceof ColoringSpriteDescriptor){
+				ColoringSpriteDescriptor theCororingSprite = (ColoringSpriteDescriptor)scObjDsc;
+				imageFileName = theCororingSprite.getImageFilename();
+				if(theColoringImage== null){
+					theColoringImage = new ColoringSprite(100, 0, pRM.getDecoratedTextureRegion("MonsterColor",imageFileName), this.mEngine.getVertexBufferObjectManager());
+					this.attachChild(theColoringImage);
+					this.registerTouchArea(theColoringImage);
+				}
+				else{
+					theColoringImage.loadImage(imageFileName);
+				}
+			}
 		}
 	}
 	
@@ -59,6 +71,7 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 	// ===========================================================
 	// ISceneMessageHandler Methods
 	// ===========================================================	
+	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void doOperation(Operation msg) {
 		switch(msg.type){

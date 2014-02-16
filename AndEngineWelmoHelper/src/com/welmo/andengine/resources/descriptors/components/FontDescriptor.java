@@ -1,6 +1,5 @@
 package com.welmo.andengine.resources.descriptors.components;
 
-import java.util.ArrayList;
 
 
 import android.graphics.Typeface;

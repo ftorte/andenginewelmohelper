@@ -1,10 +1,6 @@
 package com.welmo.andengine.scenes.components;
 
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Set;
-import java.util.Map.Entry;
-
 import org.andengine.audio.music.Music;
 import org.andengine.audio.sound.Sound;
 import org.andengine.entity.IEntity;
@@ -14,7 +10,6 @@ import org.andengine.entity.modifier.RotationModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
-import org.andengine.entity.shape.IAreaShape;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.util.modifier.IModifier;
 

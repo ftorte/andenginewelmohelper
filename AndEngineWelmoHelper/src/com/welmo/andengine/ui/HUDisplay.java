@@ -67,6 +67,9 @@ public class HUDisplay extends HUD implements IOperationHandler, IScrollDetector
 	//Camera pinch zoom
 	protected 	boolean							bPinchZoomON		= false;
 	protected 	boolean 						bSmoothCamera		= false;
+	//specific tools
+	protected   ColorPiker						mColorPiker			= null;
+	
 	// -----------------------------------------------------------------------------------------------------------------------------
 	// Constructor
 	public HUDisplay(Engine theEngine, int width, int height){
@@ -91,12 +94,12 @@ public class HUDisplay extends HUD implements IOperationHandler, IScrollDetector
 		//check if has a special button bar called color piker & create it
 		if(this.mDescriptor.hasColorPicker()){
 			//Create ColorPikerToolBar
-			ColorPiker theColorPiker = new ColorPiker(this.mEngine.getVertexBufferObjectManager(),this,this);
-			this.attachChild(theColorPiker);
-			theColorPiker.setRotationCenter(0, 0);
-			theColorPiker.setRotation(-90);
-			theColorPiker.setPosition(0,800);
-			this.registerTouchArea(theColorPiker);
+			mColorPiker = new ColorPiker(this.mEngine.getVertexBufferObjectManager(),this,this);
+			this.attachChild(mColorPiker);
+			mColorPiker.setRotationCenter(0, 0);
+			mColorPiker.setRotation(-90);
+			mColorPiker.setPosition(0,800);
+			this.registerTouchArea(mColorPiker);
 		}
 		
 		//create the tools bars
@@ -167,12 +170,26 @@ public class HUDisplay extends HUD implements IOperationHandler, IScrollDetector
 		if(pDescriptor == null)
 			throw new NullPointerException("HUD Configuration: passed descriptor is null");
 		this.mMsgHandler 	= msgHandler;
-		this.mDescriptor 	= pDescriptor;
-		mStatus = CONFIGURED;		
+		//if the the configuration has not changed just exit
+		if(this.mDescriptor != null)
+			if(this.mDescriptor.getID() == pDescriptor.getID())
+				return;
+		//change configuration
+		this.mDescriptor=pDescriptor;
+		mStatus = CONFIGURED;
+		
+		//reset the hud
+		this.reset();
+		//init the HUD
 		init(pResManger);
 	}
 	public boolean isScrollDetectorON(){
 		return bScrollDetectorON;
+	}
+	@Override
+	public void reset(){
+		this.detachChild(mColorPiker);
+		this.detachChildren();
 	}
 	// ----------------------------------------------------------------------------
 	// Implement Interface IOperationHandler

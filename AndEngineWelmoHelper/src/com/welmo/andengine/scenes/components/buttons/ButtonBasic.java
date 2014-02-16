@@ -80,7 +80,7 @@ public abstract class ButtonBasic extends Rectangle implements IBasicComponent{
 	public void configure(ButtonDescriptor parameters){
 		//Constructor copy disabled mParameters = new ButtonDescriptor(parameters);	
 		mParameters = parameters;	
-		nStatus = this.CONFIGURED;
+		nStatus = ButtonBasic.CONFIGURED;
 		init();
 	}
 
@@ -150,7 +150,7 @@ public abstract class ButtonBasic extends Rectangle implements IBasicComponent{
 		
 		this.parseMessage(mParameters);
 		
-		nStatus = this.INITIALIZED;
+		nStatus = ButtonBasic.INITIALIZED;
 	}
 
 	public int getID() {

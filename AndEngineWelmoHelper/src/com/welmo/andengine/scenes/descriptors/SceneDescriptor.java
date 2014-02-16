@@ -3,10 +3,8 @@ package com.welmo.andengine.scenes.descriptors;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Map.Entry;
 
-import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
@@ -29,6 +27,7 @@ public class SceneDescriptor extends BasicDescriptor /*BasicObjectDescriptor*/ {
 	
 	private boolean 									bPinchAndZoom	= false;
 	private boolean 									bHasHUD 		= false;
+	@SuppressWarnings("unused")
 	private HUDDescriptor								pHUDDsc 		= null;
 	
 	
@@ -70,7 +69,7 @@ public class SceneDescriptor extends BasicDescriptor /*BasicObjectDescriptor*/ {
 		phrasesMap				= new HashMap<String,String[]>();
 	}
 	private HUDDescriptor getHudDsc(){	
-		Iterator it = pChild.entrySet().iterator();
+		Iterator<Entry<Integer,BasicDescriptor>> it = pChild.entrySet().iterator();
 	    while (it.hasNext()) {
 	    	Entry<Integer,BasicDescriptor> pairs = (Entry<Integer, BasicDescriptor>) it.next();
 	    	if(pairs.getValue() instanceof HUDDescriptor) 

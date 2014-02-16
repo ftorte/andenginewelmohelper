@@ -1,16 +1,19 @@
 package com.welmo.andengine.managers;
 
 import java.util.HashMap;
+
 import org.andengine.engine.Engine;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.ui.activity.BaseGameActivity;
+
 import com.welmo.andengine.scenes.IConfigurableScene;
 import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.ManageableScene;
 import com.welmo.andengine.scenes.components.IActivitySceneListener;
 import com.welmo.andengine.scenes.descriptors.ConfiguredSceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
+
 
 
 import android.content.Context;
@@ -20,6 +23,7 @@ public class SceneManager {
 	// ===========================================================
 	// Constants
 	//Log & Debug & trace
+	@SuppressWarnings("unused")
 	private static final String TAG = "SceneManager";	
 	// ===========================================================
 	// Variables
@@ -91,7 +95,8 @@ public class SceneManager {
 		if(theScene == null)
 			return (Scene) BuildScenes(strSceneName);
 		
-		return null;
+		return theScene;
+		
 	}
 	// ===========================================================
 	// private methods
