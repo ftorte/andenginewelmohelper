@@ -41,7 +41,7 @@ public class ScnTags {
 	
 	//--------------------------------------------------------
 	//Scene instantiation specific parameters
-	public final static String  S_A_SCENEMASTER		= "masterscene";
+	public final static String  S_A_MASTERSCENE		= "masterscene";
 	
 	//--------------------------------------------------------
 	//Scene Objects' attributes
@@ -74,6 +74,8 @@ public class ScnTags {
 	public final static String S_A_ROTAION_CENTER_X	= "rX";
 	public final static String S_A_ROTAION_CENTER_Y	= "rX";
 	public final static String S_A_FILE_NAME		= "filename";
+	public final static String S_A_PARAMETER_LIST	= "parametersList";
+	
 	
 
 	public final static int S_A_HEIGHT_IDX			= 0;

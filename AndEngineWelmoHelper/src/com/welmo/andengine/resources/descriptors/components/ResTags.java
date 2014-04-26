@@ -17,7 +17,7 @@ public class ResTags {
 	// Elements
 	public final static String R_BUILDABLETEXTURE 		= "buildable_texture";
 	public final static String R_TILEDTEXTUREREGION		= "tiled_texture_region";
-
+	
 	//Attributes
 	public final static String R_A_NAME					= "name";
 	public final static String R_A_HEIGHT				= "height";
@@ -25,6 +25,8 @@ public class ResTags {
 	public final static String R_A_POSITION_X			= "px";
 	public final static String R_A_POSITION_Y			= "py";
 	public final static String R_A_FILE_NAME			= "filename";
+	public final static String R_A_AUTOPACKING			= "autopacking";
+
 	
 	public final static String R_A_COL					= "nbOfColumns";
 	public final static String R_A_ROW 					= "nbOfRows";

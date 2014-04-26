@@ -1,25 +1,14 @@
 package com.welmo.andengine.scenes.descriptors;
 
-
 import java.util.LinkedList;
-import java.util.StringTokenizer;
-
-
-
-
-
-
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
 import android.content.Context;
 import android.util.Log;
-
 import com.welmo.andengine.managers.EventDescriptionsManager;
 import com.welmo.andengine.managers.SceneDescriptorsManager;
 import com.welmo.andengine.scenes.components.Stick;
@@ -71,12 +60,12 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	protected ComponentModifierDescriptor		pModifier				= null;
 	protected ComponentEventHandlerDescriptor	pEventHandler			= null;
 	//Object Descriptor
-	protected TextObjectDescriptor				pTextDescriptor			= null;
+	//FT protected TextObjectDescriptor				pTextDescriptor			= null;
 	protected BackGroundObjectDescriptor		pBackGroundDescriptor	= null;
 	protected SpriteObjectDescriptor 			pSpriteDsc				= null;
 	protected SpriteObjectDescriptor 			pCompoundSpriteDsc		= null;
-	protected PuzzleObjectDescriptor 			pPuzzleDsc				= null;
-	protected HUDDescriptor 					pHUDDsc					= null;
+	//FT protected PuzzleObjectDescriptor 			pPuzzleDsc				= null;
+	//FT protected HUDDescriptor 					pHUDDsc					= null;
 	//List to manage descriptor chain
 	protected LinkedList<BasicDescriptor> 		pDescriptorsInProcessing= null;
 	protected BasicDescriptor 					pCurrentDescriptorInProcessing=null;
@@ -148,8 +137,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 				addComponentDescriptor(newDescriptor);
 			else if((newDescriptor = parseSceneInstantiation(localName, attributes)) != null)
 				addComponentDescriptor(newDescriptor);
-				else
-					throw new NullPointerException("ParserXMLSceneDescriptor error invalid Element");
+			else
+				throw new NullPointerException("ParserXMLSceneDescriptor error invalid Element");
 			break;
 		case STATUS_PARSE_SCENE:
 			if((newDescriptor = parseComponentDescriptor(localName, attributes)) != null)
@@ -159,7 +148,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 					((SceneDescriptor)pCurrentDescriptorInProcessing).pGlobalEventHandlerList.add(pEventHandler);
 				else
 					break;
-				}
+			}
 			else
 				throw new NullPointerException("ParserXMLSceneDescriptor error invalid Element");
 			break;
@@ -223,11 +212,13 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			return null; 
 	}
 	public BasicDescriptor parseSceneInstantiation(String localName, Attributes attributes){ 
+		ConfiguredSceneDescriptor newDescriptor =  null;
 		if (localName.equalsIgnoreCase(ScnTags.S_SCENE_INSTANTIATION)){
 			nStatus = STATUS_PARSE_SCENE_INSTANTIATION;
-			return readSceneInstantiationDescription(attributes);
+			(newDescriptor = new ConfiguredSceneDescriptor()).readXMLDescription(attributes);
+			pSceneDescManager.addCFGScene(newDescriptor.sceneName, newDescriptor);
 		}
-		return null;
+		return newDescriptor;
 	}
 	public BasicDescriptor parseComponentDescriptor(String localName, Attributes attributes){ 
 		Log.i(TAG,"\t parseComponentDescriptor");
@@ -236,23 +227,22 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		if (localName.equalsIgnoreCase(ScnTags.S_O_SPRITE))
 			newDescriptor = readSpriteDescription(attributes);
 		else if (localName.equalsIgnoreCase(ScnTags.S_COLORING_SPRITE))
-			//newDescriptor = readColoringSpriteDescription(attributes);
 			(newDescriptor = new ColoringSpriteDescriptor()).readXMLDescription(attributes);	
 		else if (localName.equalsIgnoreCase(ScnTags.S_COMPOUND_SPRITE))
 			newDescriptor = readCupondSprite(attributes);
 		else if (localName.equalsIgnoreCase(ScnTags.S_TEXT))
-			newDescriptor = readTextDescription(attributes);
+			(newDescriptor = new TextObjectDescriptor()).readXMLDescription(attributes);
 		else if (localName.equalsIgnoreCase(ScnTags.S_BACKGROUND))
 			newDescriptor = readBackGroudDescription(attributes); //Read new descriptor	
 		else if (localName.equalsIgnoreCase(ScnTags.S_PUZZLE_SPRITE))
-			newDescriptor = readPuzzleDescription(attributes); //Read new descriptor	
+			//newDescriptor = readPuzzleDescription(attributes); //Read new descriptor
+			(newDescriptor = new PuzzleObjectDescriptor()).readXMLDescription(attributes);
 		else if(localName.equalsIgnoreCase(ScnTags.S_HUD))
 			(newDescriptor = new HUDDescriptor()).readXMLDescription(attributes);
 		else if(localName.equalsIgnoreCase(ScnTags.S_TOOLBAR))
 			(newDescriptor = new ToolsBarDescriptor()).readXMLDescription(attributes);	
 		else if(localName.equalsIgnoreCase(ScnTags.S_BUTTON))
 			(newDescriptor = new ButtonDescriptor()).readXMLDescription(attributes);	
-		
 		else
 			return null;
 
@@ -386,31 +376,6 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		
 		pSceneDescManager.addScene(pSceneDsc.sceneName, pSceneDsc);
 		return pSceneDsc;
-	}
-	private ConfiguredSceneDescriptor readSceneInstantiationDescription(Attributes attr){
-		Log.i(TAG,"\t readSceneInstantiation");
-		if(this.pSceneInstantiationDsc != null)
-			throw new NullPointerException("ParserXMLSceneDescriptor encountered scene instantiation inside another scene instantiation");
-
-		this.pSceneInstantiationDsc = new ConfiguredSceneDescriptor();
-		
-		if(attr.getValue(ScnTags.S_A_NAME)!=null)
-			pSceneInstantiationDsc.setSceneName(attr.getValue(ScnTags.S_A_NAME));
-		
-		if(attr.getValue(ScnTags.S_A_SCENEMASTER)!=null)
-				pSceneInstantiationDsc.setNameOfSceneMaster(attr.getValue(ScnTags.S_A_SCENEMASTER));
-		
-		int nbOfAttributes = attr.getLength();
-		String value=null;
-		String qName=null;
-		for (int index=0; index<nbOfAttributes; index++){
-			qName = attr.getQName(index);
-			value = attr.getValue(index);
-			pSceneInstantiationDsc.addParameter(qName, value);
-		}
-		
-		pSceneDescManager.addCFGScene(pSceneInstantiationDsc.getSceneName(), pSceneInstantiationDsc);
-		return this.pSceneInstantiationDsc;
 	}
 	private MemorySceneDescriptor readMemorySeceneDescriptor(MemorySceneDescriptor pScene, Attributes attr){
 		
@@ -607,95 +572,6 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	
 		return pSpriteDsc;
 	}	
-	@SuppressWarnings("unused")
-	private SpriteObjectDescriptor readColoringSpriteDescription(Attributes attr){
-	Log.i(TAG,"\t\t readColoringSpriteDescription");
-		
-		pSpriteDsc = new SpriteObjectDescriptor();
-		
-		// Read the sprite
-		pSpriteDsc.ID=Integer.parseInt(attr.getValue(ScnTags.S_A_ID));
-		
-		//parse position, dimension & orientation attributes
-		this.parseAttributesPosition(pSpriteDsc.getIPosition(),attr);
-		this.parseAttributesDimensions(pSpriteDsc.getIDimension(),attr);
-		this.parseAttributesOrientation(pSpriteDsc.getIOriantation(),attr);
-		this.parseAttributesCharacteristics(pSpriteDsc.getICharacteristis(),attr);
-	
-		return pSpriteDsc;
-	}
-	private PuzzleObjectDescriptor readPuzzleDescription(Attributes attr){
-		Log.i(TAG,"\t\t readPuzzleDescription");
-
-		PuzzleObjectDescriptor pPuzzleDsc = null;
-
-		pPuzzleDsc = new PuzzleObjectDescriptor();
-
-
-		// Read the puzzle 
-		pPuzzleDsc.ID=Integer.parseInt(attr.getValue(ScnTags.S_A_ID));
-
-		pPuzzleDsc.textureName = new String(attr.getValue(ScnTags.S_A_RESOURCE_NAME));
-
-		//parse position, dimension & orientation attributes
-		this.parseAttributesPosition(pPuzzleDsc.getIPosition(),attr);
-		this.parseAttributesDimensions(pPuzzleDsc.getIDimension(),attr);
-		this.parseAttributesOrientation(pPuzzleDsc.getIOriantation(),attr);
-		this.parseAttributesCharacteristics(pPuzzleDsc.getICharacteristis(),attr);
-			
-		// Read specific puzzle parameters Nb cols & Nb Rows
-		if(attr.getValue(ScnTags.S_A_NBCOLS)!= null)
-			pPuzzleDsc.setNbColumns(Integer.parseInt(attr.getValue(ScnTags.S_A_NBCOLS)));
-		else
-			pPuzzleDsc.setNbColumns(1);
-		if(attr.getValue(ScnTags.S_A_NBROWS)!= null)
-			pPuzzleDsc.setNbRows(Integer.parseInt(attr.getValue(ScnTags.S_A_NBROWS)));
-		else
-			pPuzzleDsc.setNbRows(1);
-		
-		// Read specific puzzle geometries
-		float[] geometry = new float[4];
-		// Read specific puzzle zone
-		if(attr.getValue(ScnTags.S_A_PUZZLE_ZONE)!= null){
-			int i=0;
-			StringTokenizer st = new StringTokenizer(attr.getValue(ScnTags.S_A_PUZZLE_ZONE),";");
-		    while (st.hasMoreTokens()) {
-		    	geometry[i++]=Float.parseFloat(st.nextToken());
-		     }
-			pPuzzleDsc.setPuzzleZoneGeometry(geometry);
-		}
-		// Read specific puzzle box
-		if(attr.getValue(ScnTags.S_A_PUZZLE_BOX)!= null){
-			int i=0;
-			StringTokenizer st = new StringTokenizer(attr.getValue(ScnTags.S_A_PUZZLE_BOX),";");
-		    while (st.hasMoreTokens()) {
-		    	geometry[i++]=Float.parseFloat(st.nextToken());
-		     }
-			pPuzzleDsc.setPieceBoxGeometry(geometry);
-		}
-		// Read if active border
-		if(attr.getValue(ScnTags.S_A_ACTIVE_BORDER)!= null)
-			pPuzzleDsc.setHasActiveBorder(Boolean.parseBoolean(attr.getValue(ScnTags.S_A_ACTIVE_BORDER)));
-		else
-			pPuzzleDsc.setHasActiveBorder(false);
-
-		// Read if active zone
-		if(attr.getValue(ScnTags.S_A_ACTIVE_ZONE)!= null)
-			pPuzzleDsc.setHasActiveZone(Boolean.parseBoolean(attr.getValue(ScnTags.S_A_ACTIVE_ZONE)));
-		else
-			pPuzzleDsc.setHasActiveZone(false);
-		// Read if helper image on
-		if(attr.getValue(ScnTags.S_A_HELPER_IMAGE)!= null)
-			pPuzzleDsc.setHelperImage(attr.getValue(ScnTags.S_A_HELPER_IMAGE));
-		
-		// Read if helper image on
-		if(attr.getValue(ScnTags.S_A_HELPER_IMG_ALPHA)!= null)
-			pPuzzleDsc.setHelperImageAlpha(Float.parseFloat(attr.getValue(ScnTags.S_A_HELPER_IMG_ALPHA)));
-		else
-			pPuzzleDsc.setHelperImageAlpha(1.0f);
-		
-		return pPuzzleDsc;
-	}
 	private SpriteObjectDescriptor readCupondSprite(Attributes attr){
 		Log.i(TAG,"\t\t readCupondSprite");
 		if(this.pCompoundSpriteDsc != null) //check if new compound sprite
@@ -716,22 +592,6 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		pSceneDsc.pChild.put(pCompoundSpriteDsc.ID,pCompoundSpriteDsc);	
 		return pCompoundSpriteDsc;
 	}
-	private TextObjectDescriptor readTextDescription(Attributes attributes){
-		Log.i(TAG,"\t\t readTextDescription");
-		//create new action
-		pTextDescriptor = new TextObjectDescriptor();
-
-		pTextDescriptor.ID=Integer.parseInt(attributes.getValue(ScnTags.S_A_ID ));
-		pTextDescriptor.FontName = attributes.getValue(ScnTags.S_A_RESOURCE_NAME);
-		pTextDescriptor.message = new String (attributes.getValue(ScnTags.S_A_MESSAGE));	
-		pTextDescriptor.type=TextObjectDescriptor.TextTypes.valueOf(attributes.getValue(ScnTags.S_A_TYPE));
-
-		this.parseAttributesPosition(pTextDescriptor.getIPosition(),attributes);
-		this.parseAttributesOrientation(pTextDescriptor.getIOriantation(),attributes);
-		this.parseAttributesCharacteristics(pTextDescriptor.getICharacteristis(),attributes);
-		
-		return pTextDescriptor;
-	} 
 	private ComponentEventHandlerDescriptor readComponentEventHandlerDescriptor(Attributes attributes){
 		Log.i(TAG,"\t\t ComponentEventHandlerDescriptor");
 		//create new action
@@ -963,7 +823,6 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			}
 			else if (localName.equalsIgnoreCase(ScnTags.S_TEXT)){
 				Log.i(TAG,"\t\t end Element TEXT");
-				pTextDescriptor = null;
 				removeLastComponentDescriptor();
 				nComponents--;
 			}
@@ -979,13 +838,12 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			}
 			else if(localName.equalsIgnoreCase(ScnTags.S_PUZZLE_SPRITE)){
 				Log.i(TAG,"\t\t end Element S_PUZZLE_SPRITE");
-				pSpriteDsc = null;
 				removeLastComponentDescriptor();
 				nComponents--;
 			}
 			else if(localName.equalsIgnoreCase(ScnTags.S_HUD)){
 				Log.i(TAG,"\t\t end Element S_HUD");
-				pHUDDsc = null;
+				//FT pHUDDsc = null;
 				removeLastComponentDescriptor();
 				nComponents--;
 			}

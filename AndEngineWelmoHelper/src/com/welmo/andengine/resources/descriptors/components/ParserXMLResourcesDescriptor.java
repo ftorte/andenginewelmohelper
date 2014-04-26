@@ -72,6 +72,10 @@ public class ParserXMLResourcesDescriptor extends DefaultHandler {
 			// Read texture description
 			pTextureDsc.ID=0;
 			pTextureDsc.Name = new String(attributes.getValue(ResTags.R_A_NAME));
+			
+			if(attributes.getValue(ResTags.R_A_AUTOPACKING)!=null)
+				pTextureDsc.autpacking = Boolean.parseBoolean(attributes.getValue(ResTags.R_A_AUTOPACKING));
+				
 			pTextureDsc.Parameters[ResTags.R_A_HEIGHT_IDX]=Integer.parseInt(attributes.getValue(ResTags.R_A_HEIGHT));
 			pTextureDsc.Parameters[ResTags.R_A_WIDTH_IDX]=Integer.parseInt(attributes.getValue(ResTags.R_A_WIDTH));
 			
@@ -139,12 +143,19 @@ public class ParserXMLResourcesDescriptor extends DefaultHandler {
 					pTextureRegionDsc.type = TextureRegionDescriptor.TEXTURETYPE.valueOf(new String(attributes.getValue(ResTags.R_A_TYPE)));
 			
 			//parse geometry
-			pTextureRegionDsc.Parameters[ResTags.R_A_HEIGHT_IDX]=dimHelper.parsLenght(ScreenDimensionHelper.H,attributes.getValue(ResTags.R_A_HEIGHT));
-			pTextureRegionDsc.Parameters[ResTags.R_A_WIDTH_IDX]=dimHelper.parsLenght(ScreenDimensionHelper.W,attributes.getValue(ResTags.R_A_WIDTH));
-			pTextureRegionDsc.Parameters[ResTags.R_A_POSITION_X_IDX]=dimHelper.parsPosition(ScreenDimensionHelper.X,attributes.getValue(ResTags.R_A_POSITION_X));
-			pTextureRegionDsc.Parameters[ResTags.R_A_POSITION_Y_IDX]=dimHelper.parsPosition(ScreenDimensionHelper.Y,attributes.getValue(ResTags.R_A_POSITION_Y));
-			pTextureRegionDsc.textureName = new String(pTextureDsc.Name);					//add parent texture name to textureregion descriptor
+			if(attributes.getValue(ResTags.R_A_HEIGHT) != null)
+				pTextureRegionDsc.Parameters[ResTags.R_A_HEIGHT_IDX]=dimHelper.parsLenght(ScreenDimensionHelper.H,attributes.getValue(ResTags.R_A_HEIGHT));
 			
+			if(attributes.getValue(ResTags.R_A_WIDTH) != null)
+				pTextureRegionDsc.Parameters[ResTags.R_A_WIDTH_IDX]=dimHelper.parsLenght(ScreenDimensionHelper.W,attributes.getValue(ResTags.R_A_WIDTH));
+			
+			if(attributes.getValue(ResTags.R_A_POSITION_X) != null)
+				pTextureRegionDsc.Parameters[ResTags.R_A_POSITION_X_IDX]=dimHelper.parsPosition(ScreenDimensionHelper.X,attributes.getValue(ResTags.R_A_POSITION_X));
+			
+			if(attributes.getValue(ResTags.R_A_POSITION_Y) != null)
+				pTextureRegionDsc.Parameters[ResTags.R_A_POSITION_Y_IDX]=dimHelper.parsPosition(ScreenDimensionHelper.Y,attributes.getValue(ResTags.R_A_POSITION_Y));
+			
+			pTextureRegionDsc.textureName = new String(pTextureDsc.Name);					//add parent texture name to textureregion descriptor
 			pResDescManager.addTextureRegion(pTextureRegionDsc.Name, pTextureRegionDsc);	//add textureregion to maps or texture region
 			pTextureDsc.Regions.add(pTextureRegionDsc);	//add textureregion to list of region in parent texture
 			return;
@@ -158,10 +169,17 @@ public class ParserXMLResourcesDescriptor extends DefaultHandler {
 			pColorDsc = new ColorDescriptor();
 
 			// Read texture description
-			pColorDsc.Name = new String(attributes.getValue(ResTags.R_A_NAME));
-			pColorDsc.Parameters[ResTags.R_A_RED_IDX]=Integer.parseInt(attributes.getValue(ResTags.R_A_RED), 16);
-			pColorDsc.Parameters[ResTags.R_A_GREEN_IDX]=Integer.parseInt(attributes.getValue(ResTags.R_A_GREEN), 16);
-			pColorDsc.Parameters[ResTags.R_A_BLUE_IDX]=Integer.parseInt(attributes.getValue(ResTags.R_A_BLUE), 16);
+			if(attributes.getValue(ResTags.R_A_NAME) != null)
+				pColorDsc.Name = new String(attributes.getValue(ResTags.R_A_NAME));
+			
+			if(attributes.getValue(ResTags.R_A_RED) != null)
+				pColorDsc.Parameters[ResTags.R_A_RED_IDX]=Integer.parseInt(attributes.getValue(ResTags.R_A_RED), 16);
+			
+			if(attributes.getValue(ResTags.R_A_GREEN) != null)
+				pColorDsc.Parameters[ResTags.R_A_GREEN_IDX]=Integer.parseInt(attributes.getValue(ResTags.R_A_GREEN), 16);
+			
+			if(attributes.getValue(ResTags.R_A_BLUE) != null)
+				pColorDsc.Parameters[ResTags.R_A_BLUE_IDX]=Integer.parseInt(attributes.getValue(ResTags.R_A_BLUE), 16);
 			
 			pResDescManager.addColor(pColorDsc.Name, pColorDsc);
 			return;
@@ -175,10 +193,15 @@ public class ParserXMLResourcesDescriptor extends DefaultHandler {
 
 			// Read texture description
 			pBuildableTextureDsc.ID=0;
-			pBuildableTextureDsc.Name = new String(attributes.getValue(ResTags.R_A_NAME));
-			pBuildableTextureDsc.Parameters[ResTags.R_A_HEIGHT_IDX]=Integer.parseInt(attributes.getValue(ResTags.R_A_HEIGHT));
-			pBuildableTextureDsc.Parameters[ResTags.R_A_WIDTH_IDX]=Integer.parseInt(attributes.getValue(ResTags.R_A_WIDTH));
+			if(attributes.getValue(ResTags.R_A_NAME) != null)
+				pBuildableTextureDsc.Name = new String(attributes.getValue(ResTags.R_A_NAME));
 			
+			if(attributes.getValue(ResTags.R_A_HEIGHT) != null)
+				pBuildableTextureDsc.Parameters[ResTags.R_A_HEIGHT_IDX]=Integer.parseInt(attributes.getValue(ResTags.R_A_HEIGHT));
+			
+			if(attributes.getValue(ResTags.R_A_WIDTH) != null)
+				pBuildableTextureDsc.Parameters[ResTags.R_A_WIDTH_IDX]=Integer.parseInt(attributes.getValue(ResTags.R_A_WIDTH));
+
 			pResDescManager.addBuildableTexture(pBuildableTextureDsc.Name, pBuildableTextureDsc);
 			return;
 		
@@ -194,11 +217,21 @@ public class ParserXMLResourcesDescriptor extends DefaultHandler {
 			pTiledTextureRegionDsc = new TiledTextureRegionDescriptor();
 
 			pTiledTextureRegionDsc.ID=0;
-			pTiledTextureRegionDsc.Name = new String(attributes.getValue(ResTags.R_A_NAME));
-			pTiledTextureRegionDsc.filename = new String(attributes.getValue(ResTags.R_A_FILE_NAME));
+			
+			if(attributes.getValue(ResTags.R_A_NAME) != null)
+				pTiledTextureRegionDsc.Name = new String(attributes.getValue(ResTags.R_A_NAME));
+			
+			if(attributes.getValue(ResTags.R_A_FILE_NAME) != null)
+				pTiledTextureRegionDsc.filename = new String(attributes.getValue(ResTags.R_A_FILE_NAME));
+			
 			pTiledTextureRegionDsc.textureName = new String(pBuildableTextureDsc.Name);	//add parent texture name to textureregion descriptor
-			pTiledTextureRegionDsc.column = Integer.parseInt(attributes.getValue(ResTags.R_A_COL));
-			pTiledTextureRegionDsc.row = Integer.parseInt(attributes.getValue(ResTags.R_A_ROW));
+			
+			if(attributes.getValue(ResTags.R_A_COL) != null)
+				pTiledTextureRegionDsc.column = Integer.parseInt(attributes.getValue(ResTags.R_A_COL));
+			
+			if(attributes.getValue(ResTags.R_A_ROW) != null)
+				pTiledTextureRegionDsc.row = Integer.parseInt(attributes.getValue(ResTags.R_A_ROW));
+
 			pResDescManager.addTiledTextureRegion(pTiledTextureRegionDsc.Name, pTiledTextureRegionDsc);	//add textureregion to maps or texture region
 			pBuildableTextureDsc.Regions.add(pTiledTextureRegionDsc);										//add textureregion to list of region in parent texture
 			return;
