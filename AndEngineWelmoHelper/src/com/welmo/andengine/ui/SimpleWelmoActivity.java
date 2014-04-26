@@ -1,6 +1,7 @@
 package com.welmo.andengine.ui;
 
 import java.io.IOException;
+import java.util.concurrent.Semaphore;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -99,6 +100,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	
 	protected Scene							mLoadingScene=null;
 	protected String						mLoadingSceneName="";
+	protected Semaphore 					executeStartupSene;
+	protected Semaphore 					executeStartup;
+	
 	
 	//field for the main scene displayed after the thank scene
 	protected String						mMainSceneName="";
@@ -120,8 +124,14 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		mMainSceneName = new String(strMainScene);
 	}
 	public void setFirstSceneName(String firstScene){
+		setFirstSceneName(firstScene,0);
+	}
+	//
+	public void setFirstSceneName(String firstScene,int duration){
 		this.mFirstSceneName 		= new String(firstScene);
-		
+		mFirstSceneDuration = 0;
+		if(duration> 0) 
+			mFirstSceneDuration=duration;
 	}
 	// ===========================================================
 	// Constructors
@@ -190,6 +200,11 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		
 		gameToast("maxMemory:" + Long.toString(maxMemory));
 		
+		//create the semaphore to block launch of main if startup scene is not shown
+		executeStartupSene 	= new Semaphore(1, true);
+		executeStartup		= new Semaphore(1, true);
+
+		
 		return engineOptions;
 	
 	}
@@ -201,8 +216,6 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		mResourceManager.init(this, this.mEngine);
 
 		//read descriptors for the resources necessaries for the first scene, the thanks scene  
-		readResourceDescriptions(mStartResourceDscFile);
-		//FT For test to be deletes
 		readResourceDescriptions(mStartResourceDscFile);
 		//read descriptors for the first scene and the thanks scene  
 		readScenesDescriptions(mStartSceneDscFile);		
@@ -253,9 +266,13 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		new Thread(new Runnable() {
 			public void run(){
 				try {
+					//acquire a semaphore to block other tasks
+					executeStartupSene.acquire();
+					executeStartup.acquire();
+					
 					if(mFirstSceneDuration > 0) 
 						Thread.sleep(mFirstSceneDuration);
-
+					
 					if(mThanksScene !=  null){
 						mEngine.setScene(mThanksScene);
 						Thread.sleep(mThanksSceneDuration);
@@ -266,6 +283,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 							progressDialog = (IProgressListener)mLoadingScene;
 
 					}
+					//release the semaphore to free execution of other tasks
+					executeStartupSene.release();
+					
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -295,8 +315,16 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
             }
             @Override
             public void onComplete() {
-            	Log.i(TAG,"Activate 1st Scene");
-            	mEngine.setScene((Scene)mSceneManager.getScene(mMainSceneName));
+            	try {
+            		executeStartupSene.acquire();
+            		Log.i(TAG,"Activate 1st Scene");
+            		mEngine.setScene((Scene)mSceneManager.getScene(mMainSceneName));
+            		executeStartupSene.release();
+            		executeStartup.release();
+            	}
+            	catch (InterruptedException e) {
+            		e.printStackTrace();
+            	}
             }
         };
         AsyncResourcesScenesLoader loadingTask = new AsyncResourcesScenesLoader();
@@ -429,12 +457,19 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	@Override
 	public void onBackPressed() {
 		Scene currentScene = this.mEngine.getScene();
-		if(currentScene instanceof IManageableScene){
-			String fatherSceneName = ((IManageableScene)currentScene).getFatherScene();
-			if(fatherSceneName.length() == 0)
-				super.onBackPressed();
-			else
-				this.mEngine.setScene((Scene)mSceneManager.getScene(fatherSceneName));
+		try {
+			executeStartup.acquire();
+			if(currentScene instanceof IManageableScene){
+				String fatherSceneName = ((IManageableScene)currentScene).getFatherScene();
+				if(fatherSceneName.length() == 0)
+					super.onBackPressed();
+				else
+					this.mEngine.setScene((Scene)mSceneManager.getScene(fatherSceneName));
+			}
+			executeStartup.release();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	@Override

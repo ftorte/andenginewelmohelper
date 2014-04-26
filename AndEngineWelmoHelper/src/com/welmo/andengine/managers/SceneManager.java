@@ -86,6 +86,7 @@ public class SceneManager {
 		if(!(null == (theScene = (Scene)mapScenes.get(strSceneName))))
 				return theScene;
 		
+		
 		//if scene not found check if it is a request for a configurable scene
 		ConfiguredSceneDescriptor pCFGScene = null;;
 		if (!(null ==(pCFGScene = pSDM.getCFGScene(strSceneName))))
@@ -159,19 +160,17 @@ public class SceneManager {
 	 * @param strSceneName
 	 * @return
 	 */
+	
 	private Scene getConfiguredScene(ConfiguredSceneDescriptor pCFGScene){
 		String strMasterSceneName = null;
 		
 		//get the masterscene
-		Scene theScene = (Scene)mapScenes.get(strMasterSceneName = pCFGScene.getNameOfSceneMaster());
+		Scene theScene = (Scene) getScene(pCFGScene.getNameOfSceneMaster());
 		
-		if(theScene == null)
-			theScene = (Scene)BuildScenes(strMasterSceneName);
-
 		if(!(theScene instanceof IConfigurableScene))
 			throw new NullPointerException("Instantiation of a non Configurable Scene"); 
 		
-		((IConfigurableScene)theScene).configure(pCFGScene.getParameterMap());
+		((IConfigurableScene)theScene).configure(pCFGScene.getParameterList());
 
 		return theScene;
 	}

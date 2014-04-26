@@ -12,8 +12,9 @@ public class TextureDescriptor extends ResourceDescriptor {
 	// ===========================================================
 	// Member Variables
 	// ===========================================================
-	public boolean 								valid=false;
-	public ArrayList<TextureRegionDescriptor>	Regions=null;
+	public boolean 								valid		= false;
+	public ArrayList<TextureRegionDescriptor>	Regions		= null;
+	public boolean 								autpacking 	= false;
 	
 	// ===========================================================
 	// Constructor

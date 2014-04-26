@@ -29,12 +29,16 @@ public class ResourceDescriptor {
 		this.ID = id;
 		Name = String.copyValueOf(name.toCharArray());
 		Parameters= new int[10];
+		for(int i=0; i < 10; i++)
+			Parameters[i]=0;
 	}
 	//@SuppressWarnings("static-access")
 	public ResourceDescriptor() {
 		this.ID = IVALID_ID;
 		Name="";
 		Parameters= new int[10];
+		for(int i=0; i < 10; i++)
+			Parameters[i]=0;
 	}
 
 

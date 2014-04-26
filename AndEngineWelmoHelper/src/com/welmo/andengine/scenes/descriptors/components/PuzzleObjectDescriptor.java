@@ -1,9 +1,15 @@
 package com.welmo.andengine.scenes.descriptors.components;
 
+import java.util.StringTokenizer;
+
+import org.xml.sax.Attributes;
+
+import android.util.Log;
+
 public class PuzzleObjectDescriptor extends BasicObjectDescriptor {
 	protected int 			nbColumns			= 0;
 	protected int			nbRows				= 0;
-	public String 		textureName			="";
+	public String 			textureName			="";
 	protected float[]		mPiecesBox			= {0,0,0,0};
 	protected float[]		mPuzzleZone			= {0,0,0,0};
 	protected boolean		hasActiveBorder		= false;		//if true the pieces and container have borders
@@ -76,4 +82,68 @@ public class PuzzleObjectDescriptor extends BasicObjectDescriptor {
 		this.nbRows = nbRows;
 	}
 	
+	
+	@Override
+	public void readXMLDescription(Attributes attr) {
+		Log.i(TAG,"\t\t readPuzzleDescription");
+	
+		super.readXMLDescription(attr);
+	
+		// Read the puzzle 
+		this.ID=Integer.parseInt(attr.getValue(ScnTags.S_A_ID));
+
+		this.textureName = new String(attr.getValue(ScnTags.S_A_RESOURCE_NAME));
+		
+		// Read specific puzzle parameters Nb cols & Nb Rows
+		if(attr.getValue(ScnTags.S_A_NBCOLS)!= null)
+			this.setNbColumns(Integer.parseInt(attr.getValue(ScnTags.S_A_NBCOLS)));
+		else
+			this.setNbColumns(1);
+		if(attr.getValue(ScnTags.S_A_NBROWS)!= null)
+			this.setNbRows(Integer.parseInt(attr.getValue(ScnTags.S_A_NBROWS)));
+		else
+			this.setNbRows(1);
+		
+		// Read specific puzzle geometries
+		float[] geometry = new float[4];
+		// Read specific puzzle zone
+		if(attr.getValue(ScnTags.S_A_PUZZLE_ZONE)!= null){
+			int i=0;
+			StringTokenizer st = new StringTokenizer(attr.getValue(ScnTags.S_A_PUZZLE_ZONE),";");
+		    while (st.hasMoreTokens()) {
+		    	geometry[i++]=Float.parseFloat(st.nextToken());
+		     }
+		    this.setPuzzleZoneGeometry(geometry);
+		}
+		// Read specific puzzle box
+		if(attr.getValue(ScnTags.S_A_PUZZLE_BOX)!= null){
+			int i=0;
+			StringTokenizer st = new StringTokenizer(attr.getValue(ScnTags.S_A_PUZZLE_BOX),";");
+		    while (st.hasMoreTokens()) {
+		    	geometry[i++]=Float.parseFloat(st.nextToken());
+		     }
+		    this.setPieceBoxGeometry(geometry);
+		}
+		// Read if active border
+		if(attr.getValue(ScnTags.S_A_ACTIVE_BORDER)!= null)
+			this.setHasActiveBorder(Boolean.parseBoolean(attr.getValue(ScnTags.S_A_ACTIVE_BORDER)));
+		else
+			this.setHasActiveBorder(false);
+
+		// Read if active zone
+		if(attr.getValue(ScnTags.S_A_ACTIVE_ZONE)!= null)
+			this.setHasActiveZone(Boolean.parseBoolean(attr.getValue(ScnTags.S_A_ACTIVE_ZONE)));
+		else
+			this.setHasActiveZone(false);
+		// Read if helper image on
+		if(attr.getValue(ScnTags.S_A_HELPER_IMAGE)!= null)
+			this.setHelperImage(attr.getValue(ScnTags.S_A_HELPER_IMAGE));
+		
+		// Read if helper image on
+		if(attr.getValue(ScnTags.S_A_HELPER_IMG_ALPHA)!= null)
+			this.setHelperImageAlpha(Float.parseFloat(attr.getValue(ScnTags.S_A_HELPER_IMG_ALPHA)));
+		else
+			this.setHelperImageAlpha(1.0f);
+		
+	}
 }

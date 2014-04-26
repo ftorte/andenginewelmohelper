@@ -1,5 +1,6 @@
 package com.welmo.andengine.scenes;
 
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Map;
@@ -29,13 +30,9 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 	Deque<Operation> 			qMessageStack = new LinkedList<Operation>();
 
 	@Override
-	public void configure(Map<String,String> parameterList) {
-		// To complete
-		//read parameters
-		this.bImplementPinchAndZoom = Boolean.parseBoolean(parameterList.get(ScnTags.S_A_HASPINCHANDZOOM));
-		this.bHasHUD				= Boolean.parseBoolean(parameterList.get(ScnTags.S_A_HUD));
-		this.loadScene(this.pSCDescriptor);
-		this.resetScene();
+	public void configure(ArrayList<String> parameterList) {
+		String fileName = parameterList.get(0);
+		theColoringImage.loadImage(fileName);
 	}
 	
 

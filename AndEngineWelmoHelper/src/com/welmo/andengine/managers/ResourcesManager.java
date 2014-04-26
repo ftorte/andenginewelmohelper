@@ -1,6 +1,10 @@
 package com.welmo.andengine.managers;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import org.andengine.audio.music.Music;
@@ -8,6 +12,7 @@ import org.andengine.audio.music.MusicFactory;
 import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
+import org.andengine.entity.primitive.Rectangle;
 import org.andengine.extension.svg.opengl.texture.atlas.bitmap.SVGBitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
@@ -25,9 +30,11 @@ import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtla
 import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder.TextureAtlasBuilderException;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
+import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.util.color.Color;
 import org.andengine.util.debug.Debug;
 import org.andengine.util.modifier.IModifier.DeepCopyNotSupportedException;
+import org.xml.sax.InputSource;
 
 import com.welmo.andengine.resources.descriptors.components.BuildableTextureDescriptor;
 import com.welmo.andengine.resources.descriptors.components.ColorDescriptor;
@@ -39,14 +46,12 @@ import com.welmo.andengine.resources.descriptors.components.TextureDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TextureRegionDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TiledTextureRegionDescriptor;
 
-
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.util.Log;
-
-
 
 public class ResourcesManager {
 	// ===========================================================
@@ -332,6 +337,159 @@ public class ResourcesManager {
 	// =============================================================================
 	// TEXTURE REGION
 	// =============================================================================
+	public void packTexture(BitmapTextureAtlas theTextureAtlas, TextureDescriptor pTextRegDsc){
+	
+		class Rect{
+			public int x,y,w,h=0;
+			public Rect (int px, int py,int pw,int ph){
+				this.x = px;
+				this.y = py;
+				this.w = pw;
+				this.h = ph;
+			}
+		}
+		
+		class Node{
+			Node 					child[] 		= new Node[2];
+			Rect 					rctangle		= null;
+			TextureRegionDescriptor tesctureDSC		= null;
+			boolean 				leaf 			= true;
+			
+			public void createLeaf(){
+				this.child[0] = new Node();
+				this.child[1] = new Node();
+				leaf = false;
+			}
+
+			public Node insert(TextureRegionDescriptor texture){
+
+				//read some parameter
+				int textureW 	= texture.Parameters[ResTags.R_A_WIDTH_IDX];
+				int textureH	= texture.Parameters[ResTags.R_A_HEIGHT_IDX];
+				int x 			= this.rctangle.x;
+				int y 			= this.rctangle.y;
+				int w 			= this.rctangle.w;
+				int h 			= this.rctangle.h;
+
+				//if we're not a leaf then try inserting into first child
+				if(!leaf){
+					Node newNode = child[0].insert(texture);
+					if(newNode != null) return newNode;
+
+					//no room, insert into second
+					return child[1].insert(texture);
+				}
+
+				else{
+					//if there's already a lightmap here, return)
+					if( tesctureDSC != null) return null;
+
+					//if we're too small, return
+					if((textureW > w) || (textureH >h))
+						return null;
+
+					//if we're just right, accept)
+					if((textureW == w) && (textureH == h)){
+						this.tesctureDSC = texture;
+						texture.Parameters[ResTags.R_A_POSITION_X_IDX] = x;
+						texture.Parameters[ResTags.R_A_POSITION_Y_IDX] = y;
+						return this;
+					}
+
+
+					//otherwise, gotta split this node and create some kids)
+					createLeaf();
+
+					//decide which way to split
+					float dw = w - textureW;
+					float dh = h - textureH;
+
+					if(dw > dh){
+						//split vertical
+						child[0].rctangle = new Rect(x, y,textureW, h);
+						child[1].rctangle = new Rect(x+textureW, y, w - textureW , h);
+					}
+					else{
+						//split horizontal
+						child[0].rctangle = new Rect(x, y, w, textureH);
+						child[1].rctangle = new Rect(x, y+textureH,w, h-textureH);
+					}
+					//insert into first child we created)
+					return this.child[0].insert( texture);
+				}
+			}
+		};
+		        			        		
+		//Sorting Texture from biggest to lowest
+		Collections.sort(pTextRegDsc.Regions, new Comparator<TextureRegionDescriptor>() {
+		        @Override
+		        public int compare(TextureRegionDescriptor  texture1, TextureRegionDescriptor  texture2)
+		        {
+
+		        	int sur1 = texture1.Parameters[ResTags.R_A_WIDTH_IDX]*texture1.Parameters[ResTags.R_A_HEIGHT_IDX];
+		        	int sur2 = texture2.Parameters[ResTags.R_A_WIDTH_IDX]*texture2.Parameters[ResTags.R_A_HEIGHT_IDX];
+		        	return (sur1>sur2 ? -1 : (sur1==sur2 ? 0 : 1));
+		        }
+		    });
+		
+		//create the rood node containg the structure
+		Node rootNode = new Node();
+		rootNode.rctangle = new Rect(0,0,pTextRegDsc.Parameters[ResTags.R_A_WIDTH_IDX],pTextRegDsc.Parameters[ResTags.R_A_HEIGHT_IDX]);
+		
+
+		
+		//calculate texture dimension for PNG	
+		//iterate to all textureregion to create the textures
+		for (TextureRegionDescriptor pTRDsc:pTextRegDsc.Regions){	
+			switch(pTRDsc.type){
+				case SVG://don nothing
+					break;
+				case PNG://
+					BitmapFactory.Options options =new BitmapFactory.Options();
+					options.inJustDecodeBounds = true;
+					//Returns null, sizes are in the options variable
+					String filename = new String("gfx/" + pTRDsc.filename);
+					//BitmapFactory.decodeFile("/gfx/sprite_final/monster.png", options);
+					try {
+						BitmapFactory.decodeStream(mCtx.getAssets().open(filename), null, options);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					pTRDsc.Parameters[ResTags.R_A_WIDTH_IDX] = options.outWidth;
+					pTRDsc.Parameters[ResTags.R_A_HEIGHT_IDX] = options.outHeight;
+					break;
+				default:
+					break;
+			}
+		}
+
+		//Crete node tree
+		for (TextureRegionDescriptor pTRDsc:pTextRegDsc.Regions){
+			rootNode.insert(pTRDsc);
+		}
+
+				
+		//iterate to all textureregion to create the textures
+		for (TextureRegionDescriptor pTRDsc:pTextRegDsc.Regions){	
+			//check texture region is new if not generate an exception
+			if(mapBitmapTexturesAtlas.get(pTRDsc.Name)!=null) 
+				throw new IllegalArgumentException("In LoadTexture: Tentative to create a texture region that already exists ");
+			switch(pTRDsc.type){
+				case SVG://Create texture region if SVG
+					mapTextureRegions.put(pTRDsc.Name, SVGBitmapTextureAtlasTextureRegionFactory.createFromAsset(theTextureAtlas, 
+							this.mCtx, pTRDsc.filename, pTRDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTRDsc.Parameters[ResTags.R_A_HEIGHT_IDX], 
+							pTRDsc.Parameters[ResTags.R_A_POSITION_X_IDX], pTRDsc.Parameters[ResTags.R_A_POSITION_Y_IDX]));
+					break;
+				case PNG://
+					mapTextureRegions.put(pTRDsc.Name, BitmapTextureAtlasTextureRegionFactory.createFromAsset(theTextureAtlas, 
+							this.mCtx, pTRDsc.filename,pTRDsc.Parameters[ResTags.R_A_POSITION_X_IDX], pTRDsc.Parameters[ResTags.R_A_POSITION_Y_IDX]));
+					break;
+				default:
+					break;
+			}
+		}
+	}
 	public synchronized ITexture loadTexture(String textureName){
 		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
 		TextureDescriptor pTextRegDsc = pResDscMng.getTextureDescriptor(textureName);
@@ -346,24 +504,29 @@ public class ResourcesManager {
 
 		pTextureAtlas.clearTextureAtlasSources();
 		
-		//iterate to all textureregion define in the texture
-		for (TextureRegionDescriptor pTRDsc:pTextRegDsc.Regions){	
+		if(pTextRegDsc.autpacking){
+			this.packTexture(pTextureAtlas, pTextRegDsc);
+		}
+		else{
+			//iterate to all textureregion define in the texture
+			for (TextureRegionDescriptor pTRDsc:pTextRegDsc.Regions){	
 
-			if(mapBitmapTexturesAtlas.get(pTRDsc.Name)!=null) // check that texture region is new
-				throw new IllegalArgumentException("In LoadTexture: Tentative to create a texture region that already exists ");
+				if(mapBitmapTexturesAtlas.get(pTRDsc.Name)!=null) // check that texture region is new
+					throw new IllegalArgumentException("In LoadTexture: Tentative to create a texture region that already exists ");
 
-			switch(pTRDsc.type){
-			case SVG://Create texture region if SVG
-				mapTextureRegions.put(pTRDsc.Name, SVGBitmapTextureAtlasTextureRegionFactory.createFromAsset(pTextureAtlas, 
-						this.mCtx, pTRDsc.filename, pTRDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTRDsc.Parameters[ResTags.R_A_HEIGHT_IDX], 
-						pTRDsc.Parameters[ResTags.R_A_POSITION_X_IDX], pTRDsc.Parameters[ResTags.R_A_POSITION_Y_IDX]));
-				break;
-			case PNG://
-				mapTextureRegions.put(pTRDsc.Name, BitmapTextureAtlasTextureRegionFactory.createFromAsset(pTextureAtlas, 
-						this.mCtx, pTRDsc.filename,pTRDsc.Parameters[ResTags.R_A_POSITION_X_IDX], pTRDsc.Parameters[ResTags.R_A_POSITION_Y_IDX]));
-				break;
-			default:
-				break;
+				switch(pTRDsc.type){
+					case SVG://Create texture region if SVG
+						mapTextureRegions.put(pTRDsc.Name, SVGBitmapTextureAtlasTextureRegionFactory.createFromAsset(pTextureAtlas, 
+								this.mCtx, pTRDsc.filename, pTRDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTRDsc.Parameters[ResTags.R_A_HEIGHT_IDX], 
+								pTRDsc.Parameters[ResTags.R_A_POSITION_X_IDX], pTRDsc.Parameters[ResTags.R_A_POSITION_Y_IDX]));
+						break;
+					case PNG://
+						mapTextureRegions.put(pTRDsc.Name, BitmapTextureAtlasTextureRegionFactory.createFromAsset(pTextureAtlas, 
+								this.mCtx, pTRDsc.filename,pTRDsc.Parameters[ResTags.R_A_POSITION_X_IDX], pTRDsc.Parameters[ResTags.R_A_POSITION_Y_IDX]));
+						break;
+					default:
+						break;
+				}
 			}
 		}
 		mEngine.getTextureManager().loadTexture(pTextureAtlas);		
