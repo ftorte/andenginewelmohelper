@@ -1,8 +1,10 @@
 package com.welmo.andengine.scenes.descriptors;
 
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
@@ -20,6 +22,7 @@ public class SceneDescriptor extends BasicDescriptor /*BasicObjectDescriptor*/ {
 	public String 										sceneName="";
 	public String 										sceneFather="";
 	public LinkedList<ComponentEventHandlerDescriptor>  pGlobalEventHandlerList;
+	public Map<Integer,BasicDescriptor> 				pTemplates;		//contains all templated for instantiations in the scene			
 	
 	protected GameLevel									gameLevel		=GameLevel.EASY;
 	protected HashMap<String,String[]> 					phrasesMap;
@@ -31,13 +34,15 @@ public class SceneDescriptor extends BasicDescriptor /*BasicObjectDescriptor*/ {
 	private HUDDescriptor								pHUDDsc 		= null;
 	
 	
-	public HashMap<String, String[]> getPhrasesMap() {
-		return phrasesMap;
-	}
-	public void setPhrasesMap(HashMap<String, String[]> phrasesMap) {
-		this.phrasesMap = phrasesMap;
-	}
 	
+	// ===========================================================
+	// Constructor(s)
+	// ===========================================================
+	public SceneDescriptor() {
+		pGlobalEventHandlerList = new LinkedList<ComponentEventHandlerDescriptor> ();
+		phrasesMap				= new HashMap<String,String[]>();
+		pTemplates 				= new HashMap<Integer,BasicDescriptor>();
+	}
 	
 	// ===========================================================
 	// Getters & Setters
@@ -64,10 +69,7 @@ public class SceneDescriptor extends BasicDescriptor /*BasicObjectDescriptor*/ {
 	// ===========================================================
 	// Constructor(s)
 	// ===========================================================
-	public SceneDescriptor() {
-		pGlobalEventHandlerList = new LinkedList<ComponentEventHandlerDescriptor> ();
-		phrasesMap				= new HashMap<String,String[]>();
-	}
+	
 	private HUDDescriptor getHudDsc(){	
 		Iterator<Entry<Integer,BasicDescriptor>> it = pChild.entrySet().iterator();
 	    while (it.hasNext()) {
@@ -76,5 +78,23 @@ public class SceneDescriptor extends BasicDescriptor /*BasicObjectDescriptor*/ {
 	    		return (HUDDescriptor)pairs.getValue();
 	    }
 	    return null;
+	}
+	
+	public HashMap<String, String[]> getPhrasesMap() {
+		return phrasesMap;
+	}
+	public void setPhrasesMap(HashMap<String, String[]> phrasesMap) {
+		this.phrasesMap = phrasesMap;
+	}
+	
+	public BasicDescriptor getTemplate(Integer key) {
+		return pTemplates.get(key);
+	}
+	
+	public void addTemplate(Integer key, BasicDescriptor newTemplate) {
+		if(pTemplates.get(key)!= null)
+			throw new InvalidParameterException("the template already exist in the scene: " + newTemplate.ID);
+		
+		pTemplates.put(key, newTemplate);
 	}
 }

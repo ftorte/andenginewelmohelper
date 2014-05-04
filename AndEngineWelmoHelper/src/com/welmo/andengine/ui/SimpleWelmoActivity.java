@@ -7,6 +7,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.andengine.audio.music.Music;
 import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
@@ -29,6 +30,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -56,6 +58,14 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	//default values
 	final String 							FONTHBASEPATH 	= "font/";
 	final String 							TEXTUREBASEPATH = "gfx/";
+	
+	final String							MUSIC_ON		= "musicOn";
+	final String							SOUND_ON		= "soundOn";
+	final String							GAME_LEVEL		= "gameLevel";
+	
+	
+	final String							GAME_MUSIC		="Startup";
+	
 	
 	private enum RESOURCETYPE{
 		TEXTURES, SOUNDS, MUSICS,TILEDTEXTURES,
@@ -108,6 +118,17 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	protected String						mMainSceneName="";
 	protected String[]						mStartResourceDscFile=null;
 	protected String[]						mStartSceneDscFile=null;
+	
+	static protected Music					mMusic;
+	
+	//Preferences
+	protected SharedPreferences				mPreferences;
+	protected SharedPreferences.Editor		mPreferencesEditor;
+	
+	
+	
+	//field for the main scene displayed after the thank scene
+	
 	
 	// ===========================================================
 	// Configures resources/scene file and lists
@@ -204,9 +225,34 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		executeStartupSene 	= new Semaphore(1, true);
 		executeStartup		= new Semaphore(1, true);
 
+		//Check if first installation and configure default option
+		mPreferences = getSharedPreferences("preferences",MODE_PRIVATE);
+		mPreferencesEditor = mPreferences.edit();
 		
+		//if new installation load preferences from the XML file
+		if(mPreferences.getBoolean("newInstallation", true))
+			setUpDefaultPreferences(mPreferencesEditor);
+		
+		//Manage music & sound option
+		if(mPreferences.getBoolean(MUSIC_ON,false)){
+			engineOptions.getAudioOptions().setNeedsMusic(true);
+		}
+		else
+			engineOptions.getAudioOptions().setNeedsMusic(false);
+		if(mPreferences.getBoolean(SOUND_ON,false)){
+			engineOptions.getAudioOptions().setNeedsSound(true);
+		}
+		else
+			engineOptions.getAudioOptions().setNeedsSound(false);
+		
+		//exist
 		return engineOptions;
-	
+	}
+	protected void setUpDefaultPreferences(SharedPreferences.Editor mPrefEdt){
+		mPrefEdt.putBoolean(MUSIC_ON, true);
+		mPrefEdt.putBoolean(SOUND_ON, true);
+		mPrefEdt.putInt(GAME_LEVEL, 0);
+		mPrefEdt.apply();
 	}
 
 	@Override
@@ -247,6 +293,17 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		if((mFirstScene = mSceneManager.getScene(mFirstSceneName)) == null){
 			gameToast("Not Start Up Scene Created");
 			this.mFirstScene = new Scene();
+		}
+		
+		
+		if(this.mPreferences.getBoolean(MUSIC_ON, false)){
+			//Startup
+			//Music msc = mResourceManager.getMusic(mPreferences.getString(GAME_MUSIC, ""));
+			Music msc = mResourceManager.getMusic("Startup");
+			
+			msc.setVolume(10000);
+			msc.setLooping(true);
+			msc.play();
 		}
 		
 		//get the thanks scene

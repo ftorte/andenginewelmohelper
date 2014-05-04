@@ -1,5 +1,6 @@
 package com.welmo.andengine.scenes.descriptors.components;
 
+
 public class ScnTags {
 	//--------------------------------------------------------
 	// XML TAGS List
@@ -11,6 +12,7 @@ public class ScnTags {
 	public final static String S_SCENE 				= "scene";
 	public final static String S_SCENES 			= "scenes";
 	public final static String S_SCENE_INSTANTIATION= "instantiatescene";
+	public final static String S_IS_ISTANCE_OF_ID	= "isIstanceOfID";
 	public final static String S_MULTIVIEWSCENE 	= "multiviewscene";
 	public final static String S_FATHER				= "sceneFather";
 	
@@ -27,6 +29,9 @@ public class ScnTags {
 	public final static String S_HUD				= "HUD";
 	public static final String S_TOOLBAR 			= "toolbar";
 	public static final String S_BUTTON 			= "button";
+	public static final String S_SCENELAUNCHER 		= "scene_launcher_btn";
+	public static final String S_IS_TEMPLATE		= "isTemplate";
+	
 
 	
 	//Event handler
@@ -152,5 +157,20 @@ public class ScnTags {
 	public static final String S_A_EXT_DIM 			= "ext_dim";
 	public static final String S_A_INT_DIM 			= "int_dim";
 	public static final String S_A_ON_CLIK_MESSAGE 	= "on_click_message";
+	
+	//Button Scene Launcher
+	public static final String S_A_BG_INACTIVE		= "back_ground_inactive";
+	public static final String S_A_BG_FINAL 		= "back_ground_final";
+	public static final String S_A_ICO_LOCKED 		= "ico_locked";
+	public static final String S_A_ICO_FREE 		= "ico_free";
+	public static final String S_A_ICO_STAR_1 		= "ico_star_1";
+	public static final String S_A_ICO_STAR_2 		= "ico_star_2";
+	public static final String S_A_ICO_STAR_3		= "ico_star_3";
+	
+	public static final String S_A_ICO_STAR_INACTIVE_1= "ico_star_inactive_1";
+	public static final String S_A_ICO_STAR_INACTIVE_2= "ico_star_inactive_2";
+	public static final String S_A_ICO_STAR_INACTIVE_3= "ico_star_inactive_3";
+	
+	public static final String S_A_STATUS_DEFAUTL	= "status_default";
 	
 }	
