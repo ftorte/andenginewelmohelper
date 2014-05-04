@@ -32,10 +32,12 @@ import com.welmo.andengine.scenes.components.IComponentLifeCycle;
 import com.welmo.andengine.scenes.components.Stick;
 import com.welmo.andengine.scenes.components.TextComponent;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
+import com.welmo.andengine.scenes.components.buttons.ButtonSceneLauncher;
 import com.welmo.andengine.scenes.components.puzzle.PuzzleSprites;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
@@ -45,6 +47,8 @@ import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.utility.SoundSequence;
+
+
 
 
 
@@ -186,6 +190,9 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		if(scObjDsc instanceof PuzzleObjectDescriptor){
 			newEntity = createPuzzle((PuzzleObjectDescriptor)scObjDsc,pEntityFather);
 		}
+		if(scObjDsc instanceof ButtonSceneLauncherDescriptor){
+			newEntity = createButtonSceneLauncher((ButtonSceneLauncherDescriptor)scObjDsc,pEntityFather);
+		}
 		//handle children
 		if(newEntity != null)
 			for(BasicDescriptor theChild:scObjDsc.pChild.values())
@@ -253,6 +260,51 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		this.registerTouchArea(puzzle);
 		mapOfObjects.put(spDsc.getID(), puzzle); 
 		return puzzle;
+	}
+	protected IEntity createButtonSceneLauncher(ButtonSceneLauncherDescriptor spDsc,IEntity pEntityFather){
+		
+		ButtonSceneLauncher theButton= new ButtonSceneLauncher(spDsc, mEngine.getVertexBufferObjectManager());
+		theButton.build(spDsc);
+		pEntityFather.attachChild(theButton);
+		
+		this.registerTouchArea(theButton);
+		mapOfObjects.put(spDsc.getID(), theButton); 
+		
+
+		if(theButton instanceof IActionOnSceneListener)
+			((IActionOnSceneListener)theButton).setIActionOnSceneListener(this);
+		
+		if(theButton instanceof IActivitySceneListener)
+			((IActivitySceneListener)theButton).setIActivitySceneListener(pSM.getIActivitySceneListener());
+		
+		theButton.setID(spDsc.getID());
+		//Create events handler
+
+		Set<Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor>> eventHandlersSet;
+		eventHandlersSet = spDsc.pEventHandlerList.entrySet();
+
+		for (Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> entry : eventHandlersSet){
+			ComponentEventHandlerDescriptor eventHandler = entry.getValue();
+			Events theEvent = entry.getKey();
+
+			ComponentDefaultEventHandler oCmpDefEventHandler =  new ComponentDefaultEventHandler();
+			if(eventHandler.cloneID!=-1){
+				IComponentEventHandler eventHandlerToClone = hmEventHandlers.get(eventHandler.cloneID);
+				if (eventHandlerToClone!=null){
+					theButton.addEventsHandler(theEvent, eventHandlerToClone.cloneEvent(eventHandler));
+				}
+				else
+					throw new NullPointerException("Invalid Event clone ID createClickableSprite [Clone ID = " + eventHandler.cloneID + " ]");
+			}
+			else{
+				oCmpDefEventHandler.setUpEventsHandler(eventHandler);
+				theButton.addEventsHandler(theEvent, oCmpDefEventHandler);
+			}	
+		}
+
+		return theButton;
+		
+		
 	}
 	// ===========================================================
 	// Create component Text
@@ -364,9 +416,6 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		mEngine = theEngine;
 		mContext = ctx;
 		// FT mActivity = activity;
-		//Enable audio option
-		mEngine.getEngineOptions().getAudioOptions().setNeedsMusic(true);
-		mEngine.getEngineOptions().getAudioOptions().setNeedsSound(true);
 		this.setTouchAreaBindingOnActionDownEnabled(true);
 		this.setTouchAreaBindingOnActionMoveEnabled(true);
 		pSM = sceneManager;

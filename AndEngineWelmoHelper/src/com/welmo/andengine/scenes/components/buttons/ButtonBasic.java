@@ -48,7 +48,7 @@ public abstract class ButtonBasic extends Rectangle implements IBasicComponent{
 	protected int									nStatus					= START;
 	protected Types									mtype					= Types.BASIC;
 	
-	protected IOperationHandler					mMessageHandler			= null;
+	protected IOperationHandler						mMessageHandler			= null;
 	protected VertexBufferObjectManager				pVBO 					= null;
 	//Parameters	
 	ButtonDescriptor								mParameters				= null;

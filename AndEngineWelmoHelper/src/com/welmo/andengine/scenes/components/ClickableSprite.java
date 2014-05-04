@@ -87,9 +87,6 @@ public class ClickableSprite extends Sprite implements IClickable, IActivityScen
 		if(!(null == mIClicakableImpmementation))
 			mIClicakableImpmementation.addEventsHandler(theEvent, oCmpDefEventHandler);
 	}
-	/*public void setActionOnSceneListener(IActionOnSceneListener actionLeastner) {
-		mIClicakableImpmementation.setActionOnSceneListener(actionLeastner);
-	}*/
 	public IActionOnSceneListener getActionOnSceneListener(){
 			return mIClicakableImpmementation.getActionOnSceneListener();
 	}
@@ -152,7 +149,6 @@ public class ClickableSprite extends Sprite implements IClickable, IActivityScen
 	public void setIActivitySceneListener(IActivitySceneListener pListener){
 		mIActivitySceneListener = pListener;
 	}
-
 	@Override
 	public void build(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub

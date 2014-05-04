@@ -1,19 +1,24 @@
 package com.welmo.andengine.scenes.descriptors;
 
+import java.security.InvalidParameterException;
 import java.util.LinkedList;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
 import android.content.Context;
 import android.util.Log;
+
 import com.welmo.andengine.managers.EventDescriptionsManager;
 import com.welmo.andengine.managers.SceneDescriptorsManager;
 import com.welmo.andengine.scenes.components.Stick;
 import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ColoringSpriteDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
@@ -142,7 +147,19 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			break;
 		case STATUS_PARSE_SCENE:
 			if((newDescriptor = parseComponentDescriptor(localName, attributes)) != null)
-				addComponentDescriptor(newDescriptor);
+				//check if a template and add it to template list
+				if(newDescriptor.isTemplate)
+					addTemplateDescriptor(newDescriptor);
+				else
+					//check if and instance of an object 
+					if(newDescriptor.isInstanceOfID > 0 ){ //if instanceOfID return value > 0 it means it an instace of an object 
+						if(pCurrentDescriptorInProcessing instanceof SceneDescriptor) {
+							BasicDescriptor template = ((SceneDescriptor)pCurrentDescriptorInProcessing).pTemplates.get(newDescriptor.isInstanceOfID);
+							createFromTemplate(template, newDescriptor, localName, attributes);
+						}
+					}
+					else
+						addComponentDescriptor(newDescriptor);
 			else if((pEventHandler = (ComponentEventHandlerDescriptor)parseComponentEventHandlerDescriptor(localName, attributes))!= null){
 				if(pCurrentDescriptorInProcessing != null)
 					((SceneDescriptor)pCurrentDescriptorInProcessing).pGlobalEventHandlerList.add(pEventHandler);
@@ -153,8 +170,23 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 				throw new NullPointerException("ParserXMLSceneDescriptor error invalid Element");
 			break;
 		case STATUS_PARSE_COMPONENT:
-			if((newDescriptor = parseComponentDescriptor(localName, attributes)) != null)					
-				addComponentDescriptor(newDescriptor);
+			
+			if((newDescriptor = parseComponentDescriptor(localName, attributes)) != null){					
+				//addComponentDescriptor(newDescriptor);
+				//check if a template and add it to template list
+				if(newDescriptor.isTemplate)
+					addTemplateDescriptor(newDescriptor);
+				else
+					//check if and instance of an object 
+					if(newDescriptor.isInstanceOfID > 0 ){ //if instanceOfID return value > 0 it means it an instace of an object 
+						if(pCurrentDescriptorInProcessing instanceof SceneDescriptor) {
+							BasicDescriptor template = ((SceneDescriptor)pCurrentDescriptorInProcessing).pTemplates.get(newDescriptor.isInstanceOfID);
+							createFromTemplate(template, newDescriptor, localName, attributes);
+						}
+					}
+					else
+						addComponentDescriptor(newDescriptor);
+			}
 			else if((parseActionDescriptor(localName, attributes)) != null)
 				break;
 			else if((pEventHandler = (ComponentEventHandlerDescriptor)parseComponentEventHandlerDescriptor(localName, attributes))!= null){
@@ -195,6 +227,39 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			pDescriptorsInProcessing.getLast().pChild.put(pCurrentDescriptorInProcessing.ID,
 					pCurrentDescriptorInProcessing); 
 	}
+	public void addTemplateDescriptor(BasicDescriptor newDesciptor){
+		Log.i(TAG,"\t\t\t\t add Template Descriptor in List");
+		//check curret descripotr is a scene to add the template
+		if(!(pCurrentDescriptorInProcessing instanceof SceneDescriptor))
+			throw new InvalidParameterException ("tri to add template to a non scene object"); 
+		
+		//attach new template description as child of father descriptor
+		((SceneDescriptor)pCurrentDescriptorInProcessing).pTemplates.put(newDesciptor.ID,newDesciptor);
+				
+		//Save father descriptor to LIFO to allow recoursive parsing of template
+		if(pCurrentDescriptorInProcessing != null) 
+			pDescriptorsInProcessing.addLast(pCurrentDescriptorInProcessing); 
+		
+		pCurrentDescriptorInProcessing = newDesciptor;
+	}
+	public void createFromTemplate(BasicDescriptor template, BasicDescriptor newDesciptor, String localName, Attributes attributes){
+		
+		if(localName.equalsIgnoreCase(ScnTags.S_SCENELAUNCHER)){
+			((ButtonSceneLauncherDescriptor)newDesciptor).instantiateXMLDescription((ButtonSceneLauncherDescriptor)template, attributes);
+
+			//Save father descriptor to LIFO
+			if(pCurrentDescriptorInProcessing != null) 
+				pDescriptorsInProcessing.addLast(pCurrentDescriptorInProcessing); 
+
+			pCurrentDescriptorInProcessing = newDesciptor;
+
+			//attach new description as child of father descriptor
+			if(!pDescriptorsInProcessing.isEmpty()) 
+				pDescriptorsInProcessing.getLast().pChild.put(pCurrentDescriptorInProcessing.ID,
+						pCurrentDescriptorInProcessing);
+		}
+	}
+	
 	public boolean parseScenes(String localName, Attributes attributes){ 
 		if (localName.equalsIgnoreCase(ScnTags.S_SCENES)){
 			nStatus = STATUS_PARSE_SCENES;
@@ -235,7 +300,6 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		else if (localName.equalsIgnoreCase(ScnTags.S_BACKGROUND))
 			newDescriptor = readBackGroudDescription(attributes); //Read new descriptor	
 		else if (localName.equalsIgnoreCase(ScnTags.S_PUZZLE_SPRITE))
-			//newDescriptor = readPuzzleDescription(attributes); //Read new descriptor
 			(newDescriptor = new PuzzleObjectDescriptor()).readXMLDescription(attributes);
 		else if(localName.equalsIgnoreCase(ScnTags.S_HUD))
 			(newDescriptor = new HUDDescriptor()).readXMLDescription(attributes);
@@ -243,6 +307,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			(newDescriptor = new ToolsBarDescriptor()).readXMLDescription(attributes);	
 		else if(localName.equalsIgnoreCase(ScnTags.S_BUTTON))
 			(newDescriptor = new ButtonDescriptor()).readXMLDescription(attributes);	
+		else if(localName.equalsIgnoreCase(ScnTags.S_SCENELAUNCHER))
+			(newDescriptor = new ButtonSceneLauncherDescriptor()).readXMLDescription(attributes);	
 		else
 			return null;
 
@@ -854,6 +920,11 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			}
 			else if(localName.equalsIgnoreCase(ScnTags.S_BUTTON)){
 				Log.i(TAG,"\t\t end Element S_BUTTON");
+				removeLastComponentDescriptor();
+				nComponents--;
+			}
+			else if(localName.equalsIgnoreCase(ScnTags.S_SCENELAUNCHER)){
+				Log.i(TAG,"\t\t end Element S_BN_SCENELAUNCHER");
 				removeLastComponentDescriptor();
 				nComponents--;
 			}
