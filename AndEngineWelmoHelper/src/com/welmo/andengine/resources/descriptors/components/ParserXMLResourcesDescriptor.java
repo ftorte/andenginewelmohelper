@@ -20,14 +20,15 @@ public class ParserXMLResourcesDescriptor extends DefaultHandler {
 	private ScreenDimensionHelper			dimHelper=null;
 
 	//Containers for element description
-	protected TextureDescriptor				pTextureDsc;
-	protected FontDescriptor				pFontDsc;
-	protected TextureRegionDescriptor		pTextureRegionDsc;
-	protected ColorDescriptor				pColorDsc;
-	protected BuildableTextureDescriptor 	pBuildableTextureDsc;
-	protected TiledTextureRegionDescriptor	pTiledTextureRegionDsc;
-	protected SoundDescriptor				pSoundDsc;
-	protected MusicDescriptor				pMusicDsc;
+	protected TextureDescriptor						pTextureDsc;
+	protected FontDescriptor						pFontDsc;
+	protected TextureRegionDescriptor				pTextureRegionDsc;
+	protected ColorDescriptor						pColorDsc;
+	protected BuildableTextureDescriptor 			pBuildableTextureDsc;
+	protected TiledTextureRegionDescriptor			pTiledTextureRegionDsc;
+	protected DynamicTiledTextureRegionDescriptor	pDinamicTiledTextureRegionDsc;
+	protected SoundDescriptor						pSoundDsc;
+	protected MusicDescriptor						pMusicDsc;
 	
 	//--------------------------------------------------------
 	
@@ -234,6 +235,38 @@ public class ParserXMLResourcesDescriptor extends DefaultHandler {
 
 			pResDescManager.addTiledTextureRegion(pTiledTextureRegionDsc.Name, pTiledTextureRegionDsc);	//add textureregion to maps or texture region
 			pBuildableTextureDsc.Regions.add(pTiledTextureRegionDsc);										//add textureregion to list of region in parent texture
+			return;
+		}
+		if (localName.equalsIgnoreCase(ResTags.R_DYNAMICTILEDTEXTUREREGION)){
+			
+			if(this.pDinamicTiledTextureRegionDsc != null) //check is new texture region
+				throw new NullPointerException("ParserXMLSceneDescriptor encountered textureregion description with another texture description inside");
+			
+			if(this.pTextureDsc == null) //check region is part of a texture
+				throw new NullPointerException("ParserXMLSceneDescriptor encountered textureregion description withou texture description");
+			
+			pDinamicTiledTextureRegionDsc = new DynamicTiledTextureRegionDescriptor();
+
+			pDinamicTiledTextureRegionDsc.ID=0;
+			
+			if(attributes.getValue(ResTags.R_A_NAME) != null)
+				pDinamicTiledTextureRegionDsc.Name = new String(attributes.getValue(ResTags.R_A_NAME));
+			
+			if(attributes.getValue(ResTags.R_A_DFLT_FILE_NAME) != null){
+				pDinamicTiledTextureRegionDsc.filename = new String(attributes.getValue(ResTags.R_A_DFLT_FILE_NAME));
+				pDinamicTiledTextureRegionDsc.dflt_filename = new String(pDinamicTiledTextureRegionDsc.filename);
+			}
+			
+			pDinamicTiledTextureRegionDsc.textureName = new String(pTextureDsc.Name);	//add parent texture name to textureregion descriptor
+
+			if(attributes.getValue(ResTags.R_A_DFLT_COL) != null)
+				pDinamicTiledTextureRegionDsc.dflt_colum = pDinamicTiledTextureRegionDsc.column = Integer.parseInt(attributes.getValue(ResTags.R_A_DFLT_COL));
+
+			if(attributes.getValue(ResTags.R_A_DFLT_ROW) != null)
+				pDinamicTiledTextureRegionDsc.dflt_row = pDinamicTiledTextureRegionDsc.row = Integer.parseInt(attributes.getValue(ResTags.R_A_DFLT_ROW));
+
+			pResDescManager.addDynamicTiledTextureRegion(pDinamicTiledTextureRegionDsc.Name, pDinamicTiledTextureRegionDsc);	//add textureregion to maps or texture region
+			pTextureDsc.Regions.add(pDinamicTiledTextureRegionDsc);										//add textureregion to list of region in parent texture
 			return;
 		}
 		if (localName.equalsIgnoreCase(ResTags.R_MUSIC)){

@@ -1,14 +1,17 @@
 package com.welmo.andengine.scenes.components;
 
 import java.util.LinkedList;
+
 import org.andengine.audio.music.Music;
 import org.andengine.audio.sound.Sound;
 import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.CardinalSplineMoveModifier;
 import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.modifier.ParallelEntityModifier;
 import org.andengine.entity.modifier.RotationModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
+import org.andengine.entity.modifier.CardinalSplineMoveModifier.CardinalSplineMoveModifierConfig;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.util.modifier.IModifier;
@@ -151,6 +154,24 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 			switch(m.getIModifier().getType()){
 			case SCALE:
 				modifier = new ScaleModifier(m.getIModifier().getDuration(),m.getIModifier().getScaleBegin(),m.getIModifier().getScaleEnd());
+				iEntityModifiers[index++] = modifier;
+				break;
+			case MOVE:
+				float pTension =0.0f;
+				CardinalSplineMoveModifierConfig modifierConfig = new CardinalSplineMoveModifierConfig(
+						8, pTension);
+				
+				modifierConfig.setControlPoint( 0, 86f,47f);
+				modifierConfig.setControlPoint( 1, 209f,55f);
+				modifierConfig.setControlPoint( 2, 339f,94f);
+				modifierConfig.setControlPoint( 3, 316f,126f);
+				modifierConfig.setControlPoint( 4, 95f,149f);
+				modifierConfig.setControlPoint( 5, 95f,186f);
+				modifierConfig.setControlPoint( 6, 268f,260f);
+				modifierConfig.setControlPoint( 7, 81f,511f);
+				
+				modifier = new CardinalSplineMoveModifier(m.getIModifier().getDuration(), modifierConfig);
+				
 				iEntityModifiers[index++] = modifier;
 				break;
 			default:

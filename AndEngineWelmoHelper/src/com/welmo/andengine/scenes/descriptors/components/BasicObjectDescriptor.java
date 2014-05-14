@@ -80,7 +80,7 @@ public abstract class BasicObjectDescriptor extends BasicDescriptor{
 		colorName = new String("");
 	}
 	public void copyFrom(BasicObjectDescriptor copyfrom) {
-		super.copyFrom(copyfrom);
+		super.copyFrom((BasicDescriptor)copyfrom);
 		pX 			= copyfrom.pX;
 		pY 			= copyfrom.pY;
 		pZOrder 	= copyfrom.pZOrder;

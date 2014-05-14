@@ -50,10 +50,10 @@ public class BasicDescriptor {
 		this.className = new String(className);
 	}
 	public void copyFrom(BasicDescriptor copyfrom) {
-		className			=new String(copyfrom.className);
-		ID					=copyfrom.ID;
-		sOnClickMessage 	=copyfrom.sOnClickMessage;
-		sSubType			=copyfrom.sSubType;		
+		className			= new String(copyfrom.className);
+		ID					= copyfrom.ID;
+		sOnClickMessage 	= copyfrom.sOnClickMessage;
+		sSubType			= copyfrom.sSubType;		
 		isTemplate 			= copyfrom.isTemplate;
 		//handle hash maps
 		pEventHandlerList.clear();

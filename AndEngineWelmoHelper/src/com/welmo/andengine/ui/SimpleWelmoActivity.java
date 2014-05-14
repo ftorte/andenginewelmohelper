@@ -252,7 +252,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		mPrefEdt.putBoolean(MUSIC_ON, true);
 		mPrefEdt.putBoolean(SOUND_ON, true);
 		mPrefEdt.putInt(GAME_LEVEL, 0);
-		mPrefEdt.apply();
+		//mPrefEdt.apply();
 	}
 
 	@Override
@@ -637,8 +637,10 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 				psc.setOnSceneTouchListener(null);
 				psc.setTouchAreaBindingOnActionDownEnabled(false);
 			}
-			//set father message handler for messages that the scene dont handle
+			//set father message handler for messages that the scene don't handle
 			psc.setFatherSceneMessageHandler(this);
+			
+			//FTO to complete psc.fireEvent(SCENELOADED);
 			
 			//add scene to the engine to be displayed
 			mEngine.setScene(psc);

@@ -21,6 +21,7 @@ public class ButtonSceneLauncherDescriptor extends BasicObjectDescriptor{
 		public final static int  NB_OF_PARAMETERS = 5;
 	}
 	public void copyFrom(ButtonSceneLauncherDescriptor objectCopy){
+		super.copyFrom((BasicObjectDescriptor)objectCopy);
 		defaultstatus = objectCopy.defaultstatus;
 		imagesList.clear();
 		imagesList.putAll(objectCopy.imagesList);
