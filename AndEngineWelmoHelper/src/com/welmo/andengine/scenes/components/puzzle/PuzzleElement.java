@@ -2,6 +2,7 @@ package com.welmo.andengine.scenes.components.puzzle;
 
 import org.andengine.entity.IEntity;
 import org.andengine.entity.primitive.Line;
+import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.entity.sprite.vbo.HighPerformanceTiledSpriteVertexBufferObject;
@@ -9,6 +10,7 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.vbo.DrawType;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.util.color.Color;
 
 import android.util.Log;
 
@@ -62,11 +64,15 @@ public class PuzzleElement extends TiledSprite{
 	private boolean							hasBorder				= false;
 	protected float[]						mActiveZoneXY			= new float[2];		//will Contain the active zone XY
 	
+	private Rectangle						rectBackground			= null;
+	private boolean							bHasWhiteBackground		= false;
+	
 	//--------------------------------------------------------------------------------
 	// Constructor
 	//--------------------------------------------------------------------------------
 	
-	public PuzzleElement(float pWidth, float pHeight,boolean activeBrd,PuzzleSprites pThePuzzle,
+	public PuzzleElement(float pWidth, float pHeight,boolean activeBrd,PuzzleSprites pThePuzzle, 
+			boolean hasWhiteBackground,
 			ITiledTextureRegion pTiledTextureRegion,
 			VertexBufferObjectManager pVertexBufferObject) {
 		
@@ -87,6 +93,15 @@ public class PuzzleElement extends TiledSprite{
 			createBorder();
 		
 		mThePuzzle = pThePuzzle;
+		
+		bHasWhiteBackground = hasWhiteBackground;
+		if(bHasWhiteBackground){
+			rectBackground = new Rectangle(0,0,this.mWidth, mHeight,pVertexBufferObject);
+			rectBackground.setColor(new Color(1,1,1,0.3f));
+			rectBackground.setZIndex(-1);
+			this.attachChild(rectBackground);
+		}
+		
 				
 	}
 	public void resetBorder(boolean borderYN){

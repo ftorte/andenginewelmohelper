@@ -689,6 +689,10 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		case SOUND:
 			pDescriptor.getIModifier().setSoundName(attributes.getValue(ScnTags.S_A_NAME));
 			break;
+		case MOVE:
+			if(attributes.getValue(ScnTags.S_A_DURATION) != null)
+				pDescriptor.getIModifier().setDuration(Float.parseFloat(attributes.getValue(ScnTags.S_A_DURATION)));
+			break;
 		}
 		return pDescriptor;
 	}

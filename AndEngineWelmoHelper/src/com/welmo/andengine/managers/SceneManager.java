@@ -83,18 +83,18 @@ public class SceneManager {
 			throw new NullPointerException("Scene Manager not initialized"); 
 		
 		//get the scene
-		if(!(null == (theScene = (Scene)mapScenes.get(strSceneName))))
-				return theScene;
-		
+		theScene = (Scene)mapScenes.get(strSceneName);
 		
 		//if scene not found check if it is a request for a configurable scene
-		ConfiguredSceneDescriptor pCFGScene = null;;
-		if (!(null ==(pCFGScene = pSDM.getCFGScene(strSceneName))))
-			return getConfiguredScene(pCFGScene);
+		if(theScene == null){
+			ConfiguredSceneDescriptor pCFGScene = null;;
+			if (!(null ==(pCFGScene = pSDM.getCFGScene(strSceneName))))
+				theScene = getConfiguredScene(pCFGScene);
+		}
 		
 		//if is not a configure try to build the scene
 		if(theScene == null)
-			return (Scene) BuildScenes(strSceneName);
+			theScene =  (Scene) BuildScenes(strSceneName);
 		
 		return theScene;
 		
@@ -171,7 +171,8 @@ public class SceneManager {
 			throw new NullPointerException("Instantiation of a non Configurable Scene"); 
 		
 		((IConfigurableScene)theScene).configure(pCFGScene.getParameterList());
-
+		
+		
 		return theScene;
 	}
 	public IActivitySceneListener getIActivitySceneListener(){

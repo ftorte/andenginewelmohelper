@@ -139,6 +139,7 @@ public class ScnTags {
 	public final static String S_A_ACTIVE_ZONE		="ActiveZone";
 	public final static String S_A_HELPER_IMAGE		="HelperImage";
 	public final static String S_A_HELPER_IMG_ALPHA	="HIAlpha";
+	public static final String S_A_HAS_WHITE_BACKGROUND = "hasWhiteBackground";
 	
 	//Head UP Display
 	public final static String S_A_HUD				="HUD";
@@ -171,6 +172,5 @@ public class ScnTags {
 	public static final String S_A_ICO_STAR_INACTIVE_2= "ico_star_inactive_2";
 	public static final String S_A_ICO_STAR_INACTIVE_3= "ico_star_inactive_3";
 	
-	public static final String S_A_STATUS_DEFAUTL	= "status_default";
-	
-}	
+	public static final String S_A_STATUS_DEFAUTL	= "status_default";	
+}

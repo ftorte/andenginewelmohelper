@@ -61,16 +61,22 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 	
 	private 	boolean							hasActiveBorder		= false;		//if true the pieces and container have borders
 	private 	boolean							hasActiveZone		= false;		//if true the puzzle zone is active and pieces are stick to the zone
+	private 	boolean							hasWhiteBackground	= false;		//if true the puzzle pieces have a white background
 	private 	String							mHelperImage		= "";			//if <> "" the puzzle zone have as background the final figures in color on withe background with low alpah
+	private 	String 							mTiledTextureName	= "";	
+	private 	String 							mTiledTextureResource = "";	
+	
+
 	private 	float							mHelperImageAlpha	= 0.4f;		    //if true the puzzle zone have as background the final figures in color on withe background with low alpah
 	
+	protected	int 							mZOrder				=0;
 	
 	protected	PuzzleElement[] 				pieces				= null;
 	protected	List<PuzzleElementContainer> 	mContainersList 	= null;
 	protected	List<PuzzleElement> 			mPiecesList 		= null;
 	
 	protected	Engine							mTheEngine 			= null;
-	protected   PuzzleObjectDescriptor			mDescriptor			= null;
+	//protected   PuzzleObjectDescriptor			mDescriptor			= null;
 	
 	//listeners
 	protected 	IComponentLifeCycleListener		mLifeCycleListener	= null;
@@ -84,38 +90,44 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 				pDescriptor.getIDimension().getWidth(), pDescriptor.getIDimension().getHeight(), pEngine.getVertexBufferObjectManager());
 					
 		//read Parameter
-		mDescriptor				= pDescriptor;
+		//mDescriptor				= pDescriptor;
 		mTheEngine				= pEngine;
 		
 		//read puzzle geometry
-		mPuzzle[PX0]			= mDescriptor.getIPosition().getX();
-		mPuzzle[PY0]			= mDescriptor.getIPosition().getY();
-		mPuzzle[WIDTH]			= mDescriptor.getIDimension().getWidth();
-		mPuzzle[HEIGHT]			= mDescriptor.getIDimension().getHeight();
+		mPuzzle[PX0]			= pDescriptor.getIPosition().getX();
+		mPuzzle[PY0]			= pDescriptor.getIPosition().getY();
+		mPuzzle[WIDTH]			= pDescriptor.getIDimension().getWidth();
+		mPuzzle[HEIGHT]			= pDescriptor.getIDimension().getHeight();
 		
 		//read piece box geometry
-		mPiecesBox[PX0]			= mDescriptor.getPieceBoxGeometry()[PX0];
-		mPiecesBox[PY0]			= mDescriptor.getPieceBoxGeometry()[PY0];
-		mPiecesBox[WIDTH]		= mDescriptor.getPieceBoxGeometry()[WIDTH];
-		mPiecesBox[HEIGHT]		= mDescriptor.getPieceBoxGeometry()[HEIGHT];
+		mPiecesBox[PX0]			= pDescriptor.getPieceBoxGeometry()[PX0];
+		mPiecesBox[PY0]			= pDescriptor.getPieceBoxGeometry()[PY0];
+		mPiecesBox[WIDTH]		= pDescriptor.getPieceBoxGeometry()[WIDTH];
+		mPiecesBox[HEIGHT]		= pDescriptor.getPieceBoxGeometry()[HEIGHT];
 		
 		//read puzzle zone geometry
-		mPuzzleZone[PX0]		= mDescriptor.getPuzzleZoneGeometry()[PX0];
-		mPuzzleZone[PY0]		= mDescriptor.getPuzzleZoneGeometry()[PY0];
-		mPuzzleZone[WIDTH]		= mDescriptor.getPuzzleZoneGeometry()[WIDTH];
-		mPuzzleZone[HEIGHT]		= mDescriptor.getPuzzleZoneGeometry()[HEIGHT];
+		mPuzzleZone[PX0]		= pDescriptor.getPuzzleZoneGeometry()[PX0];
+		mPuzzleZone[PY0]		= pDescriptor.getPuzzleZoneGeometry()[PY0];
+		mPuzzleZone[WIDTH]		= pDescriptor.getPuzzleZoneGeometry()[WIDTH];
+		mPuzzleZone[HEIGHT]		= pDescriptor.getPuzzleZoneGeometry()[HEIGHT];
 		
-		hasActiveBorder			= mDescriptor.hasActiveBorder();
-		hasActiveZone			= mDescriptor.hasActiveZone();
+		hasActiveBorder			= pDescriptor.hasActiveBorder();
+		hasActiveZone			= pDescriptor.hasActiveZone();
+		hasWhiteBackground		= pDescriptor.hasWhiteBackground();
 		
-		mHelperImage			= mDescriptor.getHelperImage();
+		
+		mHelperImage			= new String(pDescriptor.getHelperImage());
+		mTiledTextureName		= new String(pDescriptor.getTiledTextureName());
+		mTiledTextureResource	= new String(pDescriptor.getTiledTextureResourceName());
+		
 		
 		mMaxPositionX 			= mPuzzle[WIDTH];
 		mMaxPositionY 			= mPuzzle[HEIGHT];
+		mZOrder					= pDescriptor.getIPosition().getZorder();
 		
 		//get geometry 
-		nbRows 					= mDescriptor.getNbRows();
-		nbCols 					= mDescriptor.getNbRows();
+		nbRows 					= pDescriptor.getNbRows();
+		nbCols 					= pDescriptor.getNbRows();
 		nbPieces 				= nbRows*nbCols;
 				
 		//Init Array
@@ -125,9 +137,25 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 		mStatus					= STATUS_START;
 	}
 
+	
+
 	// --------------------------------------------------------------------
 	// members' getters & setters
 	// --------------------------------------------------------------------
+	public String getmTiledTextureResource() {
+		return mTiledTextureResource;
+	}
+
+	public void setmTiledTextureResource(String mTiledTextureResource) {
+		this.mTiledTextureResource = mTiledTextureResource;
+	}
+	public String getmHelperImage() {
+		return mHelperImage;
+	}
+
+	public void setmHelperImage(String mHelperImage) {
+		this.mHelperImage = new String(mHelperImage);
+	}
 	public int   getNbRows() {
 		return nbRows;
 	}
@@ -170,16 +198,34 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 	// ------------------------------------------------------------------------------------
 	// public memebers
 	// ------------------------------------------------------------------------------------
+	public void clearPuzzle(){
+		//if status = START return
+		if(mStatus==STATUS_START)return;
+
+		//detach all childres
+		this.detachChildren();
+
+		//change parent to all pieces to be attached to the Puzzle Sprite
+		mPiecesList.clear();							//clear Piece list			
+		mContainersList.clear();
+	
+		mStatus=STATUS_START;
+		return;
+	}
 	public void createPuzzle(){
 		
 		ResourcesManager pRM = ResourcesManager.getInstance();
 		
 		//Set additional parameters
-		setZIndex(mDescriptor.getIPosition().getZorder());
+		//FT setZIndex(mDescriptor.getIPosition().getZorder());
+		setZIndex(mZOrder);
+		
 		setAlpha(0);
 
 		//get the texture
-		ITiledTextureRegion theTiledTexture = pRM.getTiledTextureRegion(mDescriptor.getTextureName());
+		//ITiledTextureRegion theTiledTexture = pRM.getTiledTextureRegion(mTextureName);
+		ITiledTextureRegion theTiledTexture = pRM.getDinamicTiledTextureRegion(mTiledTextureName, 
+				mTiledTextureResource, nbCols, nbRows);
 
 		//Calculate to zoom factor 
 		float zoomRatio = 1;
@@ -198,7 +244,7 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 		
 		//create the pieces		
 		for (int i=0; i < nbPieces; i++){
-				pieces[i] = new PuzzleElement(mPieceWidth, mPieceHeight, hasActiveBorder, this, theTiledTexture, mTheEngine.getVertexBufferObjectManager());
+				pieces[i] = new PuzzleElement(mPieceWidth, mPieceHeight, hasActiveBorder, this, hasWhiteBackground, theTiledTexture, mTheEngine.getVertexBufferObjectManager());
 				//Attach the puzzle element to the entity
 				pieces[i].setCurrentTileIndex(i);
 				pieces[i].setID(i);
@@ -224,10 +270,12 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 		
 		mStatus					= STATUS_ONGOING;
 	}
+	
 	public void setUpHelperImage(){
 		if(!mHelperImage.isEmpty()){
 			ResourcesManager pRM = ResourcesManager.getInstance();
-			ITextureRegion theImage=pRM.getTextureRegion(mDescriptor.getHelperImage());
+			// FT ITextureRegion theImage=pRM.getTextureRegion(mDescriptor.getHelperImage());
+			ITextureRegion theImage=pRM.getTextureRegion(mHelperImage);
 			
 			Sprite helperImage = new Sprite(mPuzzleZone[PX0],mPuzzleZone[PY0],
 					mPieceWidth * nbCols,mPieceHeight*nbRows,

@@ -18,6 +18,7 @@ import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.font.IFont;
 import org.andengine.opengl.texture.ITexture;
+import org.andengine.opengl.texture.Texture;
 import org.andengine.opengl.texture.TextureManager;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
@@ -31,6 +32,8 @@ import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.texture.region.TextureRegion;
+import org.andengine.opengl.texture.region.TextureRegionFactory;
+import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.util.color.Color;
 import org.andengine.util.debug.Debug;
 import org.andengine.util.modifier.IModifier.DeepCopyNotSupportedException;
@@ -38,6 +41,7 @@ import org.xml.sax.InputSource;
 
 import com.welmo.andengine.resources.descriptors.components.BuildableTextureDescriptor;
 import com.welmo.andengine.resources.descriptors.components.ColorDescriptor;
+import com.welmo.andengine.resources.descriptors.components.DynamicTiledTextureRegionDescriptor;
 import com.welmo.andengine.resources.descriptors.components.FontDescriptor;
 import com.welmo.andengine.resources.descriptors.components.MusicDescriptor;
 import com.welmo.andengine.resources.descriptors.components.ResTags;
@@ -80,9 +84,11 @@ public class ResourcesManager {
 	private HashMap<String, Color> 							mapColors;
 	private HashMap<String, BuildableBitmapTextureAtlas> 	mapBuildablBitmapTexturesAtlas;
 	private HashMap<String, ITiledTextureRegion>  			mapTiledTextureRegions;
+	private HashMap<String, DynamicTiledTextureRegion>  	mapConfigTiledTextureRegions;
 	private HashMap<String, Music> 							mapMusics;
 	private HashMap<String, SoundContainer>  				mapSound;
 	private HashMap<String, DecoratedTextures>				mapDecoratedTextures;
+	
 	
 	// singleton Instance
 	private static ResourcesManager 	mInstance=null;
@@ -133,6 +139,49 @@ public class ResourcesManager {
 			this.type = type;
 		}
 	}
+	
+	// Inner class SoundExtended
+	public class DynamicTiledTextureRegion{
+
+		protected String 	assetFileName = new String();
+		protected int		nNbCol = 0;
+		protected int		nNbRow = 0; 
+		
+		private BitmapTextureAtlas mBitmapTextureAtlas;
+		private TiledTextureRegion mTiledTexture;
+		
+		public void setTextureAtlas(BitmapTextureAtlas theTextureAtlas){mBitmapTextureAtlas = theTextureAtlas;}
+		protected BitmapTextureAtlas getTextureAtlas(){return mBitmapTextureAtlas;}
+		
+		public void setTiledTexture(TiledTextureRegion theTiledTexture){mTiledTexture = theTiledTexture;}
+		protected TiledTextureRegion getTiledTexture(){return mTiledTexture;}
+		
+		public void createFromAsset(String newAssetName, int nbCol, int nbRow, Context ctx) {
+			mTiledTexture = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(mBitmapTextureAtlas, ctx, newAssetName, 0,0,nbCol, nbRow);
+			mBitmapTextureAtlas.load();
+			this.nNbCol = nbCol;
+        	this.nNbRow = nbRow;
+		}
+		
+		public void updateFromAsset(String newAssetName, int nbCol, int nbRow, Context ctx) {
+            if( newAssetName.compareToIgnoreCase(assetFileName) != 0){
+            	mBitmapTextureAtlas.clearTextureAtlasSources();
+            	mTiledTexture = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, 
+            			ctx, newAssetName, 0,0,nbCol, nbRow);
+            	assetFileName = new String(newAssetName);
+            	this.nNbCol = nbCol;
+            	this.nNbRow = nbRow;
+            }
+		}
+		
+		public ITiledTextureRegion getITiledTextureRegion(){return  mTiledTexture;}
+		
+		public boolean isSameAs(String resourceName, int nCol, int nRow) {
+			if((resourceName.compareToIgnoreCase(assetFileName) == 0) && (this.nNbCol == nCol) && (this.nNbRow == nRow))
+				return true;
+			return false;
+		}
+	}	
 	
 	// Inner class PixelImageContainter
 	public class DecoratedTextures{
@@ -240,6 +289,7 @@ public class ResourcesManager {
 		mapMusics 						= new HashMap<String, Music>();
 		mapSound 						= new HashMap<String, SoundContainer>();
 		mapDecoratedTextures 			= new HashMap<String, DecoratedTextures>();
+		mapConfigTiledTextureRegions	= new HashMap<String, DynamicTiledTextureRegion>();
 		initialized 					= false;
 	}
 	@method
@@ -655,6 +705,30 @@ public class ResourcesManager {
 		//return the texture region that has just been loaded
 		return mapTiledTextureRegions.get(tiledTextureRegionName);
 	}
+	public synchronized DynamicTiledTextureRegion loadDynamicTiledTextureRegion(String tiledTextureRegionName){
+		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
+		DynamicTiledTextureRegionDescriptor pTRDsc = pResDscMng.getDynamicTiledTextureRegion(tiledTextureRegionName);
+		
+		if(pTRDsc == null)
+		 	throw new IllegalArgumentException("In loadDynamicTiledTextureRegion: there is no description for the requested texture = " + tiledTextureRegionName);
+		
+		DynamicTiledTextureRegion newDinamicTextureRegion = new DynamicTiledTextureRegion();	
+		
+		//Create the texture
+		TextureDescriptor pTextgDsc = pResDscMng.getTextureDescriptor(pTRDsc.textureName);
+		
+		newDinamicTextureRegion.setTextureAtlas( new BitmapTextureAtlas(mEngine.getTextureManager(),
+				pTextgDsc.Parameters[ResTags.R_A_WIDTH_IDX], pTextgDsc.Parameters[ResTags.R_A_HEIGHT_IDX], 
+				TextureOptions.NEAREST));
+		
+		//create the all the dynamic texture
+		newDinamicTextureRegion.createFromAsset(pTRDsc.filename, pTRDsc.column, pTRDsc.row, this.mCtx);
+
+		//Save in map 
+		this.mapConfigTiledTextureRegions.put(pTRDsc.Name, newDinamicTextureRegion);
+		
+		return newDinamicTextureRegion;
+	}	
 	public synchronized ITiledTextureRegion getTiledTextureRegion(String tiledTextureRegionName){
 		ITiledTextureRegion theTiledTextureRegion = this.mapTiledTextureRegions.get(tiledTextureRegionName);
 		//if the texture region is not already loaded in the resource manager load it
@@ -662,6 +736,20 @@ public class ResourcesManager {
 			theTiledTextureRegion = loadTiledTextureRegion(tiledTextureRegionName);
 		//return the found or loaded texture region
 		return theTiledTextureRegion;
+	}
+	public synchronized ITiledTextureRegion getDinamicTiledTextureRegion(String tiledTextureRegionName,String resourceName,int nbCol, int nbRow){
+		DynamicTiledTextureRegion theDinamicTiledTextureRegion = this.mapConfigTiledTextureRegions.get(tiledTextureRegionName);
+		
+		//if the texture region is not already loaded in the resource manager load it
+		if(theDinamicTiledTextureRegion==null) 
+			theDinamicTiledTextureRegion = loadDynamicTiledTextureRegion(tiledTextureRegionName);
+		
+		//check that the resourceName is the requested with the exact nb of tiles(col & row) and if no reload it
+		if(!theDinamicTiledTextureRegion.isSameAs(resourceName, nbCol, nbRow)) 
+			theDinamicTiledTextureRegion.updateFromAsset(resourceName, nbCol, nbRow, this.mCtx);
+	
+		//return the found or loaded texture region
+		return theDinamicTiledTextureRegion.getITiledTextureRegion();
 	}
 	// =============================================================================
 	// MUSIC

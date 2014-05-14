@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.welmo.andengine.resources.descriptors.components.BuildableTextureDescriptor;
 import com.welmo.andengine.resources.descriptors.components.ColorDescriptor;
+import com.welmo.andengine.resources.descriptors.components.DynamicTiledTextureRegionDescriptor;
 import com.welmo.andengine.resources.descriptors.components.FontDescriptor;
 import com.welmo.andengine.resources.descriptors.components.MusicDescriptor;
 import com.welmo.andengine.resources.descriptors.components.SoundDescriptor;
@@ -29,6 +30,7 @@ public class ResourceDescriptorsManager {
 	protected HashMap<String,FontDescriptor> 				hmFontDscMap;
 	protected HashMap<String,BuildableTextureDescriptor>	hmBuildableTextureDscMap;
 	protected HashMap<String,TiledTextureRegionDescriptor>  hmTiledTextureRegionDscMap;
+	protected HashMap<String,DynamicTiledTextureRegionDescriptor>  hmDynamicTiledTextureRegionDscMap;
 	protected HashMap<String,MusicDescriptor>  				hmMusicDscMap;
 	protected HashMap<String,SoundDescriptor>  				hmSoundDscMap;
 	
@@ -48,6 +50,7 @@ public class ResourceDescriptorsManager {
 		hmTiledTextureRegionDscMap = new HashMap<String,TiledTextureRegionDescriptor>();
 		hmMusicDscMap = new HashMap<String,MusicDescriptor>();
 		hmSoundDscMap = new HashMap<String,SoundDescriptor>();
+		hmDynamicTiledTextureRegionDscMap = new HashMap<String,DynamicTiledTextureRegionDescriptor>();
 	}
 	@method
 	public synchronized  static ResourceDescriptorsManager getInstance(){
@@ -159,6 +162,22 @@ public class ResourceDescriptorsManager {
 		if (hmTiledTextureRegionDscMap == null)
 			throw new NullPointerException("ResurceDescriptorsManager not initialized correctly"); 
 		return hmTiledTextureRegionDscMap.get(name);
+	}
+	//--------------------------------------------------------
+	// DYNAMICTILEDTEXTUREREGION
+	//--------------------------------------------------------
+	@method
+	//Add the description of a texture region to the texture region descriptions list
+	public synchronized void addDynamicTiledTextureRegion(String name, DynamicTiledTextureRegionDescriptor textureRegion){
+		if (hmDynamicTiledTextureRegionDscMap == null)
+			throw new NullPointerException("ResurceDescriptorsManager not initialized correctly"); 
+		hmDynamicTiledTextureRegionDscMap.put(name,textureRegion);
+	}
+	@method
+	public DynamicTiledTextureRegionDescriptor getDynamicTiledTextureRegion(String name){
+		if (hmDynamicTiledTextureRegionDscMap == null)
+			throw new NullPointerException("ResurceDescriptorsManager not initialized correctly"); 
+		return hmDynamicTiledTextureRegionDscMap.get(name);
 	}
 	//--------------------------------------------------------
 	// MUSIC

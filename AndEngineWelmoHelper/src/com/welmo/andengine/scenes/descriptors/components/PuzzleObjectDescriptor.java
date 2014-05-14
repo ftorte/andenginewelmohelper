@@ -7,42 +7,31 @@ import org.xml.sax.Attributes;
 import android.util.Log;
 
 public class PuzzleObjectDescriptor extends BasicObjectDescriptor {
+	
 	protected int 			nbColumns			= 0;
 	protected int			nbRows				= 0;
-	public String 			textureName			="";
+	public String 			tiledTextureName	="";
+	public String 			textureResourceName	="";
 	protected float[]		mPiecesBox			= {0,0,0,0};
 	protected float[]		mPuzzleZone			= {0,0,0,0};
 	protected boolean		hasActiveBorder		= false;		//if true the pieces and container have borders
 	protected boolean		hasActiveZone		= false;		//if true the puzzle zone is active and pieces are stick to the zone
+	protected boolean		hasWhiteBG			= false;		//if true the puzzle zone is active and pieces are stick to the zone
 	protected String		mHelperImage		= "";			//if different from "" the puzzle zone have as background the final figures in color on withe background with low alpah
 	protected float			mHelperImageAlpha	= 0.1f;	
-
-	public boolean hasActiveBorder() {
-		return hasActiveBorder;
-	}
-	public void setHasActiveBorder(boolean hasActiveBorder) {
-		this.hasActiveBorder = hasActiveBorder;
-	}
-	public boolean hasActiveZone() {
-		return hasActiveZone;
-	}
-	public void setHasActiveZone(boolean hasActiveZone) {
-		this.hasActiveZone = hasActiveZone;
-	}
-	public String getHelperImage() {
-		return mHelperImage;
-	}
-	public void setHelperImage(String helperImage) {
-		mHelperImage = helperImage;
-	}
-	public float getHelperImageAlpha() {
-		return mHelperImageAlpha;
-	}
-	public void setHelperImageAlpha(float mHelperZoneAlpha) {
-		this.mHelperImageAlpha = mHelperZoneAlpha;
-	}
+	public static int 		INVALIDDIM = -1;
 	
-	public static int 	INVALIDDIM = -1;
+	public boolean hasActiveBorder() {return hasActiveBorder;}
+	public boolean 	hasWhiteBackground() {return hasWhiteBG;}
+	public void 	hasWhiteBackground(boolean value) {hasWhiteBG = value;}
+	public void 	setHasActiveBorder(boolean hasActiveBorder) {this.hasActiveBorder = hasActiveBorder;}
+	public boolean 	hasActiveZone() {return hasActiveZone;}
+	public void 	setHasActiveZone(boolean hasActiveZone) {this.hasActiveZone = hasActiveZone;}
+	public String 	getHelperImage() {return mHelperImage;}
+	public void 	setHelperImage(String helperImage) {mHelperImage = helperImage;}
+	public float 	getHelperImageAlpha() {return mHelperImageAlpha;}
+	public void 	setHelperImageAlpha(float mHelperZoneAlpha) {this.mHelperImageAlpha = mHelperZoneAlpha;}
+	
 	
 	public float[] getPieceBoxGeometry() {
 		return mPiecesBox;
@@ -63,11 +52,18 @@ public class PuzzleObjectDescriptor extends BasicObjectDescriptor {
 		mPuzzleZone[3]=geometry[3];
 	}
 	
-	public String getTextureName() {
-		return textureName;
+	
+	public String getTiledTextureName() {
+		return tiledTextureName;
 	}
-	public void setTextureName(String textureName) {
-		this.textureName = textureName;
+	public void getTiledTextureResourceName(String testureName) {
+		this.tiledTextureName = testureName;
+	}
+	public String getTiledTextureResourceName() {
+		return textureResourceName;
+	}
+	public void setTextureFileName(String resourceName) {
+		this.textureResourceName = resourceName;
 	}
 	public int getNbColumns() {
 		return nbColumns;
@@ -92,7 +88,7 @@ public class PuzzleObjectDescriptor extends BasicObjectDescriptor {
 		// Read the puzzle 
 		this.ID=Integer.parseInt(attr.getValue(ScnTags.S_A_ID));
 
-		this.textureName = new String(attr.getValue(ScnTags.S_A_RESOURCE_NAME));
+		this.tiledTextureName = new String(attr.getValue(ScnTags.S_A_RESOURCE_NAME));
 		
 		// Read specific puzzle parameters Nb cols & Nb Rows
 		if(attr.getValue(ScnTags.S_A_NBCOLS)!= null)
@@ -138,6 +134,10 @@ public class PuzzleObjectDescriptor extends BasicObjectDescriptor {
 		// Read if helper image on
 		if(attr.getValue(ScnTags.S_A_HELPER_IMAGE)!= null)
 			this.setHelperImage(attr.getValue(ScnTags.S_A_HELPER_IMAGE));
+		
+		// Read if white background
+		if(attr.getValue(ScnTags.S_A_HAS_WHITE_BACKGROUND)!= null)
+			this.hasWhiteBackground(Boolean.parseBoolean(attr.getValue(ScnTags.S_A_HAS_WHITE_BACKGROUND)));
 		
 		// Read if helper image on
 		if(attr.getValue(ScnTags.S_A_HELPER_IMG_ALPHA)!= null)
