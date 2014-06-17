@@ -261,6 +261,27 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		mapOfObjects.put(spDsc.getID(), puzzle); 
 		return puzzle;
 	}
+	/* [FT]
+	protected IEntity createObjectScene(BasicDescriptor scObjDsc){
+		IEntity theNewEntity = null;
+		switch(scObjDsc){
+			case instanceof ButtonSceneLauncherDescriptor:
+				theNewEntity = new ButtonSceneLauncher((ButtonSceneLauncherDescriptor)scObjDsc, mEngine.getVertexBufferObjectManager());
+			break;
+		}
+		if(scObjDsc instanceof ButtonSceneLauncherDescriptor){
+			theNewEntity = new ButtonSceneLauncher((ButtonSceneLauncherDescriptor)scObjDsc, mEngine.getVertexBufferObjectManager());
+		}
+		theNewEntity.build(spDsc);
+		
+		// this.registerTouchArea(theNewEntity);
+		mapOfObjects.put(scObjDsc.getID(), theNewEntity); 
+		
+		return theNewEntity;
+	
+	}
+	
+	//[FT] */
 	protected IEntity createButtonSceneLauncher(ButtonSceneLauncherDescriptor spDsc,IEntity pEntityFather){
 		
 		ButtonSceneLauncher theButton= new ButtonSceneLauncher(spDsc, mEngine.getVertexBufferObjectManager());
@@ -481,6 +502,11 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	public String getFatherScene() {
 		return this.pSCDescriptor.getSceneFather();
 	}
+	@Override
+	public void setFatherScene(String sceneName) {
+		this.pSCDescriptor.sceneFather=new String(sceneName);
+	}
+	
 	@Override
 	public void onFlipCard(int CardID, CardSide currentSide) {
 	}	

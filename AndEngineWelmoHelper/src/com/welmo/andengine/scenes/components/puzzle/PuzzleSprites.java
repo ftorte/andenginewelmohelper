@@ -71,7 +71,7 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 	
 	protected	int 							mZOrder				=0;
 	
-	protected	PuzzleElement[] 				pieces				= null;
+	protected	PuzzleElement[] 				mPieces				= null;
 	protected	List<PuzzleElementContainer> 	mContainersList 	= null;
 	protected	List<PuzzleElement> 			mPiecesList 		= null;
 	
@@ -161,19 +161,21 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 	}
 	public void  setNbRows(int nbRows) {
 		this.nbRows = nbRows;
+		nbPieces = this.nbRows*this.nbCols;
 	}
 	public int   getNbCols() {
 		return nbCols;
 	}
 	public void  setNbCols(int nbCols) {
 		this.nbCols = nbCols;
+		nbPieces = this.nbRows*this.nbCols;
 	}
 	public int   getNbPieces() {
 		return nbPieces;
 	}
-	public void  setNbPieces(int nbPieces) {
-		this.nbPieces = nbPieces;
-	}
+	//public void  setNbPieces(int nbPieces) {
+	//	this.nbPieces = nbPieces;
+	//}
 	public float getPieceWidth() {
 		return mPieceWidth;
 	}
@@ -187,10 +189,10 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 		this.mPieceHeight = pieceHeight;
 	}
 	public TiledSprite[] getPieces() {
-		return pieces;
+		return mPieces;
 	}
 	public void setPieces(PuzzleElement[] pieces) {
-		this.pieces = pieces;
+		this.mPieces = pieces;
 	}
 	public void setLifeCycleListener(IComponentLifeCycleListener mLifeCycleLeastener) {
 		this.mLifeCycleListener = mLifeCycleLeastener;
@@ -238,25 +240,25 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 		mPieceHeight = theTiledTexture.getHeight()*zoomRatio;
 		
 		//Create vectors of tiled sprite pointers
-		pieces = new PuzzleElement[nbPieces];
+		mPieces = new PuzzleElement[nbPieces];
 		
 		float[] pXY = new float[2];
 		
 		//create the pieces		
 		for (int i=0; i < nbPieces; i++){
-				pieces[i] = new PuzzleElement(mPieceWidth, mPieceHeight, hasActiveBorder, this, hasWhiteBackground, theTiledTexture, mTheEngine.getVertexBufferObjectManager());
+				mPieces[i] = new PuzzleElement(mPieceWidth, mPieceHeight, hasActiveBorder, this, hasWhiteBackground, theTiledTexture, mTheEngine.getVertexBufferObjectManager());
 				//Attach the puzzle element to the entity
-				pieces[i].setCurrentTileIndex(i);
-				pieces[i].setID(i);
-				pieces[i].setXYLimit(0,0,mMaxPositionX,mMaxPositionY);
+				mPieces[i].setCurrentTileIndex(i);
+				mPieces[i].setID(i);
+				mPieces[i].setXYLimit(0,0,mMaxPositionX,mMaxPositionY);
 				if(hasActiveZone){
 					pXY[X] = mPuzzleZone[X] + mPieceWidth * (int)(i% nbCols);
 					pXY[Y] = mPuzzleZone[Y] + mPieceHeight * (int)(i/nbCols);
-					pieces[i].setActiveZoneXY(pXY);
-					pieces[i].setZIndex(DEFAULT_ZINDEX);
+					mPieces[i].setActiveZoneXY(pXY);
+					mPieces[i].setZIndex(DEFAULT_ZINDEX);
 				}
-				mPiecesList.add(pieces[i]);
-				attachChild(pieces[i]);
+				mPiecesList.add(mPieces[i]);
+				attachChild(mPieces[i]);
 		}
 		
 		setUpStartingPosition();
@@ -293,16 +295,16 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 			for (int j=0; j < nbCols; j++){
 				//set TOP
 				if(i!= 0)
-					pieces[pieceNb].setNeighbors(PuzzleElement.NEIGHTBOR_TOP, pieces[pieceNb - nbCols]);
+					mPieces[pieceNb].setNeighbors(PuzzleElement.NEIGHTBOR_TOP, mPieces[pieceNb - nbCols]);
 				//set BOTTOM
 				if(i<(nbRows-1))
-					pieces[pieceNb].setNeighbors(PuzzleElement.NEIGHTBOR_BOTTOM, pieces[pieceNb + nbCols]);
+					mPieces[pieceNb].setNeighbors(PuzzleElement.NEIGHTBOR_BOTTOM, mPieces[pieceNb + nbCols]);
 				//set LEFT
 				if(j!= 0)
-					pieces[pieceNb].setNeighbors(PuzzleElement.NEIGHTBOR_LEFT,pieces[pieceNb-1]);
+					mPieces[pieceNb].setNeighbors(PuzzleElement.NEIGHTBOR_LEFT,mPieces[pieceNb-1]);
 				//set RIGHT
 				if(j<(nbCols-1))
-					pieces[pieceNb].setNeighbors(PuzzleElement.NEIGHTBOR_RIGHT,pieces[pieceNb+1]);
+					mPieces[pieceNb].setNeighbors(PuzzleElement.NEIGHTBOR_RIGHT,mPieces[pieceNb+1]);
 				pieceNb++;
 			}
 		}
@@ -317,7 +319,7 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 			for (int i=0; i < this.nbPieces; i++){
 				float rnd1 = randomGenerator.nextFloat();
 				float rnd2 = randomGenerator.nextFloat();
-				pieces[i].setPosition(mPiecesBox[PX0] + (deltaXY[PX0] * rnd1), 
+				mPieces[i].setPosition(mPiecesBox[PX0] + (deltaXY[PX0] * rnd1), 
 									  mPiecesBox[PY0] + (deltaXY[PY0] * rnd2));
 			}
 		}
@@ -326,7 +328,7 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 			int pieceNb=0;
 			for (int i=0; i < nbRows; i++){
 				for (int j=0; j < nbCols; j++){
-					pieces[pieceNb].setPosition(pXY[PX0], pXY[PY0]);
+					mPieces[pieceNb].setPosition(pXY[PX0], pXY[PY0]);
 					pXY[PX0] = pXY[PX0]+ mPieceWidth +30;
 					pieceNb+=1;
 				}
@@ -411,12 +413,12 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 		mPiecesList.clear();							//clear Piece list			
 		
 		for (int i=0; i < nbPieces; i++){
-				pieces[i].detachSelf();					//detach from current parent
-				pieces[i].resetBorder(hasActiveBorder); //reset the border
-				this.attachChild(pieces[i]);			//attach to PüzzleSprite
-				mPiecesList.add(pieces[i]);				//add to mPiecesList;
-				pieces[i].isMemeberOfContainer=false;	//clear container
-				pieces[i].mContainer=null;				//clear container
+				mPieces[i].detachSelf();					//detach from current parent
+				mPieces[i].resetBorder(hasActiveBorder); //reset the border
+				this.attachChild(mPieces[i]);			//attach to PüzzleSprite
+				mPiecesList.add(mPieces[i]);				//add to mPiecesList;
+				mPieces[i].isMemeberOfContainer=false;	//clear container
+				mPieces[i].mContainer=null;				//clear container
 		}
 		//Setup startingPosition of all pieces
 		setUpStartingPosition();

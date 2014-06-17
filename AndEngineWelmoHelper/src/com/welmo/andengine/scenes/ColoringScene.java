@@ -10,8 +10,8 @@ import android.util.Log;
 import com.welmo.andengine.scenes.components.ColoringSprite;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
+import com.welmo.andengine.scenes.descriptors.ScnTags;
 import com.welmo.andengine.scenes.descriptors.components.ColoringSpriteDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.ScnTags;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.scenes.operations.Operation;
 public class ColoringScene extends ManageableScene implements IConfigurableScene, IOperationHandler {

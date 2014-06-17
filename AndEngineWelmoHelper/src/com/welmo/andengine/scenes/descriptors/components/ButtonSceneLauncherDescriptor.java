@@ -6,6 +6,7 @@ import java.util.StringTokenizer;
 import org.xml.sax.Attributes;
 
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
+import com.welmo.andengine.scenes.descriptors.ScnTags;
 
 public class ButtonSceneLauncherDescriptor extends BasicObjectDescriptor{
 	public enum Status {NotActive, Locked, level0, level1, level2, level3}

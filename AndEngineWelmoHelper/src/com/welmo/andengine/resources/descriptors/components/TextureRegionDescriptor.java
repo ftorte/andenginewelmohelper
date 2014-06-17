@@ -1,5 +1,9 @@
 package com.welmo.andengine.resources.descriptors.components;
 
+import org.xml.sax.Attributes;
+
+import android.content.Context;
+
 
 
 public class TextureRegionDescriptor extends ResourceDescriptor{
@@ -12,5 +16,9 @@ public class TextureRegionDescriptor extends ResourceDescriptor{
 		filename = "";
 		textureName = "";
 		type = TEXTURETYPE.SVG;
+	}
+	@Override
+	public void readXMLDescription(Attributes attributes, Context ctx) {
+		super.readXMLDescription(attributes, ctx);
 	}
 }

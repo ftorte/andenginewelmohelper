@@ -2,7 +2,10 @@ package com.welmo.andengine.scenes.descriptors.components;
 
 import java.util.StringTokenizer;
 
+import org.andengine.entity.IEntity;
 import org.xml.sax.Attributes;
+
+import com.welmo.andengine.scenes.descriptors.ScnTags;
 
 import android.util.Log;
 

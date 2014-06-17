@@ -38,24 +38,6 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene {
 	    		thePuzzle=(PuzzleSprites)value;
 	    }
 	    
-		
-		/* String imageFileName=null;
-
-		//after having loaded the default component of the scene with superclass load the coloring sprite is exist
-		for(BasicDescriptor scObjDsc:sceneDescriptor.pChild.values()){
-			if(scObjDsc instanceof ColoringSpriteDescriptor){
-				ColoringSpriteDescriptor theCororingSprite = (ColoringSpriteDescriptor)scObjDsc;
-				imageFileName = theCororingSprite.getImageFilename();
-				if(theColoringImage== null){
-					theColoringImage = new ColoringSprite(100, 0, pRM.getDecoratedTextureRegion("MonsterColor",imageFileName), this.mEngine.getVertexBufferObjectManager());
-					this.attachChild(theColoringImage);
-					this.registerTouchArea(theColoringImage);
-				}
-				else{
-					theColoringImage.loadImage(imageFileName);
-				}
-			}
-		}*/
 	}
 		
 	// ===========================================================
@@ -75,6 +57,10 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene {
 		if(tokens.length > 2){
 			thePuzzle.setNbCols(Integer.parseInt(tokens[2]));
 			thePuzzle.setNbRows(Integer.parseInt(tokens[3]));
+		}
+		
+		if(tokens.length > 4){
+			this.setFatherScene(tokens[4]);
 		}
 		
 		thePuzzle.createPuzzle();

@@ -14,6 +14,7 @@ public interface IManageableScene {
 	public void 	initScene(SceneManager pSM, Engine theEngine, Context ctx, BaseGameActivity activity);
 	public void 	resetScene();
 	public String 	getFatherScene();
+	public void 	setFatherScene(String fatherScene);
 	public boolean 	hasPinchAndZoomActive();
 	public boolean 	hasHUD();
 	public void 	setFatherSceneMessageHandler(IOperationHandler pMgsHnd);

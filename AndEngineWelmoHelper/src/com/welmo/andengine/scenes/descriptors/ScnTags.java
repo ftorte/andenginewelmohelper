@@ -1,4 +1,4 @@
-package com.welmo.andengine.scenes.descriptors.components;
+package com.welmo.andengine.scenes.descriptors;
 
 
 public class ScnTags {
