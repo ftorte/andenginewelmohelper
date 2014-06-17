@@ -9,7 +9,7 @@ import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 
 public class EventHandlersManager {
 	
-	//Manage list of Modifier per eachi objec per each event
+	//Manage list of Modifier per each object per each event
 	private HashMap<ComponentEventHandlerDescriptor.Events, HashMap<Object,List<ComponentEventHandlerDescriptor>>> modifiers;
 	private HashMap<ComponentEventHandlerDescriptor.Events, HashMap<Object,List<SceneActions>>> actions;
 	

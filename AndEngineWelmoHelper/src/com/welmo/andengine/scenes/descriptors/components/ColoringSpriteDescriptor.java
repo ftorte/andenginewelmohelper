@@ -2,6 +2,8 @@ package com.welmo.andengine.scenes.descriptors.components;
 
 import org.xml.sax.Attributes;
 
+import com.welmo.andengine.scenes.descriptors.ScnTags;
+
 public class ColoringSpriteDescriptor extends BasicObjectDescriptor{
 	protected String		sImagefileName;
 

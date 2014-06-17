@@ -5,6 +5,7 @@ import java.util.List;
 import org.xml.sax.Attributes;
 
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
+import com.welmo.andengine.scenes.descriptors.ScnTags;
 
 import android.util.Log;
 

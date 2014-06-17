@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.xml.sax.Attributes;
 
-import com.welmo.andengine.scenes.descriptors.components.ScnTags;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 
 public class BasicDescriptor {

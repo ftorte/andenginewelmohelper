@@ -2,6 +2,8 @@ package com.welmo.andengine.scenes.descriptors.components;
 
 import org.xml.sax.Attributes;
 
+import com.welmo.andengine.scenes.descriptors.ScnTags;
+
 import android.util.Log;
 
 public class TextObjectDescriptor extends BasicObjectDescriptor{

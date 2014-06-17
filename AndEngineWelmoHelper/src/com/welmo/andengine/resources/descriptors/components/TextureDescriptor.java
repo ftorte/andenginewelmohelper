@@ -2,6 +2,10 @@ package com.welmo.andengine.resources.descriptors.components;
 
 import java.util.ArrayList;
 
+import org.xml.sax.Attributes;
+
+import android.content.Context;
+
 
 
 public class TextureDescriptor extends ResourceDescriptor {
@@ -30,5 +34,10 @@ public class TextureDescriptor extends ResourceDescriptor {
 	public String toString() {
 		return "ResourceDescriptor" +  "]";
 	}
+	@Override
+	public void readXMLDescription(Attributes attributes, Context ctx) {
+		super.readXMLDescription(attributes, ctx);
+	}
+	
 
 }

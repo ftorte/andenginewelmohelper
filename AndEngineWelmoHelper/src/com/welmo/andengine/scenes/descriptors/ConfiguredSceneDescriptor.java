@@ -8,7 +8,6 @@ import java.util.StringTokenizer;
 import org.xml.sax.Attributes;
 
 import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.ScnTags;
 
 public class ConfiguredSceneDescriptor extends BasicObjectDescriptor{
 	protected String 					sceneName		= new String("");

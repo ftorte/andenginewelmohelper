@@ -1,5 +1,12 @@
 package com.welmo.andengine.resources.descriptors.components;
 
+import org.xml.sax.Attributes;
+
+import android.content.Context;
+
+import com.welmo.andengine.scenes.descriptors.ScnTags;
+import com.welmo.andengine.utility.ScreenDimensionHelper;
+
 public class ResourceDescriptor {
 	// ===========================================================
 	// Constants
@@ -42,6 +49,31 @@ public class ResourceDescriptor {
 	}
 
 
+	public void readXMLDescription(Attributes attributes, Context ctx) {
+		//variable containing attributes value
+		this.ID=0;
+		
+		ScreenDimensionHelper dimHelper = ScreenDimensionHelper.getInstance(ctx);
+		
+		String value = null;
+		
+		if((value=attributes.getValue(ResTags.R_A_NAME)) != null)
+			this.Name = new String(value);
+
+		if((value=attributes.getValue(ResTags.R_A_HEIGHT)) != null)
+			this.Parameters[ResTags.R_A_HEIGHT_IDX]=Integer.parseInt(value);
+		
+		if((value=attributes.getValue(ResTags.R_A_WIDTH)) != null)
+			this.Parameters[ResTags.R_A_WIDTH_IDX]=Integer.parseInt(value);
+		
+		if((value=attributes.getValue(ResTags.R_A_POSITION_X)) != null)
+			this.Parameters[ResTags.R_A_POSITION_X_IDX]=dimHelper.parsPosition(ScreenDimensionHelper.X,value);
+		
+		if((value=attributes.getValue(ResTags.R_A_POSITION_Y)) != null)
+			this.Parameters[ResTags.R_A_POSITION_Y_IDX]=dimHelper.parsPosition(ScreenDimensionHelper.Y,value);
+
+	}
+	
 	@Override
 	public String toString() {
 		return "ResourceDescriptor" +  "]";

@@ -6,6 +6,7 @@ import org.xml.sax.Attributes;
 import android.util.Log;
 
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
+import com.welmo.andengine.scenes.descriptors.ScnTags;
 
 public abstract class BasicObjectDescriptor extends BasicDescriptor{
 	
