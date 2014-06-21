@@ -1,4 +1,4 @@
-package com.welmo.andengine.scenes.components;
+package com.welmo.andengine.scenes.components.interfaces;
 
 import org.andengine.entity.IEntity;
 import org.andengine.input.touch.TouchEvent;

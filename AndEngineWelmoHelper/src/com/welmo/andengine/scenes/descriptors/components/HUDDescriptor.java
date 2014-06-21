@@ -12,7 +12,7 @@ import com.welmo.andengine.scenes.descriptors.ScnTags;
 
 import android.util.Log;
 
-public class HUDDescriptor extends BasicObjectDescriptor {
+public class HUDDescriptor extends BasicComponentDescriptor {
 
 	// -----------------------------------------------------------------------------------------------------------------------------
 	// Constants

@@ -13,12 +13,17 @@ import org.andengine.util.HorizontalAlign;
 import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.scenes.components.interfaces.IComponentClickableDfltImp;
+import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
+import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
-public class TextComponent extends Text implements IBasicComponent, IClickable{
+public class TextComponent extends Text implements IComponent, IComponentClickable{
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -28,7 +33,7 @@ public class TextComponent extends Text implements IBasicComponent, IClickable{
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	protected DefaultIClickableImplementation 			mIClicakableImpmementation 	= null;
+	protected IComponentClickableDfltImp 			mIClicakableImpmementation 	= null;
 
 		
 	// ===========================================================
@@ -61,7 +66,7 @@ public class TextComponent extends Text implements IBasicComponent, IClickable{
 	// private member function
 	// ===========================================================	
 	protected void init(){
-		mIClicakableImpmementation =  new DefaultIClickableImplementation();
+		mIClicakableImpmementation =  new IComponentClickableDfltImp();
 		mIClicakableImpmementation.setParent(this);
 	}
 		

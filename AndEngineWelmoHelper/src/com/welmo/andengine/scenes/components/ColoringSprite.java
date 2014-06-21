@@ -4,13 +4,16 @@ package com.welmo.andengine.scenes.components;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+
 import android.util.Log;
+
 import com.welmo.andengine.managers.ResourcesManager.DecoratedTextures;
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.scenes.operations.Operation;
 
-public class ColoringSprite  extends Sprite implements IBasicComponent, IOperationHandler{
+public class ColoringSprite  extends Sprite implements IComponent, IOperationHandler{
 	
 	// --------------------------------------------------------------------------------
 	// Constant

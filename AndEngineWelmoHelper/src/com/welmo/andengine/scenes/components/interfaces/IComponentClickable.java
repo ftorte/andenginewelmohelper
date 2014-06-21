@@ -1,11 +1,11 @@
-package com.welmo.andengine.scenes.components;
+package com.welmo.andengine.scenes.components.interfaces;
 
 import org.andengine.input.touch.TouchEvent;
 
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
-public interface IClickable extends IBasicComponent{
+public interface IComponentClickable extends IComponent{
 	void addEventsHandler(Events theEvent, IComponentEventHandler oCmpDefEventHandler);
 	//public void setActionOnSceneListener(IActionOnSceneListener actionLeastner);
 	public IActionOnSceneListener getActionOnSceneListener();

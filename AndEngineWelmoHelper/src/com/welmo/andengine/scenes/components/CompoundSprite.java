@@ -8,12 +8,17 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.scenes.components.interfaces.IComponentClickableDfltImp;
+import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
+import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
-public class CompoundSprite extends Rectangle implements IBasicComponent, IClickable{
+public class CompoundSprite extends Rectangle implements IComponent, IComponentClickable{
 
 	@Override
 	public void attachChild(IEntity pEntity) throws IllegalStateException {
@@ -28,7 +33,7 @@ public class CompoundSprite extends Rectangle implements IBasicComponent, IClick
 	private static final String 						TAG = "ClickableSprite";
 
 	private SpriteObjectDescriptor						pDescriptor					= null;
-	protected DefaultIClickableImplementation 			mIClicakableImpmementation 	= null;
+	protected IComponentClickableDfltImp 			mIClicakableImpmementation 	= null;
 	// ===================================================================================
 	// Constructors
 	// ===================================================================================
@@ -43,7 +48,7 @@ public class CompoundSprite extends Rectangle implements IBasicComponent, IClick
 	// private member function
 	// ===========================================================	
 	protected void init(){
-		mIClicakableImpmementation =  new DefaultIClickableImplementation();
+		mIClicakableImpmementation =  new IComponentClickableDfltImp();
 		mIClicakableImpmementation.setParent(this);
 	}
 	public void attachComponentChild(IAreaShape pNewShape) throws IllegalStateException {

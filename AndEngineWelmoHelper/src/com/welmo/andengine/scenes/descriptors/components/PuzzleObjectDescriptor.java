@@ -2,14 +2,17 @@ package com.welmo.andengine.scenes.descriptors.components;
 
 import java.util.StringTokenizer;
 
+import org.andengine.engine.Engine;
 import org.andengine.entity.IEntity;
 import org.xml.sax.Attributes;
 
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
+import com.welmo.andengine.scenes.components.puzzle.PuzzleSprites;
 import com.welmo.andengine.scenes.descriptors.ScnTags;
 
 import android.util.Log;
 
-public class PuzzleObjectDescriptor extends BasicObjectDescriptor {
+public class PuzzleObjectDescriptor extends BasicComponentDescriptor {
 	
 	protected int 			nbColumns			= 0;
 	protected int			nbRows				= 0;
@@ -148,5 +151,11 @@ public class PuzzleObjectDescriptor extends BasicObjectDescriptor {
 		else
 			this.setHelperImageAlpha(1.0f);
 		
+	}
+	@Override
+	public IComponent CreateComponentInstance(Engine mEngine) {
+		// TODO Auto-generated method stub
+		PuzzleSprites puzzle= new PuzzleSprites(this, mEngine);
+		return puzzle;
 	}
 }

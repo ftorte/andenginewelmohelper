@@ -10,9 +10,10 @@ import org.andengine.ui.activity.BaseGameActivity;
 import com.welmo.andengine.scenes.IConfigurableScene;
 import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.ManageableScene;
-import com.welmo.andengine.scenes.components.IActivitySceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.descriptors.ConfiguredSceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
+
 
 
 

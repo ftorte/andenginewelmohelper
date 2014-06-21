@@ -8,7 +8,7 @@ import org.xml.sax.Attributes;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.ScnTags;
 
-public class ButtonSceneLauncherDescriptor extends BasicObjectDescriptor{
+public class ButtonSceneLauncherDescriptor extends BasicComponentDescriptor{
 	public enum Status {NotActive, Locked, level0, level1, level2, level3}
 	public enum ImgType{bg_inactive, bg_fina, ico_locked, ico_free, ico_star_1, ico_star_2, ico_star_3, 
 		ico_star_inactive_1, ico_star_inactive_2, ico_star_inactive_3}
@@ -22,7 +22,7 @@ public class ButtonSceneLauncherDescriptor extends BasicObjectDescriptor{
 		public final static int  NB_OF_PARAMETERS = 5;
 	}
 	public void copyFrom(ButtonSceneLauncherDescriptor objectCopy){
-		super.copyFrom((BasicObjectDescriptor)objectCopy);
+		super.copyFrom((BasicComponentDescriptor)objectCopy);
 		defaultstatus = objectCopy.defaultstatus;
 		imagesList.clear();
 		imagesList.putAll(objectCopy.imagesList);

@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.andengine.engine.Engine;
 import org.andengine.entity.IEntity;
+import org.andengine.entity.scene.ITouchArea;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.scene.background.IBackground;
@@ -24,15 +25,16 @@ import com.welmo.andengine.managers.SceneManager;
 import com.welmo.andengine.scenes.components.ClickableSprite;
 import com.welmo.andengine.scenes.components.ComponentDefaultEventHandler;
 import com.welmo.andengine.scenes.components.CompoundSprite;
-import com.welmo.andengine.scenes.components.IActionOnSceneListener;
-import com.welmo.andengine.scenes.components.IActivitySceneListener;
-import com.welmo.andengine.scenes.components.IClickable;
-import com.welmo.andengine.scenes.components.IComponentEventHandler;
-import com.welmo.andengine.scenes.components.IComponentLifeCycle;
 import com.welmo.andengine.scenes.components.Stick;
 import com.welmo.andengine.scenes.components.TextComponent;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.components.buttons.ButtonSceneLauncher;
+import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
+import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
+import com.welmo.andengine.scenes.components.interfaces.IComponentLifeCycle;
 import com.welmo.andengine.scenes.components.puzzle.PuzzleSprites;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
@@ -47,6 +49,12 @@ import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.utility.SoundSequence;
+
+
+
+
+
+
 
 
 
@@ -188,7 +196,14 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 			newEntity = createText((TextObjectDescriptor)scObjDsc,pEntityFather);
 		}
 		if(scObjDsc instanceof PuzzleObjectDescriptor){
-			newEntity = createPuzzle((PuzzleObjectDescriptor)scObjDsc,pEntityFather);
+			// FT newEntity = createPuzzle((PuzzleObjectDescriptor)scObjDsc,pEntityFather);
+			IComponent newSceneComponent = scObjDsc.CreateComponentInstance(this.mEngine);
+			newSceneComponent.build(scObjDsc);
+			
+			pEntityFather.attachChild((IEntity)newSceneComponent);
+			this.registerTouchArea((ITouchArea) newSceneComponent);
+			
+			mapOfObjects.put(scObjDsc.getID(), (IAreaShape) newSceneComponent); 
 		}
 		if(scObjDsc instanceof ButtonSceneLauncherDescriptor){
 			newEntity = createButtonSceneLauncher((ButtonSceneLauncherDescriptor)scObjDsc,pEntityFather);
@@ -350,7 +365,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	// ===========================================================
 	protected IEntity createClickableSprite(SpriteObjectDescriptor spDsc) {
 			
-		IClickable newClickableSprite = null;
+		IComponentClickable newClickableSprite = null;
 		String className = spDsc.getClassName();
 		try {
 			if(!className.equals("")){
@@ -364,9 +379,9 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 								Class.forName ("org.andengine.engine.Engine")});
 				
 	
-				newClickableSprite = (IClickable) constructor.newInstance (new Object [] {spDsc,pRM,mEngine});
+				newClickableSprite = (IComponentClickable) constructor.newInstance (new Object [] {spDsc,pRM,mEngine});
 		}
-			else newClickableSprite = (IClickable) new ClickableSprite (spDsc,pRM,mEngine);
+			else newClickableSprite = (IComponentClickable) new ClickableSprite (spDsc,pRM,mEngine);
 				
 		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block

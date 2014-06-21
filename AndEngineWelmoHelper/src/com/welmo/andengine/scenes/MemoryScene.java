@@ -10,7 +10,7 @@ import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.components.CardSprite;
 import com.welmo.andengine.scenes.components.ComponentDefaultEventHandler;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
-import com.welmo.andengine.scenes.components.IClickable;
+import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.MemorySceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
@@ -410,9 +410,9 @@ public class MemoryScene extends ManageableScene {
 				if (Math.abs(nFistCard - nSecondCard) == nMaxNbOfSymbols)
 					hideCards(Math.min(nFistCard,nSecondCard));
 				else{
-					((IClickable)allCards.get(nFistCard)).onFireEventAction(Events.ON_CLICK, ActionType.FLIP);
+					((IComponentClickable)allCards.get(nFistCard)).onFireEventAction(Events.ON_CLICK, ActionType.FLIP);
 					registerTouchArea((IAreaShape)allCards.get(nFistCard));										//activate touch 
-					((IClickable)allCards.get(nSecondCard)).onFireEventAction(Events.ON_CLICK, ActionType.FLIP);
+					((IComponentClickable)allCards.get(nSecondCard)).onFireEventAction(Events.ON_CLICK, ActionType.FLIP);
 					registerTouchArea((IAreaShape)allCards.get(nSecondCard));									//activate touch 
 					Log.i(TAG,"10:CS = TWO-S => Card1: " + nFistCard + "Card2:  " + nSecondCard);
 					unLockTouch();

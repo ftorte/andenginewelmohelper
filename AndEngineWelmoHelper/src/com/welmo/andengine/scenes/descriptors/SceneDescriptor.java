@@ -11,7 +11,7 @@ import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 
-public class SceneDescriptor extends BasicDescriptor /*BasicObjectDescriptor*/ {
+public class SceneDescriptor extends BasicDescriptor {
 	// =======================================================================================
 	// Constants
 	// =======================================================================================

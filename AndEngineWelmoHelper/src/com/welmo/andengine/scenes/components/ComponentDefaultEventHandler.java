@@ -19,6 +19,9 @@ import org.andengine.util.modifier.IModifier;
 import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentModifierDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentModifierListDescriptor;

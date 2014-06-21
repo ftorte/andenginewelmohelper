@@ -1,6 +1,6 @@
 package com.welmo.andengine.scenes.descriptors.components;
 
-public class BackGroundObjectDescriptor extends BasicObjectDescriptor {
+public class BackGroundObjectDescriptor extends BasicComponentDescriptor {
 		// enumerators to manage object types & object events
 		public enum BackGroundTypes {
 		    NO_TYPE, COLOR, SPRITE

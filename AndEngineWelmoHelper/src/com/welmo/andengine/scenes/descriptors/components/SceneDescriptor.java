@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import com.welmo.andengine.scenes.descriptors.SceneType;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 
-public class SceneDescriptor extends BasicObjectDescriptor {
+public class SceneDescriptor extends BasicComponentDescriptor {
 	// ===========================================================
 	// Constants
 	// ===========================================================

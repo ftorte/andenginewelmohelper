@@ -9,13 +9,19 @@ import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
+import com.welmo.andengine.scenes.components.interfaces.IComponentClickableDfltImp;
+import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
+import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
-public class ClickableSprite extends Sprite implements IClickable, IActivitySceneListener, IActionOnSceneListener,IBasicComponent{
+public class ClickableSprite extends Sprite implements IComponentClickable, IActivitySceneListener, IActionOnSceneListener,IComponent{
 	// ========================================================================
 	// Constants
 	// ========================================================================
@@ -25,7 +31,7 @@ public class ClickableSprite extends Sprite implements IClickable, IActivityScen
 	// Fields implementation of IClickable, IActivitySceneListener, IActionOnSceneListene
 	// ========================================================================
 	//DefaultIClickableImplementation 	mIClicakableImpmementation = null;
-	IClickable						mIClicakableImpmementation 	= null;	
+	IComponentClickable						mIClicakableImpmementation 	= null;	
 	IActionOnSceneListener			mIActionOnSceneListener 	= null;
 	IActivitySceneListener			mIActivitySceneListener 	= null;
 	// ========================================================================
@@ -37,7 +43,7 @@ public class ClickableSprite extends Sprite implements IClickable, IActivityScen
 				pRM.getTextureRegion(pSPRDscf.getTextureName()), 
 				theEngine.getVertexBufferObjectManager());
 		
-		mIClicakableImpmementation 	=   new DefaultIClickableImplementation();
+		mIClicakableImpmementation 	=   new IComponentClickableDfltImp();
 		mIActionOnSceneListener		= 	null;
 		mIActivitySceneListener 	=	null;
 		mIClicakableImpmementation.setParent(this);
