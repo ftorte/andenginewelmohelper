@@ -14,7 +14,7 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.scenes.components.IBasicComponent;
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
@@ -32,7 +32,7 @@ import com.welmo.andengine.utility.ColorHelper;
  *  To be configure the button get a parameter type class ButtonParameters
  */
 
-public abstract class ButtonBasic extends Rectangle implements IBasicComponent{
+public abstract class ButtonBasic extends Rectangle implements IComponent{
 	
 	public enum Types{
 		BASIC, CLICK, ON_OFF, ON_OFF_WITH_TIMER, PULSE

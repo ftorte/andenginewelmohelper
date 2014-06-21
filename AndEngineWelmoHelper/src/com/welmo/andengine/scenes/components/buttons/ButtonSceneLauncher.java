@@ -12,12 +12,12 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
-import com.welmo.andengine.scenes.components.DefaultIClickableImplementation;
-import com.welmo.andengine.scenes.components.IActionOnSceneListener;
-import com.welmo.andengine.scenes.components.IActivitySceneListener;
-import com.welmo.andengine.scenes.components.IBasicComponent;
-import com.welmo.andengine.scenes.components.IClickable;
-import com.welmo.andengine.scenes.components.IComponentEventHandler;
+import com.welmo.andengine.scenes.components.interfaces.IComponentClickableDfltImp;
+import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
+import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDescriptor.ImgData;
@@ -27,12 +27,12 @@ import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescri
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
-public class ButtonSceneLauncher extends Rectangle implements IClickable, IActivitySceneListener, IActionOnSceneListener{
+public class ButtonSceneLauncher extends Rectangle implements IComponentClickable, IActivitySceneListener, IActionOnSceneListener{
 
 	// ========================================================================
 	// Fields implementation of IClickable, IActivitySceneListener, IActionOnSceneListene
 	// ========================================================================
-	IClickable						mIClicakableImpmementation 		= null;	
+	IComponentClickable						mIClicakableImpmementation 		= null;	
 	IActionOnSceneListener			mIActionOnSceneListener 		= null;
 	IActivitySceneListener			mIActivitySceneListener 		= null;
 	// ========================================================================
@@ -60,7 +60,7 @@ public class ButtonSceneLauncher extends Rectangle implements IClickable, IActiv
 		this.setAlpha(0);
 		
 		//create default interface implementations
-		mIClicakableImpmementation 	=   new DefaultIClickableImplementation();
+		mIClicakableImpmementation 	=   new IComponentClickableDfltImp();
 		mIActionOnSceneListener		= 	null;
 		mIActivitySceneListener 	=	null;
 		mIClicakableImpmementation.setParent(this);

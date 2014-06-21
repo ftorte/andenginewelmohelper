@@ -1,4 +1,4 @@
-package com.welmo.andengine.scenes.components;
+package com.welmo.andengine.scenes.components.interfaces;
 
 import java.util.HashMap;
 
@@ -12,21 +12,21 @@ import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescri
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
-public class DefaultIClickableImplementation implements IClickable {
-// IActivitySceneListener {
-//, IActionOnSceneListener{
+/*****************************************************************************************
+// Default Impementation of the IComponent Clickable interface that may be used by a compont
+//
+//******************************************************************************************/
+public class IComponentClickableDfltImp implements IComponentClickable {
 	
 	private final static String 							TAG				= "DefaultIClickableImplementation";
 	protected int 											nID				=-1;
 	protected HashMap<Events,IComponentEventHandler> 		hmEventHandlers = null;
-	//protected IActionOnSceneListener   						mActionListener	= null;
 	protected IEntity										mParent			= null;
 	protected boolean										on_move			= false;
 	protected TouchEvent									lastTouchEvent	= null;
 	
-	
-		
-	public DefaultIClickableImplementation(){
+			
+	public IComponentClickableDfltImp(){
 		hmEventHandlers	= new HashMap<Events,IComponentEventHandler>();
 		lastTouchEvent = new TouchEvent();
 	}
@@ -119,6 +119,6 @@ public class DefaultIClickableImplementation implements IClickable {
 	public void build(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub
 		
-	}	
+	}
 }
 

@@ -13,9 +13,9 @@
     </display>  
   </class>  
   <enumeration id="2" language="java" 
-    name="com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.Alignment" 
+    name="com.welmo.andengine.scenes.descriptors.components.BasicComponentDescriptor.Alignment" 
     project="AndEngineWelmoHelper" 
-    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/descriptors/components/BasicObjectDescriptor.java" 
+    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/descriptors/components/BasicComponentDescriptor.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1418" y="59"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -25,9 +25,9 @@
     </display>  
   </enumeration>  
   <interface id="3" language="java" 
-    name="com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.ICharacteristics" 
+    name="com.welmo.andengine.scenes.descriptors.components.BasicComponentDescriptor.ICharacteristics" 
     project="AndEngineWelmoHelper" 
-    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/descriptors/components/BasicObjectDescriptor.java" 
+    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/descriptors/components/BasicComponentDescriptor.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1749" y="65"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -37,9 +37,9 @@
     </display>  
   </interface>  
   <interface id="4" language="java" 
-    name="com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IOrientation" 
+    name="com.welmo.andengine.scenes.descriptors.components.BasicComponentDescriptor.IOrientation" 
     project="AndEngineWelmoHelper" 
-    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/descriptors/components/BasicObjectDescriptor.java" 
+    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/descriptors/components/BasicComponentDescriptor.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1749" y="130"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -48,9 +48,9 @@
       <operations public="false" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </interface>  
-  <class id="5" language="java" name="com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor" 
+  <class id="5" language="java" name="com.welmo.andengine.scenes.descriptors.components.BasicComponentDescriptor" 
     project="AndEngineWelmoHelper" 
-    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/descriptors/components/BasicObjectDescriptor.java" 
+    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/descriptors/components/BasicComponentDescriptor.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="53" width="238" x="1177" y="140"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -60,9 +60,9 @@
     </display>  
   </class>  
   <interface id="6" language="java" 
-    name="com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IPosition" 
+    name="com.welmo.andengine.scenes.descriptors.components.BasicComponentDescriptor.IPosition" 
     project="AndEngineWelmoHelper" 
-    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/descriptors/components/BasicObjectDescriptor.java" 
+    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/descriptors/components/BasicComponentDescriptor.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1749" y="248"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -72,9 +72,9 @@
     </display>  
   </interface>  
   <interface id="7" language="java" 
-    name="com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor.IDimension" 
+    name="com.welmo.andengine.scenes.descriptors.components.BasicComponentDescriptor.IDimension" 
     project="AndEngineWelmoHelper" 
-    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/descriptors/components/BasicObjectDescriptor.java" 
+    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/descriptors/components/BasicComponentDescriptor.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1749" y="188"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 

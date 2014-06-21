@@ -7,9 +7,9 @@ import java.util.StringTokenizer;
 
 import org.xml.sax.Attributes;
 
-import com.welmo.andengine.scenes.descriptors.components.BasicObjectDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.BasicComponentDescriptor;
 
-public class ConfiguredSceneDescriptor extends BasicObjectDescriptor{
+public class ConfiguredSceneDescriptor extends BasicComponentDescriptor{
 	protected String 					sceneName		= new String("");
 	protected String 					masterSceneName = new String("");
 	protected ArrayList<String> 		parameterList 	= null;

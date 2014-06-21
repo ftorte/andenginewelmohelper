@@ -3,11 +3,16 @@ package com.welmo.andengine.scenes.descriptors;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.andengine.engine.Engine;
+import org.andengine.entity.IEntity;
 import org.xml.sax.Attributes;
 
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
+import com.welmo.andengine.scenes.descriptors.interfaces.IDescriptor;
 
-public class BasicDescriptor {
+public class BasicDescriptor implements IDescriptor{
+	
 	public HashMap<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> pEventHandlerList;
 	protected String 						className=""; 		// specific class name to implement the described component
 	protected int 							ID=0;				// and ID to identify the component
@@ -92,5 +97,12 @@ public class BasicDescriptor {
 	}
 	public void setSubType(String type) {
 		sSubType = new String(type);
+	}
+	//********************************************************
+	//Interface IDescriptor
+	//********************************************************
+	public IComponent CreateComponentInstance(Engine theEng) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

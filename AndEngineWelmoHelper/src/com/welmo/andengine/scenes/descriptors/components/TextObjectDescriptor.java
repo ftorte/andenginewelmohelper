@@ -6,7 +6,7 @@ import com.welmo.andengine.scenes.descriptors.ScnTags;
 
 import android.util.Log;
 
-public class TextObjectDescriptor extends BasicObjectDescriptor{
+public class TextObjectDescriptor extends BasicComponentDescriptor{
 	// enumerators to manage object types & object events
 	public enum TextTypes {
 		NO_TYPE, SIMPLE

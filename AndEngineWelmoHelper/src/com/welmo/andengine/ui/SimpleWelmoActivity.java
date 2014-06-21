@@ -41,7 +41,7 @@ import com.welmo.andengine.managers.SceneManager;
 import com.welmo.andengine.resources.descriptors.components.ParserXMLResourcesDescriptor;
 import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.ManageableScene;
-import com.welmo.andengine.scenes.components.IActivitySceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.descriptors.ParserXMLSceneDescriptor;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.scenes.operations.Operation;

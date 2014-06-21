@@ -8,7 +8,7 @@ import android.util.Log;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.ScnTags;
 
-public abstract class BasicObjectDescriptor extends BasicDescriptor{
+public abstract class BasicComponentDescriptor extends BasicDescriptor{
 	
 	public static String 				TAG ="BasicObjectDescriptor";
 	
@@ -65,7 +65,7 @@ public abstract class BasicObjectDescriptor extends BasicDescriptor{
 	//----------------------------------------------------------------------//
 	// Public constructor(s)
 	//----------------------------------------------------------------------//
-	public BasicObjectDescriptor(){
+	public BasicComponentDescriptor(){
 		super();
 		//ID=0;
 		pX=0;
@@ -80,7 +80,7 @@ public abstract class BasicObjectDescriptor extends BasicDescriptor{
 		verticalAlignment=Alignment.CENTER;;
 		colorName = new String("");
 	}
-	public void copyFrom(BasicObjectDescriptor copyfrom) {
+	public void copyFrom(BasicComponentDescriptor copyfrom) {
 		super.copyFrom((BasicDescriptor)copyfrom);
 		pX 			= copyfrom.pX;
 		pY 			= copyfrom.pY;
@@ -147,13 +147,13 @@ public abstract class BasicObjectDescriptor extends BasicDescriptor{
 		parseAttributesOrientation(this.getIOriantation(),attributes);
 		parseAttributesCharacteristics(this.getICharacteristis(),attributes);
 	}
-	public void instantiateXMLDescription(BasicObjectDescriptor instantiateFromObject, Attributes attributes) {
+	public void instantiateXMLDescription(BasicComponentDescriptor instantiateFromObject, Attributes attributes) {
 		this.instantiateFrom(instantiateFromObject);
 		//read parameter to change all customized values
 		this.readXMLDescription(attributes);
 		
 	}
-	private void instantiateFrom(BasicObjectDescriptor instantiateFromObject){
+	private void instantiateFrom(BasicComponentDescriptor instantiateFromObject){
 		copyFrom(instantiateFromObject);
 		this.isTemplate = false;
 	}

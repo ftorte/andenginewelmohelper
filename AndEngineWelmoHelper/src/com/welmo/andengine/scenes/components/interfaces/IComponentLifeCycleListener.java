@@ -1,4 +1,4 @@
-package com.welmo.andengine.scenes.components;
+package com.welmo.andengine.scenes.components.interfaces;
 
 public interface IComponentLifeCycleListener {
 		public void onStart();

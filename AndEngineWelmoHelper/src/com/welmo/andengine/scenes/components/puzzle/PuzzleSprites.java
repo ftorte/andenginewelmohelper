@@ -11,9 +11,12 @@ import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
+
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.scenes.components.IComponentLifeCycle;
-import com.welmo.andengine.scenes.components.IComponentLifeCycleListener;
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
+import com.welmo.andengine.scenes.components.interfaces.IComponentLifeCycle;
+import com.welmo.andengine.scenes.components.interfaces.IComponentLifeCycleListener;
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
 
 /**
@@ -22,7 +25,7 @@ import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
  * 
  *
  */
-public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
+public class PuzzleSprites extends Rectangle implements IComponent, IComponentLifeCycle{
 	// --------------------------------------------------------------------
 	// constants
 	// --------------------------------------------------------------------
@@ -45,6 +48,7 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 	
 	
 	// --------------------------------------------------------------------
+	protected	int 							nID					= 0;
 	
 	protected	int 							nbRows				= 0;
 	protected	int 							nbCols				= 0;
@@ -76,7 +80,6 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 	protected	List<PuzzleElement> 			mPiecesList 		= null;
 	
 	protected	Engine							mTheEngine 			= null;
-	//protected   PuzzleObjectDescriptor			mDescriptor			= null;
 	
 	//listeners
 	protected 	IComponentLifeCycleListener		mLifeCycleListener	= null;
@@ -89,8 +92,7 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 		super(pDescriptor.getIPosition().getX(), pDescriptor.getIPosition().getY(), 
 				pDescriptor.getIDimension().getWidth(), pDescriptor.getIDimension().getHeight(), pEngine.getVertexBufferObjectManager());
 					
-		//read Parameter
-		//mDescriptor				= pDescriptor;
+		//read Parameters
 		mTheEngine				= pEngine;
 		
 		//read puzzle geometry
@@ -136,7 +138,6 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 		
 		mStatus					= STATUS_START;
 	}
-
 	
 
 	// --------------------------------------------------------------------
@@ -145,14 +146,12 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 	public String getmTiledTextureResource() {
 		return mTiledTextureResource;
 	}
-
 	public void setmTiledTextureResource(String mTiledTextureResource) {
 		this.mTiledTextureResource = mTiledTextureResource;
 	}
 	public String getmHelperImage() {
 		return mHelperImage;
 	}
-
 	public void setmHelperImage(String mHelperImage) {
 		this.mHelperImage = new String(mHelperImage);
 	}
@@ -173,9 +172,6 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 	public int   getNbPieces() {
 		return nbPieces;
 	}
-	//public void  setNbPieces(int nbPieces) {
-	//	this.nbPieces = nbPieces;
-	//}
 	public float getPieceWidth() {
 		return mPieceWidth;
 	}
@@ -201,8 +197,9 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 	// public memebers
 	// ------------------------------------------------------------------------------------
 	public void clearPuzzle(){
-		//if status = START return
-		if(mStatus==STATUS_START)return;
+	
+		if(mStatus==STATUS_START)
+			return;
 
 		//detach all childres
 		this.detachChildren();
@@ -219,13 +216,11 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 		ResourcesManager pRM = ResourcesManager.getInstance();
 		
 		//Set additional parameters
-		//FT setZIndex(mDescriptor.getIPosition().getZorder());
 		setZIndex(mZOrder);
 		
 		setAlpha(0);
 
 		//get the texture
-		//ITiledTextureRegion theTiledTexture = pRM.getTiledTextureRegion(mTextureName);
 		ITiledTextureRegion theTiledTexture = pRM.getDinamicTiledTextureRegion(mTiledTextureName, 
 				mTiledTextureResource, nbCols, nbRows);
 
@@ -438,5 +433,22 @@ public class PuzzleSprites extends Rectangle implements IComponentLifeCycle{
 
 	public void setHasActiveZone(boolean hasActiveZone) {
 		this.hasActiveZone = hasActiveZone;
+	}
+
+
+	// implements IComponent
+	@Override
+	public int getID() {
+		// TODO Auto-generated method stub
+		return this.nID;
+	}
+	@Override
+	public void setID(int ID) {
+		this.nID = ID;
+	}
+	@Override
+	public void build(BasicDescriptor pDsc) {
+		// TODO Auto-generated method stub
+		
 	}
 }

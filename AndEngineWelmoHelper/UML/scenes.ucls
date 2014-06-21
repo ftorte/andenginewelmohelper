@@ -101,9 +101,9 @@
       <operations public="false" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </class>  
-  <interface id="11" language="java" name="com.welmo.andengine.scenes.components.IBasicComponent" 
+  <interface id="11" language="java" name="com.welmo.andengine.scenes.components.interfaces.IComponent" 
     project="AndEngineWelmoHelper" 
-    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/components/IBasicComponent.java" binary="false" 
+    file="/AndEngineWelmoHelper/src/com/welmo/andengine/scenes/components/interfaces/IComponent.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="583" y="93"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 

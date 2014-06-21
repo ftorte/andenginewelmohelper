@@ -17,6 +17,11 @@ import org.andengine.opengl.util.GLState;
 import org.andengine.opengl.vbo.DrawType;
 
 import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.scenes.components.interfaces.IComponentClickableDfltImp;
+import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
+import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
@@ -26,10 +31,14 @@ import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 //import com.welmo.andengine.managers.ResourcesManager;
 //import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 
+
+
+
+
 import android.util.Log;
 
 
-public class CardSprite extends TiledSprite implements IClickable, IActionOnSceneListener, IBasicComponent{
+public class CardSprite extends TiledSprite implements IComponentClickable, IActionOnSceneListener, IComponent{
 
 	// =========================================================================================
 	// Constants
@@ -47,7 +56,7 @@ public class CardSprite extends TiledSprite implements IClickable, IActionOnScen
 	protected int 										nSideBTileNb	= 0;
 	protected String									sSoundNAme		= "";
 	protected CardSide									currentSide 	= CardSide.A;
-	protected IClickable 								mIClicakableImpmementation = null;
+	protected IComponentClickable 								mIClicakableImpmementation = null;
 	protected IActionOnSceneListener 					mIActionSceneListnerImpmementation = null;
 	// ===========================================================
 	// Constructors
@@ -60,7 +69,7 @@ public class CardSprite extends TiledSprite implements IClickable, IActionOnScen
 						DrawType.STATIC,
 						true, Sprite.VERTEXBUFFEROBJECTATTRIBUTES_DEFAULT)); 
 		this.setCurrentTileIndex(0);
-		mIClicakableImpmementation =  new DefaultIClickableImplementation();
+		mIClicakableImpmementation =  new IComponentClickableDfltImp();
 		mIClicakableImpmementation.setParent(this);
 		configure(pSPRDscf);
 	}
