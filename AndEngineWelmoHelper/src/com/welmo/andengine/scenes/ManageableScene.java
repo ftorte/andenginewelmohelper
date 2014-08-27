@@ -262,7 +262,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 			newSceneComponent.build(scObjDsc);
 			pEntityFather.attachChild((IEntity)newSceneComponent);
 			
-			IEntity newEntity = null;
+			/*IEntity newEntity = null;
 			switch(spTxtDsc.getType()){	
 			case SIMPLE: //TODO add to text description Text Option with default value
 				if(pEntityFather instanceof IAreaShape)
@@ -274,7 +274,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 			//default:
 			//	break;
 			//}
-			return newEntity;
+			return newEntity;*/
 			
 		}
 		if(scObjDsc instanceof PuzzleObjectDescriptor){
