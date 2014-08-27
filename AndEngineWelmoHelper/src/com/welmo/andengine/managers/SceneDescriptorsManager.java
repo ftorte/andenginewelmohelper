@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.welmo.andengine.scenes.descriptors.ConfiguredSceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.MultiViewSceneDescriptor;
+import com.welmo.andengine.utility.method;
 
 public class SceneDescriptorsManager {
 

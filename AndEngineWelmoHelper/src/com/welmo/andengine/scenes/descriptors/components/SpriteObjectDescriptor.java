@@ -1,5 +1,25 @@
 package com.welmo.andengine.scenes.descriptors.components;
 
+import java.lang.reflect.Constructor;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import org.andengine.engine.Engine;
+import org.andengine.entity.IEntity;
+import org.andengine.entity.shape.IAreaShape;
+
+import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.scenes.components.ClickableSprite;
+import com.welmo.andengine.scenes.components.ComponentDefaultEventHandler;
+import com.welmo.andengine.scenes.components.CompoundSprite;
+import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
+import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
+import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
+
 
 public class SpriteObjectDescriptor extends BasicComponentDescriptor{
 	// enumerators to manage object types & object events
@@ -57,4 +77,67 @@ public class SpriteObjectDescriptor extends BasicComponentDescriptor{
 		nSideATile = copyfrom.nSideATile;
 		nSideBTile = copyfrom.nSideBTile;
 	}
+	@Override
+	public IComponent CreateComponentInstance(Engine theEng) {
+		// TODO Auto-generated method stub
+		
+		switch(type){	
+			case  STATIC:
+				//FT newEntity = createSprite(pSprtDsc);
+				break;
+			case CLICKABLE: // Create the clickable sprite elements
+				
+				IComponentClickable newClickableSprite = null;
+				ResourcesManager pRM = ResourcesManager.getInstance();
+				String className = this.getClassName();
+				try {
+					if(!className.equals("")){
+						// Get the class of className
+						Class<?> classe = Class.forName (className);
+						
+						// Get the constructor
+						Constructor<?> constructor = 
+								classe.getConstructor (new Class [] {Class.forName ("com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor"),
+										Class.forName ("com.welmo.andengine.managers.ResourcesManager"),
+										Class.forName ("org.andengine.engine.Engine")});
+						
+			
+						newClickableSprite = (IComponentClickable) constructor.newInstance (new Object [] {this,pRM,theEng});
+				}
+					else newClickableSprite = (IComponentClickable) new ClickableSprite (this,pRM,theEng);
+						
+				} catch (InstantiationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}catch (NoSuchMethodException e){
+					e.printStackTrace();
+				}catch (java.lang.reflect.InvocationTargetException e){
+					e.printStackTrace();
+				}catch (IllegalArgumentException e){
+					e.printStackTrace();
+				}
+				
+				return newClickableSprite;
+			case COMPOUND_SPRITE:
+				//FT replace code newEntity = createCompoundSprite(pSprtDsc);
+				CompoundSprite newCompound = new CompoundSprite(0, 0, 0,0, theEng.getVertexBufferObjectManager());
+				newCompound.setID(this.getID());
+				newCompound.setPDescriptor(this);
+				return newCompound;
+			case ANIMATED: // Create the animated sprite elements
+				// FT newEntity = createAnimatedSprite(pSprtDsc);
+				return null;
+				
+			default:
+				break;
+			}		
+		return null;
+	}
+	
 }

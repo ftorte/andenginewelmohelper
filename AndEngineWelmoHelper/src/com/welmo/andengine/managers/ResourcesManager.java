@@ -49,6 +49,7 @@ import com.welmo.andengine.resources.descriptors.components.SoundDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TextureDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TextureRegionDescriptor;
 import com.welmo.andengine.resources.descriptors.components.TiledTextureRegionDescriptor;
+import com.welmo.andengine.utility.method;
 
 import android.content.Context;
 import android.content.res.AssetManager;

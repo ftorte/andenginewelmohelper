@@ -10,7 +10,7 @@ import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
  *  	3) method to set/get the IEntity father that contains this component
  */
 
-public interface IComponent {
+public interface IComponent{
 	//getters
 	int 	getID();
 	IEntity getParent();

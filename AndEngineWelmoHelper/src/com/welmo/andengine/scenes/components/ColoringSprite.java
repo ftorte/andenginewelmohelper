@@ -265,7 +265,12 @@ public class ColoringSprite  extends Sprite implements IComponent, IOperationHan
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	/* *******************************************************************************************
+	 * Implement interface IOperationHandler
+	 * public void doOperation(Operation msg);
+	   public void undoOperation(Operation msg);
+	 */
 	@Override
 	public void doOperation(Operation msg) {
 		switch(msg.type){

@@ -430,7 +430,7 @@ public class MemoryScene extends ManageableScene {
 		
 		//Build Sound sequence
 		ResourcesManager rMgr = ResourcesManager.getInstance();
-		SoundSequence sequence = this.mapOfPhrases.get("twocardmatch");
+		SoundSequence sequence = this.mapOfSoundSequences.get("twocardmatch");
 		if(sequence != null){
 			sequence.getSequence()[sequence.getParameter(0)] = rMgr.getSound(((CardSprite)allCards.get(cardID)).getSoundName());
 			sequence.getSequence()[sequence.getParameter(1)]  =rMgr.getSound(((CardSprite)allCards.get(cardID + nMaxNbOfSymbols)).getSoundName());
