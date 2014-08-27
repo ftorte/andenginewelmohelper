@@ -4,8 +4,6 @@ import android.content.Context;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.welmo.andengine.managers.method;
-
 public class ScreenDimensionHelper {
 	
 	private static ScreenDimensionHelper mInstance=null;

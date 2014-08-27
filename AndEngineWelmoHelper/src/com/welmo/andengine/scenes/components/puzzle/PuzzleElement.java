@@ -96,13 +96,15 @@ public class PuzzleElement extends TiledSprite{
 		
 		bHasWhiteBackground = hasWhiteBackground;
 		if(bHasWhiteBackground){
+			//Create a white background for each element of the puzzle
 			rectBackground = new Rectangle(0,0,this.mWidth, mHeight,pVertexBufferObject);
-			rectBackground.setColor(new Color(1,1,1,0.3f));
-			rectBackground.setZIndex(-1);
+			rectBackground.setColor(new Color(1,1,1,1.0f));
+			rectBackground.setZIndex(-100);
 			this.attachChild(rectBackground);
 		}
+		//short childred to be sure are displayed in the correct order
+		this.sortChildren();
 		
-				
 	}
 	public void resetBorder(boolean borderYN){
 		if(hasBorder && borderYN){
@@ -334,7 +336,10 @@ public class PuzzleElement extends TiledSprite{
 			if (mThePuzzle.hasActiveZone())
 				stickToActiveZone();
 			else
-				stickToNeighbors();     
+				stickToNeighbors();   
+			
+			//FT if(mThePuzzle.isPieceListEmpty())
+			//FT 	mThePuzzle.
 			break;
 			
 		case TouchEvent.ACTION_OUTSIDE:
@@ -355,6 +360,8 @@ public class PuzzleElement extends TiledSprite{
 				mThePuzzle.deleteFromList(this);
 				resetBorder(false);
 				mThePuzzle.setZIndex(PuzzleSprites.STACK_ZINDEX+10);
+				this.setZIndex(PuzzleSprites.STACK_ZINDEX+20);
+				mThePuzzle.sortChildren();
 			}
 	}
 	

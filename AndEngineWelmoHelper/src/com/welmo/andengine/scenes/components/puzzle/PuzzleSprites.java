@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.andengine.engine.Engine;
+import org.andengine.entity.IEntity;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.sprite.TiledSprite;
@@ -14,10 +15,13 @@ import org.andengine.opengl.texture.region.ITiledTextureRegion;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
+import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
 import com.welmo.andengine.scenes.components.interfaces.IComponentLifeCycle;
 import com.welmo.andengine.scenes.components.interfaces.IComponentLifeCycleListener;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
 /**
  * @author SESA10148
@@ -25,7 +29,7 @@ import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
  * 
  *
  */
-public class PuzzleSprites extends Rectangle implements IComponent, IComponentLifeCycle{
+public class PuzzleSprites extends Rectangle implements IComponent, IComponentLifeCycle, IComponentEventHandler{
 	// --------------------------------------------------------------------
 	// constants
 	// --------------------------------------------------------------------
@@ -376,6 +380,9 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	public void deleteFromList(PuzzleElement thePuzzleElement) {
 		this.mPiecesList.remove(thePuzzleElement);
 	}
+	public boolean isPieceListEmpty() {
+		return this.mPiecesList.isEmpty();
+	}
 
 	// ------------------------------------------------------------------------------------
 	// Interfaces
@@ -450,5 +457,34 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	public void build(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	/* **************************************************************************************
+	// Implement Interface IComponentEventHandler
+	// 	public void setUpEventsHandler(ComponentEventHandlerDescriptor entry);
+	// 	public void handleEvent(IEntity pItem, TouchEvent pSceneTouchEvent, TouchEvent lastTouchEvent);
+	// 	public IComponentEventHandler cloneEvent(ComponentEventHandlerDescriptor entry);
+	// 	public int getID(); => Implemented by IComponent Interface
+	// 	public void onFireAction(ActionType type, IEntity pItem);
+	**************************************************************************************** */
+	@Override
+	public void setUpEventsHandler(ComponentEventHandlerDescriptor entry) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void handleEvent(IEntity pItem, TouchEvent pSceneTouchEvent,
+			TouchEvent lastTouchEvent) {
+		// TODO Auto-generated method stub
+	}
+	@Override
+	public IComponentEventHandler cloneEvent(
+			ComponentEventHandlerDescriptor entry) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void onFireAction(ActionType type, IEntity pItem) {
+		// TODO Auto-generated method stub
 	}
 }

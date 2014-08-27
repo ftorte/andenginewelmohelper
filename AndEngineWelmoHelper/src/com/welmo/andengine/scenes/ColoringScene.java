@@ -43,7 +43,7 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 		
 		String imageFileName=null;
 
-		//after having loaded the default component of the scene with superclass load the coloring sprite is exist
+		//after having loaded the default component of the scene with superclass load the coloring sprite if exists
 		for(BasicDescriptor scObjDsc:sceneDescriptor.pChild.values()){
 			if(scObjDsc instanceof ColoringSpriteDescriptor){
 				ColoringSpriteDescriptor theCororingSprite = (ColoringSpriteDescriptor)scObjDsc;
@@ -66,7 +66,7 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 
 
 	// ===========================================================
-	// ISceneMessageHandler Methods
+	// IOperationHandler Methods
 	// ===========================================================	
 	@SuppressWarnings("incomplete-switch")
 	@Override
