@@ -259,7 +259,9 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 			//newEntity = createText((TextObjectDescriptor)scObjDsc,pEntityFather);
 			
 			IComponent newSceneComponent = scObjDsc.CreateComponentInstance(this.mEngine);
+			
 			newSceneComponent.build(scObjDsc);
+			
 			pEntityFather.attachChild((IEntity)newSceneComponent);
 			
 			/*IEntity newEntity = null;
@@ -280,9 +282,11 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		if(scObjDsc instanceof PuzzleObjectDescriptor){
 			// FT newEntity = createPuzzle((PuzzleObjectDescriptor)scObjDsc,pEntityFather);
 			IComponent newSceneComponent = scObjDsc.CreateComponentInstance(this.mEngine);
+			
 			newSceneComponent.build(scObjDsc);
 			
 			pEntityFather.attachChild((IEntity)newSceneComponent);
+			
 			this.registerTouchArea((ITouchArea) newSceneComponent);
 			
 			mapOfObjects.put(scObjDsc.getID(), (IAreaShape) newSceneComponent); 
@@ -340,27 +344,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		mapOfObjects.put(spDsc.getID(), newSprite); 
 		return newSprite;
 	}
-	/*
-	protected IEntity createCompoundSprite(SpriteObjectDescriptor spDsc){
-		CompoundSprite newCompound = new CompoundSprite(0, 0, 0,0, this.mEngine.getVertexBufferObjectManager());
-		newCompound.setID(spDsc.getID());
-		newCompound.setPDescriptor(spDsc);
-		this.registerTouchArea(newCompound);
-		mapOfObjects.put(spDsc.getID(), newCompound); 
-		return newCompound;
-	}
-	*/
-	/*
-	protected IEntity createPuzzle(PuzzleObjectDescriptor spDsc,IEntity pEntityFather){
-		
-		PuzzleSprites puzzle= new PuzzleSprites(spDsc, mEngine);
-		//[FT] puzzle.setResourceName(spDsc.getTextureName());
-		//puzzle.start();
-		pEntityFather.attachChild(puzzle);
-		this.registerTouchArea(puzzle);
-		mapOfObjects.put(spDsc.getID(), puzzle); 
-		return puzzle;
-	}*/
+	
 	
 	protected IEntity createButtonSceneLauncher(ButtonSceneLauncherDescriptor spDsc,IEntity pEntityFather){
 		
@@ -407,24 +391,6 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		
 		
 	}
-	// ===========================================================
-	// Create component Text
-	// ===========================================================
-	/*protected IEntity createText(TextObjectDescriptor spTxtDsc, IEntity pEntityFather){
-		IEntity newEntity = null;
-		switch(spTxtDsc.getType()){	
-		case SIMPLE: //TODO add to text description Text Option with default value
-			if(pEntityFather instanceof IAreaShape)
-				newEntity = new TextComponent(spTxtDsc, pRM, mEngine, (IAreaShape)pEntityFather);
-			else
-				newEntity = new TextComponent(spTxtDsc, pRM, mEngine, null);
-			pEntityFather.attachChild(newEntity);
-			break;
-		default:
-			break;
-		}
-		return newEntity;
-	}*/
 	// ===========================================================
 	// Create component Clickable Sprite
 	// ===========================================================
