@@ -3,8 +3,11 @@ package com.welmo.andengine.scenes.descriptors.components;
 import java.util.EnumMap;
 import java.util.StringTokenizer;
 
+import org.andengine.engine.Engine;
 import org.xml.sax.Attributes;
 
+import com.welmo.andengine.scenes.components.buttons.ButtonSceneLauncher;
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.ScnTags;
 
@@ -131,4 +134,9 @@ public class ButtonSceneLauncherDescriptor extends BasicComponentDescriptor{
 	//resources
 	public EnumMap<ImgType, ImgData> getImagesList() {return imagesList;}
 	public void 	setImagesInList(ImgType theType, ImgData theData){imagesList.put(theType, theData);}
+	
+	@Override
+	public IComponent CreateComponentInstance(Engine theEng) {
+		return 	new ButtonSceneLauncher(this, theEng.getVertexBufferObjectManager());
+	}
 }

@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.andengine.engine.Engine;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.shape.IAreaShape;
+import org.andengine.entity.sprite.AnimatedSprite;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.components.ClickableSprite;
@@ -131,7 +132,7 @@ public class SpriteObjectDescriptor extends BasicComponentDescriptor{
 				newCompound.setPDescriptor(this);
 				return newCompound;
 			case ANIMATED: // Create the animated sprite elements
-				// FT newEntity = createAnimatedSprite(pSprtDsc);
+				//IComponent newSceneComponent = createAnimatedSprite(this);
 				return null;
 				
 			default:
@@ -139,5 +140,14 @@ public class SpriteObjectDescriptor extends BasicComponentDescriptor{
 			}		
 		return null;
 	}
+	/*
+	protected IEntity createAnimatedSprite(SpriteObjectDescriptor spDsc){
+		final AnimatedSprite animatedObject = new AnimatedSprite(100,100, 
+				pRM.getTiledTextureRegion(spDsc.getTextureName()), 
+				this.mEngine.getVertexBufferObjectManager());
+
+		animatedObject.animate(100);
+		return animatedObject;
+	}*/
 	
 }

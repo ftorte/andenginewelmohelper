@@ -231,7 +231,7 @@ public class CardSprite extends TiledSprite implements IComponentClickable, IAct
 		mIActionSceneListnerImpmementation = pListener;
 	}
 	@Override
-	public void build(BasicDescriptor pDsc) {
+	public void configure(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub
 		
 	}

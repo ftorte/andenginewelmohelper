@@ -14,13 +14,14 @@ import com.welmo.andengine.scenes.descriptors.interfaces.IDescriptor;
 public class BasicDescriptor implements IDescriptor{
 	
 	public HashMap<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> pEventHandlerList;
-	protected String 						className=""; 		// specific class name to implement the described component
-	protected int 							ID=0;				// and ID to identify the component
-	protected String 						sOnClickMessage="";	// messsage
-	protected String 						sSubType="";		// specific SubTyep
-	public Map<Integer,BasicDescriptor> 	pChild;				// attached object child
-	protected boolean						isTemplate = false;
-	protected Integer						isInstanceOfID = 0;
+	protected String 						className		= ""; 	// specific class name to implement the described component
+	protected int 							ID				= 0;	// and ID to identify the component
+	protected String 						sOnClickMessage	= "";	// messsage
+	protected String 						sSubType		= "";	// specific SubTyep
+	public Map<Integer,BasicDescriptor> 	pChild			= null;	// attached object child
+	protected boolean						isTemplate 		= false;
+	protected Integer						isInstanceOfID 	= 0;
+	protected boolean						isTouchable 	= true; //the component can be registerd for touch event
 	
 	// ***************************************************
 	// Constructor
@@ -31,6 +32,12 @@ public class BasicDescriptor implements IDescriptor{
 	}
 	public boolean isTemplate() {
 		return this.isTemplate;
+	}
+	public void isTouchable(boolean value) {
+		this.isTouchable = value;
+	}
+	public boolean isTouchable() {
+		return this.isTouchable;
 	}
 	public void isTemplate(boolean value) {
 		this.isTemplate = value;

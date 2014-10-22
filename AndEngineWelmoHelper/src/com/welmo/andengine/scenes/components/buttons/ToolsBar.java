@@ -92,7 +92,7 @@ public class ToolsBar extends Rectangle implements IOperationHandler{
 					newButton = new ButtonPulse(pBtnDsc,this,pVBO);
 					break;	
 			}
-			newButton.build(pBtnDsc);
+			newButton.configure(pBtnDsc);
 			newButton.nID = ButtonIndex++;
 			nListOfButtons.add(newButton);
 			this.attachChild(newButton);

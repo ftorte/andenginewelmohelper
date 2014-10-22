@@ -165,7 +165,7 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 		theScene.registerTouchArea((ITouchArea) this);
 	}
 	@Override
-	public void build(BasicDescriptor pDsc) {
+	public void configure(BasicDescriptor pDsc) {
 		if(!(pDsc instanceof ButtonDescriptor))
 			throw new NullPointerException("Wrong descriptor type: expected ButtonDescriptor");
 		if (Types.BASIC != Types.valueOf(pDsc.getSubType()))

@@ -156,7 +156,7 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 		mIActivitySceneListener = pListener;
 	}
 	@Override
-	public void build(BasicDescriptor pDsc) {
+	public void configure(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub
 		
 	}
