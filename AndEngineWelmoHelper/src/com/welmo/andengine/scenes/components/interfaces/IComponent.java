@@ -18,5 +18,5 @@ public interface IComponent{
 	void 	setID(int ID);	
 	void 	setParent(IEntity parent);
 	//method
-	void 	build(BasicDescriptor pDsc);
+	void	configure(BasicDescriptor pDSC);
 }

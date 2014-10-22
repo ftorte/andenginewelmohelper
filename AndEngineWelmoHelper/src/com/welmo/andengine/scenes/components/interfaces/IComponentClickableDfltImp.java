@@ -116,7 +116,7 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 		return false;
 	}
 	@Override
-	public void build(BasicDescriptor pDsc) {
+	public void configure(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub
 		
 	}

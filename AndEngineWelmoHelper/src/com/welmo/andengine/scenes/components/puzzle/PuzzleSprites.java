@@ -454,7 +454,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		this.nID = ID;
 	}
 	@Override
-	public void build(BasicDescriptor pDsc) {
+	public void configure(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub
 		
 	}

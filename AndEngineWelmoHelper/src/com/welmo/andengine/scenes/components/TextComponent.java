@@ -110,7 +110,7 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 		mIClicakableImpmementation.onFireEventAction(event, type);
 	}
 	@Override
-	public void build(BasicDescriptor pDsc) {
+	public void configure(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub
 		
 	}

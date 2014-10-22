@@ -152,7 +152,7 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 
 
 	@Override
-	public void build(BasicDescriptor pDsc) {
+	public void configure(BasicDescriptor pDsc) {
 		if(! (pDsc instanceof ButtonSceneLauncherDescriptor))
 			throw new IllegalArgumentException("In ButtonSceneLauncher build: the descriptor is not a ButtonSceneLauncherDescriptor");
 

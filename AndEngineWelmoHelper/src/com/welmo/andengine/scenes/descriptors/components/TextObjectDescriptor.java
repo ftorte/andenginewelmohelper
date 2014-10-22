@@ -45,6 +45,9 @@ public class TextObjectDescriptor extends BasicComponentDescriptor{
 		
 		super.readXMLDescription(attributes);
 		
+		//set touchable = false
+		this.isTouchable = false;
+				
 		this.ID=Integer.parseInt(attributes.getValue(ScnTags.S_A_ID ));
 		this.FontName = attributes.getValue(ScnTags.S_A_RESOURCE_NAME);
 		this.message = new String (attributes.getValue(ScnTags.S_A_MESSAGE));	

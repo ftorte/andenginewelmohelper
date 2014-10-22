@@ -36,7 +36,7 @@ public class ButtonClick extends ButtonBasic{
 	}
 
 	@Override
-	public void build(BasicDescriptor pDsc) {
+	public void configure(BasicDescriptor pDsc) {
 		if(!(pDsc instanceof ButtonDescriptor))
 			throw new NullPointerException("Wrong descriptor type: expected ButtonDescriptor");
 		if (Types.CLICK != Types.valueOf(pDsc.getSubType()))

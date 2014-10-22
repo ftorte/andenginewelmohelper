@@ -261,7 +261,7 @@ public class ColoringSprite  extends Sprite implements IComponent, IOperationHan
 	}
 
 	@Override
-	public void build(BasicDescriptor pDsc) {
+	public void configure(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub
 		
 	}
