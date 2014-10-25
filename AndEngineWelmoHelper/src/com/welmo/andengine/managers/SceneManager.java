@@ -18,9 +18,25 @@ import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
 
 
 import android.content.Context;
-
+//Description
+/**
+ * A scene manager (SM) is an object that manage scenes. He create and store the scene in an internal map so accessing to them is fast.
+ * 
+ * When the application ask SM for a scene the SM returns a pointer to that scene that can be used by the Engine.
+ * If the scene don't exist the SM create it.
+ * If it is impossible to get the scene the scene manager return a null scene pointer.
+ * 
+ * To be used the scene manager need:
+ * 	the pointer to the application that has instantiate it
+ * 	to be initialized with the engine, the application context, and the scene descriptor manager.
+ * 
+ */	
 public class SceneManager {
 
+	// Constructors
+		/**
+		 * 
+		 */
 	// ===========================================================
 	// Constants
 	//Log & Debug & trace
@@ -43,9 +59,26 @@ public class SceneManager {
 	 * 
 	 * @param BaseGameActivity application
 	 */
-	public SceneManager(BaseGameActivity application) {  
+	/*public SceneManager(BaseGameActivity application) {  
 		mapScenes = new HashMap<String, IManageableScene>();
 		theApplication = application;
+	} */ 
+	public SceneManager(BaseGameActivity application, Engine eng, Context ctx) {  
+		//check validity of variables
+		if(application == null)
+			throw new NullPointerException("Scene Manager cannot be instantiate => null application");
+		if(eng == null)
+			throw new NullPointerException("Scene Manager cannot be instantiate => null engine");
+		if(ctx == null)
+			throw new NullPointerException("Scene Manager cannot be instantiate => null context");
+		
+		pSDM = SceneDescriptorsManager.getInstance();
+		if(pSDM == null)
+			throw new NullPointerException("Scene Manager cannot be instantiate => null SceneDescriptor");
+		theApplication = application;
+		mEngine = eng;
+		mContext = ctx;
+		mapScenes = new HashMap<String, IManageableScene>();
 	}  
 	// ===========================================================
 	// public methods
@@ -55,7 +88,7 @@ public class SceneManager {
 	 * @param Engine 	eng		// The andengine engine
 	 * @param Context 	ctx		// The context on which the application/scene are executes
 	 */
-	public synchronized void init(Engine eng, Context ctx){
+	/*public synchronized void init(Engine eng, Context ctx){
 		if(!initialized){
 			mEngine = eng;
 			mContext = ctx;
@@ -66,7 +99,7 @@ public class SceneManager {
 			//if initialization is called for an already initialized manager but with different context and engine throw an exception
 			if(mContext != ctx || mEngine!= eng) //if initialization called on another context
 				throw new IllegalArgumentException("ResourceManager, Init called two times with different context");
-	}
+	}*/
 	// Get the scene 
 	/**
 	 * GETSCENE: method to obtain a Scene. 
@@ -80,28 +113,31 @@ public class SceneManager {
 		
 		Scene theScene = null;
 		
-		if(!initialized)
-			throw new NullPointerException("Scene Manager not initialized"); 
-		
 		//get the scene
 		theScene = (Scene)mapScenes.get(strSceneName);
 		
 		//if scene not found check if it is a request for a configurable scene
-		if(theScene == null){
-			ConfiguredSceneDescriptor pCFGScene = null;;
-			if (!(null ==(pCFGScene = pSDM.getCFGScene(strSceneName))))
-				theScene = getConfiguredScene(pCFGScene);
-		}
+		if(theScene == null) 
+			theScene = getConfiguredScene(strSceneName);
 		
 		//if is not a configure try to build the scene
 		if(theScene == null)
-			theScene =  (Scene) BuildScenes(strSceneName);
+			theScene =  (Scene) BuildScene(strSceneName);
 		
 		return theScene;
 		
 	}
+	
+	public IActivitySceneListener getIActivitySceneListener(){
+		if(theApplication instanceof IActivitySceneListener)
+			return (IActivitySceneListener)theApplication;
+		return null;
+	}
+	
 	// ===========================================================
 	// private methods
+	// ===========================================================
+	
 	/**
 	 * BUILD A SCENE.  /create scene and add to the map with name strSceneName
 	 * @param String strSceneName the neme of the Scene to create 
@@ -109,10 +145,10 @@ public class SceneManager {
 	 * @thrown	If Scene Manger is not initialized
 	 * @thrown	If Scene descriptor don't exist for the requested scene
 	 */
-	private synchronized IManageableScene BuildScenes(String strSceneName){
-		if(!initialized)
+	private synchronized IManageableScene BuildScene(String strSceneName){
+		/*if(!initialized)
 			throw new NullPointerException("Scene Manager not initialized"); 
-		
+		*/
 		// Get the scene descriptor. If descriptor don't exist throw an exception
 		SceneDescriptor pSCDercriptor = null;
 		if((pSCDercriptor = pSDM.getScene(strSceneName))== null)
@@ -162,24 +198,26 @@ public class SceneManager {
 	 * @return
 	 */
 	
-	private Scene getConfiguredScene(ConfiguredSceneDescriptor pCFGScene){
-		String strMasterSceneName = null;
+	private Scene getConfiguredScene(String strSceneName){
+
+		// get configurable scene descriptor
+		ConfiguredSceneDescriptor pCFGScene = pSDM.getCFGScene(strSceneName);
 		
-		//get the masterscene
-		Scene theScene = (Scene) getScene(pCFGScene.getNameOfSceneMaster());
+		//if configurable instantiate the scene 
+		if(!(null == pCFGScene)){
+			//get the master-scene
+			Scene theScene = (Scene) getScene(pCFGScene.getNameOfSceneMaster());
+
+			if(!(theScene instanceof IConfigurableScene))
+				throw new NullPointerException("Instantiation of a non Configurable Scene"); 
+
+			((IConfigurableScene)theScene).configure(pCFGScene.getParameterList());
+
+			return theScene;
+		}
+		else
+			return null;
 		
-		if(!(theScene instanceof IConfigurableScene))
-			throw new NullPointerException("Instantiation of a non Configurable Scene"); 
-		
-		((IConfigurableScene)theScene).configure(pCFGScene.getParameterList());
-		
-		
-		return theScene;
-	}
-	public IActivitySceneListener getIActivitySceneListener(){
-		if(theApplication instanceof IActivitySceneListener)
-			return (IActivitySceneListener)theApplication;
-		return null;
 	}
 	
 }
