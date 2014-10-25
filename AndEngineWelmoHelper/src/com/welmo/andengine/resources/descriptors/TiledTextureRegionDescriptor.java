@@ -1,11 +1,14 @@
-package com.welmo.andengine.resources.descriptors.components;
+package com.welmo.andengine.resources.descriptors;
 
 import org.xml.sax.Attributes;
 
 import android.content.Context;
 
-public class MusicDescriptor extends ResourceDescriptor{
+public class TiledTextureRegionDescriptor extends ResourceDescriptor{
+	public String textureName;
 	public String filename;
+	public int column;
+	public int row;
 	@Override
 	public void readXMLDescription(Attributes attributes, Context ctx) {
 		super.readXMLDescription(attributes, ctx);

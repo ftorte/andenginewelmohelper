@@ -1,14 +1,9 @@
-package com.welmo.andengine.resources.descriptors.components;
+package com.welmo.andengine.resources.descriptors;
 
 import java.util.ArrayList;
 
-import org.xml.sax.Attributes;
+public class BuildableTextureDescriptor extends ResourceDescriptor {
 
-import android.content.Context;
-
-
-
-public class TextureDescriptor extends ResourceDescriptor {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -16,17 +11,16 @@ public class TextureDescriptor extends ResourceDescriptor {
 	// ===========================================================
 	// Member Variables
 	// ===========================================================
-	public boolean 								valid		= false;
-	public ArrayList<TextureRegionDescriptor>	Regions		= null;
-	public boolean 								autpacking 	= false;
-	
+	public boolean 									valid=false;
+	public ArrayList<TiledTextureRegionDescriptor>	Regions=null;
+
 	// ===========================================================
 	// Constructor
 	// ===========================================================
 
-	
-	public TextureDescriptor() {
-		Regions=new ArrayList<TextureRegionDescriptor>();
+
+	public BuildableTextureDescriptor() {
+		Regions=new ArrayList<TiledTextureRegionDescriptor>();
 	}
 
 
@@ -34,10 +28,6 @@ public class TextureDescriptor extends ResourceDescriptor {
 	public String toString() {
 		return "ResourceDescriptor" +  "]";
 	}
-	@Override
-	public void readXMLDescription(Attributes attributes, Context ctx) {
-		super.readXMLDescription(attributes, ctx);
-	}
-	
 
 }
+
