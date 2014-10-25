@@ -1,4 +1,4 @@
-package com.welmo.andengine.resources.descriptors.components;
+package com.welmo.andengine.resources.descriptors;
 
 import org.andengine.opengl.texture.ITexture;
 import org.andengine.opengl.texture.region.TextureRegion;

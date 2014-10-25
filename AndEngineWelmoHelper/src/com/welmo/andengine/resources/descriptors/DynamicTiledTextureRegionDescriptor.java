@@ -1,4 +1,4 @@
-package com.welmo.andengine.resources.descriptors.components;
+package com.welmo.andengine.resources.descriptors;
 
 public class DynamicTiledTextureRegionDescriptor extends TextureRegionDescriptor{
 		public int column;
