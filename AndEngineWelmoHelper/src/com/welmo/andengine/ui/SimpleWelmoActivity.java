@@ -38,7 +38,7 @@ import android.widget.Toast;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SceneManager;
-import com.welmo.andengine.resources.descriptors.components.ParserXMLResourcesDescriptor;
+import com.welmo.andengine.resources.descriptors.ParserXMLResourcesDescriptor;
 import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.ManageableScene;
 import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
@@ -281,8 +281,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 		
 		//initialize scene manager
-		mSceneManager = new SceneManager(this);
-		mSceneManager.init(this.getEngine(), this);
+		//mSceneManager = new SceneManager(this,);
+		//mSceneManager.init(this.getEngine(), this);
+		mSceneManager = new SceneManager(this,this.getEngine(), this);
 		
 		//creat pinch & zoom detectors
 		this.mScrollDetector = new SurfaceScrollDetector(this);

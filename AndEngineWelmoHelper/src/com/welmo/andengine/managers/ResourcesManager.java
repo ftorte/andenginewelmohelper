@@ -39,16 +39,16 @@ import org.andengine.util.debug.Debug;
 import org.andengine.util.modifier.IModifier.DeepCopyNotSupportedException;
 import org.xml.sax.InputSource;
 
-import com.welmo.andengine.resources.descriptors.components.BuildableTextureDescriptor;
-import com.welmo.andengine.resources.descriptors.components.ColorDescriptor;
-import com.welmo.andengine.resources.descriptors.components.DynamicTiledTextureRegionDescriptor;
-import com.welmo.andengine.resources.descriptors.components.FontDescriptor;
-import com.welmo.andengine.resources.descriptors.components.MusicDescriptor;
-import com.welmo.andengine.resources.descriptors.components.ResTags;
-import com.welmo.andengine.resources.descriptors.components.SoundDescriptor;
-import com.welmo.andengine.resources.descriptors.components.TextureDescriptor;
-import com.welmo.andengine.resources.descriptors.components.TextureRegionDescriptor;
-import com.welmo.andengine.resources.descriptors.components.TiledTextureRegionDescriptor;
+import com.welmo.andengine.resources.descriptors.BuildableTextureDescriptor;
+import com.welmo.andengine.resources.descriptors.ColorDescriptor;
+import com.welmo.andengine.resources.descriptors.DynamicTiledTextureRegionDescriptor;
+import com.welmo.andengine.resources.descriptors.FontDescriptor;
+import com.welmo.andengine.resources.descriptors.MusicDescriptor;
+import com.welmo.andengine.resources.descriptors.ResTags;
+import com.welmo.andengine.resources.descriptors.SoundDescriptor;
+import com.welmo.andengine.resources.descriptors.TextureDescriptor;
+import com.welmo.andengine.resources.descriptors.TextureRegionDescriptor;
+import com.welmo.andengine.resources.descriptors.TiledTextureRegionDescriptor;
 import com.welmo.andengine.utility.method;
 
 import android.content.Context;
