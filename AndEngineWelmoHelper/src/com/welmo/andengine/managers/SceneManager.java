@@ -50,7 +50,7 @@ public class SceneManager {
 	
 	// Constructors
 	/** 
-	* Constructor of scene manger. He initialize the scene hash map & the pointer to the application.
+	* Constructor of scene manger. He initializes the scene hash map & the pointer to the application.
 	* A scene manager is attached to the application that has create it  => So is not a singleton and Scenes cannot be shared through applications.
 	* 
 	* @param BaseGameActivity 	application
@@ -58,7 +58,7 @@ public class SceneManager {
 	* @param Context 			ctx
 	*/ 
 	public SceneManager(BaseGameActivity application, Engine eng, Context ctx) {  
-		//check validity of variables
+		//check validity of variables an make exceptions
 		if(application == null)
 			throw new NullPointerException("Scene Manager cannot be instantiate => null application");
 		if(eng == null)
@@ -69,9 +69,11 @@ public class SceneManager {
 		pSDM = SceneDescriptorsManager.getInstance();
 		if(pSDM == null)
 			throw new NullPointerException("Scene Manager cannot be instantiate => null SceneDescriptor");
+		
 		theApplication = application;
 		mEngine = eng;
 		mContext = ctx;
+		//create the map that will contains all scenes
 		mapScenes = new HashMap<String, IManageableScene>();
 	}  
 	
@@ -84,7 +86,7 @@ public class SceneManager {
 	* return the null value
 	* 
 	* @param 	strSceneName the name of the scene to obtain
-	* @return 	the Scene or null
+	* @return 	the Scene or null if any scene with the requested name is present, configures or can be created 
 	*/
 	public Scene getScene(String strSceneName){
 		
@@ -146,15 +148,16 @@ public class SceneManager {
 			e.printStackTrace();
 		}
 
-		// Call Methods to initialize and losa the scene
+		// Call Methods to initialize and load the scene
 		if(iManageableScene != null){
 			iManageableScene.initScene(this, mEngine, mContext,theApplication); 	// Initialize scene with context info
-			iManageableScene.loadScene(pSCDercriptor);						// Create the scene by loading & initilizing all scene component
-			mapScenes.put(strSceneName, iManageableScene);					// add scene to active scene map
+			iManageableScene.loadScene(pSCDercriptor);								// Create the scene by loading & initializing all scene component
+			mapScenes.put(strSceneName, iManageableScene);							// add scene to active scene map
 		}
 		else
 			throw new NullPointerException("In BuildScenes: the scene: " + strSceneName + " cannot being created");
 
+		//Manage specific scene attribures
 		//manage Pinch and zoom scene
 		if(theApplication instanceof IOnSceneTouchListener && iManageableScene.hasPinchAndZoomActive()){
 			//enable pinch & zoom for the scene
@@ -177,14 +180,16 @@ public class SceneManager {
 		// get configurable scene descriptor
 		ConfiguredSceneDescriptor pCFGScene = pSDM.getCFGScene(strSceneName);
 		
-		//if configurable instantiate the scene 
+		//if a configurable scene descriptor exist instantiate the scene 
 		if(!(null == pCFGScene)){
-			//get the master-scene
+			//get the master-scene (recursively crete it if the scene is not in the map)
 			Scene theScene = (Scene) getScene(pCFGScene.getNameOfSceneMaster());
 
+			//if master scene is not obtined  then generate an exception
 			if(!(theScene instanceof IConfigurableScene))
 				throw new NullPointerException("Instantiation of a non Configurable Scene"); 
 
+			//configure the scene
 			((IConfigurableScene)theScene).configure(pCFGScene.getParameterList());
 
 			return theScene;

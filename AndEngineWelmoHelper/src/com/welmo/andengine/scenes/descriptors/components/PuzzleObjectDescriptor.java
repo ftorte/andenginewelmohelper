@@ -27,7 +27,7 @@ public class PuzzleObjectDescriptor extends BasicComponentDescriptor {
 	protected float			mHelperImageAlpha	= 0.1f;	
 	public static int 		INVALIDDIM = -1;
 	
-	public boolean hasActiveBorder() {return hasActiveBorder;}
+	public boolean  hasActiveBorder() {return hasActiveBorder;}
 	public boolean 	hasWhiteBackground() {return hasWhiteBG;}
 	public void 	hasWhiteBackground(boolean value) {hasWhiteBG = value;}
 	public void 	setHasActiveBorder(boolean hasActiveBorder) {this.hasActiveBorder = hasActiveBorder;}
