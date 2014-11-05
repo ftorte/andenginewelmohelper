@@ -15,10 +15,29 @@ public abstract class BasicComponentDescriptor extends BasicDescriptor{
 	public enum Alignment {
 	    NO_ALIGNEMENT, CENTER, LEFTH, TOP, BOTTOM, RIGHT
 	}
+	//----------------------------------------------------------------------//
+	//Protected members
+	// Dimension
+	protected int 			width, height;
+
+	// Position
+	protected int 			pX, pY;
+	protected int			pZOrder;
+	protected Alignment		horizzontalAlignment; 
+	protected Alignment		verticalAlignment;
+
+	// Orientation
+	protected float 		rX;
+	protected float 		rY;
+	protected float 		orientation;
+
+	// Characteristic(s)
+	protected String 		colorName;
+
 	/* Inner Interfaces to:
-	 * Manage Object Dimension => IDimension
-	 * Manage Object Position => IPosition
-	 * Manage Object Orientation => IOrientation
+	 * Manage Object Dimension 		=> IDimension
+	 * Manage Object Position 		=> IPosition
+	 * Manage Object Orientation 	=> IOrientation
 	 */
 	public interface IDimension{
 		void setWidth(int w);
@@ -27,12 +46,12 @@ public abstract class BasicComponentDescriptor extends BasicDescriptor{
 		int getHeight();
 	}
 	public interface IPosition{
-		void setX(int w);
-		void setY(int h);
+		void setX(int x);
+		void setY(int y);
 		void setZorder(int Z);
 		void setHorizontalAlignment(Alignment hA);
 		void setVerticalAlignment(Alignment vA);
-	
+
 		int getX();
 		int getY();
 		int getZorder();
@@ -51,17 +70,6 @@ public abstract class BasicComponentDescriptor extends BasicDescriptor{
 		void setColor(String colorName);
 		String getColor();
 	}
-	//----------------------------------------------------------------------//
-	//Protected members
-	protected int 			pX, pY;
-	protected int			pZOrder;
-	protected int 			width, height;
-	protected float 		rX;
-	protected float 		rY;
-	protected float 		orientation;
-	protected String 		colorName;
-	protected Alignment		horizzontalAlignment; 
-	protected Alignment		verticalAlignment;
 	//----------------------------------------------------------------------//
 	// Public constructor(s)
 	//----------------------------------------------------------------------//
@@ -138,7 +146,7 @@ public abstract class BasicComponentDescriptor extends BasicDescriptor{
 	
 	
 	//-------------------------------------------------------------------------------------
-	// Specific private functions to read the attributes from XML attribute
+	// functions to read the attributes from XML attribute
 	//-------------------------------------------------------------------------------------
 	public void readXMLDescription(Attributes attributes) {
 		super.readXMLDescription(attributes);

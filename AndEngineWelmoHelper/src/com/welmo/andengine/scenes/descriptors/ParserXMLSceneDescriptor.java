@@ -289,28 +289,30 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		BasicDescriptor newDescriptor = null;
 
 		if (localName.equalsIgnoreCase(ScnTags.S_O_SPRITE))
-			newDescriptor = readSpriteDescription(attributes);
+			newDescriptor = (BasicDescriptor)(new SpriteObjectDescriptor()); 
 		else if (localName.equalsIgnoreCase(ScnTags.S_COLORING_SPRITE))
-			(newDescriptor = new ColoringSpriteDescriptor()).readXMLDescription(attributes);	
-		else if (localName.equalsIgnoreCase(ScnTags.S_COMPOUND_SPRITE))
-			newDescriptor = readCupondSprite(attributes);
+			newDescriptor = (BasicDescriptor)(new ColoringSpriteDescriptor());	
+		/*else if (localName.equalsIgnoreCase(ScnTags.S_COMPOUND_SPRITE))
+			newDescriptor = readCupondSprite(attributes);*/
 		else if (localName.equalsIgnoreCase(ScnTags.S_TEXT))
-			(newDescriptor = new TextObjectDescriptor()).readXMLDescription(attributes);
+			newDescriptor = (BasicDescriptor)(new TextObjectDescriptor());
 		else if (localName.equalsIgnoreCase(ScnTags.S_BACKGROUND))
-			newDescriptor = readBackGroudDescription(attributes); //Read new descriptor	
+			newDescriptor = (BasicDescriptor)(new BackGroundObjectDescriptor()); //Read new descriptor	
 		else if (localName.equalsIgnoreCase(ScnTags.S_PUZZLE_SPRITE))
-			(newDescriptor = new PuzzleObjectDescriptor()).readXMLDescription(attributes);
+			newDescriptor = (BasicDescriptor)(new PuzzleObjectDescriptor());
 		else if(localName.equalsIgnoreCase(ScnTags.S_HUD))
-			(newDescriptor = new HUDDescriptor()).readXMLDescription(attributes);
+			newDescriptor = (BasicDescriptor)(new HUDDescriptor());
 		else if(localName.equalsIgnoreCase(ScnTags.S_TOOLBAR))
-			(newDescriptor = new ToolsBarDescriptor()).readXMLDescription(attributes);	
+			newDescriptor = (BasicDescriptor)(new ToolsBarDescriptor());	
 		else if(localName.equalsIgnoreCase(ScnTags.S_BUTTON))
-			(newDescriptor = new ButtonDescriptor()).readXMLDescription(attributes);	
+			newDescriptor = (BasicDescriptor)(new ButtonDescriptor());	
 		else if(localName.equalsIgnoreCase(ScnTags.S_SCENELAUNCHER))
-			(newDescriptor = new ButtonSceneLauncherDescriptor()).readXMLDescription(attributes);	
+			newDescriptor = (BasicDescriptor)(new ButtonSceneLauncherDescriptor());	
 		else
 			return null;
 
+		newDescriptor.readXMLDescription(attributes);
+		
 		//update status and components nb
 		Log.i(TAG,"\t parseComponentDescriptor");
 		nComponents ++;
@@ -588,6 +590,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			pScene.hasHUD(Boolean.parseBoolean(attr.getValue(ScnTags.S_A_HUD)));
 		return pScene;
 	}
+	/*
 	private BackGroundObjectDescriptor readBackGroudDescription(Attributes attributes){
 		Log.i(TAG,"\t\t readBackGroudDescription");
 		if(this.pBackGroundDescriptor != null) //check if new action object descriptor
@@ -605,8 +608,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			break;
 		}	
 		return pBackGroundDescriptor;
-	}
-	private SpriteObjectDescriptor readSpriteDescription(Attributes attr){
+	}*/
+	/*private SpriteObjectDescriptor readSpriteDescription(Attributes attr){
 		Log.i(TAG,"\t\t readSpriteDescription");
 		
 		pSpriteDsc = new SpriteObjectDescriptor();
@@ -636,7 +639,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		
 	
 		return pSpriteDsc;
-	}	
+	}*/
+	/*
 	private SpriteObjectDescriptor readCupondSprite(Attributes attr){
 		Log.i(TAG,"\t\t readCupondSprite");
 		if(this.pCompoundSpriteDsc != null) //check if new compound sprite
@@ -656,7 +660,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		//add compound sprite to scene
 		pSceneDsc.pChild.put(pCompoundSpriteDsc.ID,pCompoundSpriteDsc);	
 		return pCompoundSpriteDsc;
-	}
+	}*/
 	private ComponentEventHandlerDescriptor readComponentEventHandlerDescriptor(Attributes attributes){
 		Log.i(TAG,"\t\t ComponentEventHandlerDescriptor");
 		//create new action
@@ -763,6 +767,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	//-------------------------------------------------------------------------------------
 	// Specfic private functions to read the attributes
 	//-------------------------------------------------------------------------------------
+	/*
 	private void parseAttributesPosition(IPosition pPosition,Attributes attributes){
 		Log.i(TAG,"\t\t\t parseAttributesPosition");
 		if((attributes.getValue(ScnTags.S_A_POSITION_X) != null) && (attributes.getValue(ScnTags.S_A_POSITION_Y) != null)){
@@ -806,6 +811,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			pDimensions.setHeight(100);
 		}
 	}
+	/*
 	private void parseAttributesOrientation(IOrientation pDimensions,Attributes attributes){
 		Log.i(TAG,"\t\t\t parseAttributesOrientation");
 		
@@ -825,6 +831,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			pDimensions.setRotationCenterY(0f);
 		
 	}
+	
 	private void parseAttributesCharacteristics(ICharacteristics pCharacteristics,Attributes attributes){
 		Log.i(TAG,"\t\t\t parseAttributesCharacteristics");
 		if(attributes.getValue(ScnTags.S_A_COLOR) != null){
@@ -835,6 +842,7 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		else
 			pCharacteristics.setColor("");
 	}
+	*/
 	@Override
 	// * Fonction étant déclenchée lorsque le parser à parsé
 	// * l'intérieur de la balise XML La méthode characters

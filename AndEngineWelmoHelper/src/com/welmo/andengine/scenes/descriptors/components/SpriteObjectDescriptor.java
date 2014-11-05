@@ -8,6 +8,9 @@ import org.andengine.engine.Engine;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.AnimatedSprite;
+import org.xml.sax.Attributes;
+
+import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.components.ClickableSprite;
@@ -18,6 +21,7 @@ import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
 import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
+import com.welmo.andengine.scenes.descriptors.ScnTags;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 
@@ -28,11 +32,11 @@ public class SpriteObjectDescriptor extends BasicComponentDescriptor{
 	    NO_TYPE, STATIC, CLICKABLE, COMPOUND_SPRITE, ANIMATED, COLORING_SPRITE
 	}
 	
-	public SpritesTypes 		type;
+	public SpritesTypes 	type;
 	public String 			textureName;
 	public int 				nSideATile =0;
 	public int 				nSideBTile =0;
-	protected String 			soundName = "";
+	protected String 		soundName = "";
 	
 	public String getSoundName() {
 		return soundName;
@@ -140,14 +144,23 @@ public class SpriteObjectDescriptor extends BasicComponentDescriptor{
 			}		
 		return null;
 	}
-	/*
-	protected IEntity createAnimatedSprite(SpriteObjectDescriptor spDsc){
-		final AnimatedSprite animatedObject = new AnimatedSprite(100,100, 
-				pRM.getTiledTextureRegion(spDsc.getTextureName()), 
-				this.mEngine.getVertexBufferObjectManager());
+	@Override
+	public void readXMLDescription(Attributes attributes) {
+		Log.i(TAG,"\t\t readXMLDescription");
+		super.readXMLDescription(attributes);
+		
+		// Read the sprite specific attributes
+		
+		this.textureName = new String(attributes.getValue(ScnTags.S_A_RESOURCE_NAME));
+		if(attributes.getValue(ScnTags.S_A_TYPE)!= null)
+			this.type = SpriteObjectDescriptor.SpritesTypes.valueOf(attributes.getValue(ScnTags.S_A_TYPE));
+		else
+			this.type = SpriteObjectDescriptor.SpritesTypes.valueOf("STATIC");
 
-		animatedObject.animate(100);
-		return animatedObject;
-	}*/
+		if((attributes.getValue(ScnTags.S_A_SIDEA)!= null) && (attributes.getValue(ScnTags.S_A_SIDEB) != null)){
+			this.nSideATile = Integer.parseInt(attributes.getValue(ScnTags.S_A_SIDEA));
+			this.nSideBTile = Integer.parseInt(attributes.getValue(ScnTags.S_A_SIDEB));
+		}
+	}
 	
 }

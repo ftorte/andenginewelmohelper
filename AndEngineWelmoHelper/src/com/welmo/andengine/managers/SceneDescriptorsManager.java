@@ -8,7 +8,14 @@ import com.welmo.andengine.scenes.descriptors.components.MultiViewSceneDescripto
 import com.welmo.andengine.utility.method;
 //Description
 /**
-* A scene descriptors manager (SDM) is an object that manage scenes descriptors and allow application to get it by name. 
+* A scene descriptors manager (SDM) is an object that manage scene descriptors. He is just a wrapper class around the set of map where
+* are stored three type of scene descriptors:
+* 	A) scene descriptor
+* 	B) descriptor for multiview scenes (to be deleted)
+* 	C) Configured scene
+* 
+* The class is a singleton so it can be shared through the applications.
+* The class provides methods to store and get scene descriptors
 * 
 */	
 public class SceneDescriptorsManager {
@@ -43,7 +50,7 @@ public class SceneDescriptorsManager {
 		return mInstance;
 	}
 	//--------------------------------------------------------
-	// ADD SCENE
+	// MANAGE SCENES
 	//--------------------------------------------------------
 	@method
 	public void addScene(String name, SceneDescriptor scene){
@@ -60,7 +67,7 @@ public class SceneDescriptorsManager {
 		return hmSceneDscMap.get(name);
 	}
 	//--------------------------------------------------------
-	// CONFIGUREDSCENE
+	// MANAGE CONFIGURED SCENES
 	//--------------------------------------------------------
 	@method
 	/**
@@ -77,7 +84,7 @@ public class SceneDescriptorsManager {
 			hmConfigSceneDscMap.put(name,dsc);
 	}
 	//--------------------------------------------------------
-	// MULTIVEIWSCENE
+	// MANAGE MULTIVEIW SCENES
 	//--------------------------------------------------------
 	@method
 	//Add the description of a scene descriptions list

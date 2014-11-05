@@ -3,6 +3,10 @@ package com.welmo.andengine.scenes.descriptors.components;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import org.xml.sax.Attributes;
+
+import android.util.Log;
+
 import com.welmo.andengine.scenes.descriptors.SceneType;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 
@@ -63,4 +67,14 @@ public class SceneDescriptor extends BasicComponentDescriptor {
 	public void setGameLevel(GameLevel newGameLevel) {
 		gameLevel=newGameLevel;
 	}
+	// ===========================================================
+	// Member Function
+	// ===========================================================
+	/*@Override
+	public void readXMLDescription(Attributes attr) {
+		Log.i(TAG,"\t\t readPuzzleDescription");
+	
+		super.readXMLDescription(attr);
+	}*/
+	
 }
