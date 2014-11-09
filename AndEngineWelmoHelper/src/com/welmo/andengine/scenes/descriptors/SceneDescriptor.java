@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.xml.sax.Attributes;
+
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
@@ -96,5 +98,18 @@ public class SceneDescriptor extends BasicDescriptor {
 			throw new InvalidParameterException("the template already exist in the scene: " + newTemplate.ID);
 		
 		pTemplates.put(key, newTemplate);
+	}
+	public void readXMLDescription(Attributes attributes) {
+		super.readXMLDescription(attributes);
+		// Read scene description	
+		this.sceneName = new String(attributes.getValue(ScnTags.S_A_NAME));
+		if(attributes.getValue(ScnTags.S_FATHER)!= null)
+			this.sceneFather = new String(attributes.getValue(ScnTags.S_FATHER));
+		if(attributes.getValue(ScnTags.S_CLASS_NAME)!= null)
+			this.className = new String(attributes.getValue(ScnTags.S_CLASS_NAME));
+		if(attributes.getValue(ScnTags.S_A_PINTCHZOOM)!= null)
+			this.setPinchAndZoom(Boolean.parseBoolean(attributes.getValue(ScnTags.S_A_PINTCHZOOM)));
+		if(attributes.getValue(ScnTags.S_A_HUD)!= null)
+			this.hasHUD(Boolean.parseBoolean(attributes.getValue(ScnTags.S_A_HUD)));
 	}
 }

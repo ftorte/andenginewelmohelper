@@ -2,6 +2,9 @@ package com.welmo.andengine.scenes.descriptors.events;
 
 import java.util.LinkedList;
 
+import org.xml.sax.Attributes;
+
+import com.welmo.andengine.scenes.descriptors.ScnTags;
 import com.welmo.andengine.scenes.descriptors.events.ComponentModifierDescriptor.ModifierType;
 
 public abstract class BasicModifierDescriptor {
@@ -62,4 +65,5 @@ public abstract class BasicModifierDescriptor {
 			throw new IllegalArgumentException("Negative value for ID is not accepted");
 		ID = iD;
 	}
+	abstract public void readXMLDescription(Attributes attributes);
 }
