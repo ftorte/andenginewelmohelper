@@ -2,6 +2,10 @@ package com.welmo.andengine.scenes.descriptors.events;
 
 import java.util.LinkedList;
 
+import org.xml.sax.Attributes;
+
+import com.welmo.andengine.scenes.descriptors.ScnTags;
+
 
 public class ComponentModifierListDescriptor extends BasicModifierDescriptor{
 	// ========================================================
@@ -40,5 +44,11 @@ public class ComponentModifierListDescriptor extends BasicModifierDescriptor{
 			public void setExecOrder(ExecutionOrder execOrder) {
 				eExecOrder = execOrder;
 			} };
+	}
+	
+	public void readXMLDescription(Attributes attributes){ 
+		
+		String tagString = attributes.getValue(ScnTags.S_A_EXECUTION_ORDER);
+		this.getIModifierList().setExecOrder(ExecutionOrder.valueOf((attributes.getValue(ScnTags.S_A_EXECUTION_ORDER))));
 	}
 }

@@ -1,5 +1,11 @@
 package com.welmo.andengine.scenes.descriptors.events;
 
+import org.xml.sax.Attributes;
+
+import android.util.Log;
+
+import com.welmo.andengine.scenes.descriptors.ScnTags;
+
 
 public class ComponentModifierDescriptor extends BasicModifierDescriptor{
 	public enum ModifierType {
@@ -110,6 +116,26 @@ public class ComponentModifierDescriptor extends BasicModifierDescriptor{
 		}
 		else{ 
 			throw new NullPointerException("Invalid Call of getIModifier for a modifier of type list");
+		}
+	}
+	
+	public void readXMLDescription(Attributes attributes){ 
+
+		this.getIModifier().setType(ComponentModifierDescriptor.ModifierType.valueOf(attributes.getValue(ScnTags.S_A_TYPE)));
+		switch(this.getIModifier().getType()){
+		case SCALE:
+			this.getIModifier().setScaleBegin(Float.parseFloat(attributes.getValue(ScnTags.S_A_SCALE_BEGIN)));
+			this.getIModifier().setScaleEnd(Float.parseFloat(attributes.getValue(ScnTags.S_A_SCALE_END)));
+			if(attributes.getValue(ScnTags.S_A_DURATION) != null)
+				this.getIModifier().setDuration(Float.parseFloat(attributes.getValue(ScnTags.S_A_DURATION)));
+			break;
+		case SOUND:
+			this.getIModifier().setSoundName(attributes.getValue(ScnTags.S_A_NAME));
+			break;
+		case MOVE:
+			if(attributes.getValue(ScnTags.S_A_DURATION) != null)
+				this.getIModifier().setDuration(Float.parseFloat(attributes.getValue(ScnTags.S_A_DURATION)));
+			break;
 		}
 	}
 }

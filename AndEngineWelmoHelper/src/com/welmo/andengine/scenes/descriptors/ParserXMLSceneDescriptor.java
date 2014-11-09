@@ -64,12 +64,9 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	protected ComponentModifierDescriptor		pModifier				= null;
 	protected ComponentEventHandlerDescriptor	pEventHandler			= null;
 	//Object Descriptor
-	//FT protected TextObjectDescriptor				pTextDescriptor			= null;
 	protected BackGroundObjectDescriptor		pBackGroundDescriptor	= null;
 	protected SpriteObjectDescriptor 			pSpriteDsc				= null;
 	protected SpriteObjectDescriptor 			pCompoundSpriteDsc		= null;
-	//FT protected PuzzleObjectDescriptor 			pPuzzleDsc				= null;
-	//FT protected HUDDescriptor 					pHUDDsc					= null;
 	//List to manage descriptor chain
 	protected LinkedList<BasicDescriptor> 		pDescriptorsInProcessing= null;
 	protected BasicDescriptor 					pCurrentDescriptorInProcessing=null;
@@ -286,8 +283,9 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	}
 	public BasicDescriptor parseComponentDescriptor(String localName, Attributes attributes){ 
 		Log.i(TAG,"\t parseComponentDescriptor");
+		
 		BasicDescriptor newDescriptor = null;
-
+		
 		if (localName.equalsIgnoreCase(ScnTags.S_O_SPRITE))
 			newDescriptor = (BasicDescriptor)(new SpriteObjectDescriptor()); 
 		else if (localName.equalsIgnoreCase(ScnTags.S_COLORING_SPRITE))
@@ -323,7 +321,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		Log.i(TAG,"\t parseActionDescriptor");
 		SceneActions newDescriptor=null;
 		if (localName.equalsIgnoreCase(ScnTags.S_ACTION)) {
-			newDescriptor = readAction(attributes);
+			newDescriptor = new SceneActions();
+			newDescriptor.readXMLDescription(attributes);
 			pEventDscMgr.addAction(pAction.event,pCurrentDescriptorInProcessing,pAction);
 		}
 		return newDescriptor;
@@ -334,7 +333,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		
 		if (nStatus==STATUS_PARSE_SCENE){
 			if(localName.equalsIgnoreCase(ScnTags.S_EVENT_HANDLER)){
-				newDescriptor = readComponentEventHandlerDescriptor(attributes);
+				newDescriptor = new ComponentEventHandlerDescriptor();
+				newDescriptor.readXMLDescription(attributes);
 				nStatus = STATUS_PARSE_EVENT_HANDLER;
 				nStatusPrec=STATUS_PARSE_SCENE;
 				return newDescriptor;
@@ -344,7 +344,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		}
 		if (nStatus==STATUS_PARSE_COMPONENT) 
 			if(localName.equalsIgnoreCase(ScnTags.S_EVENT_HANDLER)){
-				newDescriptor = readComponentEventHandlerDescriptor(attributes);
+				newDescriptor = new ComponentEventHandlerDescriptor();
+				newDescriptor.readXMLDescription(attributes);
 				nStatus = STATUS_PARSE_EVENT_HANDLER;
 				nStatusPrec=STATUS_PARSE_COMPONENT;
 				return newDescriptor;
@@ -354,26 +355,25 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		if (nStatus==STATUS_PARSE_EVENT_HANDLER){ 
 			if(localName.equalsIgnoreCase(ScnTags.S_MODIFIER_LIST)){
 				Log.i(TAG,"\t\t readComponentModifierListDescriptor " + localName);
-				pEventHandler.modifierSet = readComponentModifierListDescriptor(attributes);
+				pEventHandler.modifierSet = new ComponentModifierListDescriptor();
+				pEventHandler.modifierSet.readXMLDescription(attributes);
 				nStatus = STATUS_PARSE_ACTITIVY_MODIFIER;
 				return pEventHandler.modifierSet;
 			}
 			else{ 
 				Log.i(TAG,"\t\t readActionDescriptoon ");
 				SceneActions newActionDescriptoon = new SceneActions();
+				newActionDescriptoon.readXMLDescription(attributes);
 				if(localName.equalsIgnoreCase(ScnTags.S_PRE_MOD_ACTION)){
 					Log.i(TAG,"\t\t readComponentActionDescriptor PreModifierAction ");
-					newActionDescriptoon = readComponentActionDescriptor(attributes);
 					pEventHandler.preModAction.add(newActionDescriptoon);
 				}
 				else if(localName.equalsIgnoreCase(ScnTags.S_POST_MOD_ACTION)){
 					Log.i(TAG,"\t\t readComponentActionDescriptor PostModifierAction ");
-					newActionDescriptoon = readComponentActionDescriptor(attributes);
 					pEventHandler.postModAction.add(newActionDescriptoon);
 				}
 				else if(localName.equalsIgnoreCase(ScnTags.S_ON_MOD_ACTION)){
 					Log.i(TAG,"\t\t readComponentActionDescriptor OnModifierAction ");
-					newActionDescriptoon = readComponentActionDescriptor(attributes);
 					pEventHandler.onModAction.add(newActionDescriptoon);
 				}
 				else return null;
@@ -385,8 +385,10 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 	public ComponentModifierDescriptor parseComponentModifierDescriptor(String localName, Attributes attributes){ 
 		Log.i(TAG,"\t parseComponentModifierDescriptor");
 		ComponentModifierDescriptor newDescriptor=null;
-		if (localName.equalsIgnoreCase(ScnTags.S_MODIFIER))
-			newDescriptor = readComponentModifierDescriptor(attributes);
+		if (localName.equalsIgnoreCase(ScnTags.S_MODIFIER)){
+			newDescriptor = new ComponentModifierDescriptor();
+			newDescriptor.readXMLDescription(attributes);
+		}
 		return newDescriptor;
 	}
 	//-------------------------------------------------------------------------------------
@@ -400,21 +402,25 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		if(attr.getValue(ScnTags.S_A_TYPE)!=null){
 			switch(SceneType.valueOf(attr.getValue(ScnTags.S_A_TYPE))){
 			case MEMORY:
-				pSceneDsc = readMemorySeceneDescriptor(new MemorySceneDescriptor(),attr);
+				pSceneDsc = new MemorySceneDescriptor();
+				pSceneDsc.readXMLDescription(attr);
 				pSceneDsc.setSceneType(SceneType.MEMORY);
 				break;
 			case DEFAULT:
-				pSceneDsc = ReadDefaultSceneDescriptor(new SceneDescriptor(),attr);
+				pSceneDsc = new SceneDescriptor();
+				pSceneDsc.readXMLDescription(attr);
 				pSceneDsc.setSceneType(SceneType.DEFAULT);
 				break;
 			default:
-				pSceneDsc = ReadDefaultSceneDescriptor(new SceneDescriptor(),attr);
+				pSceneDsc = new SceneDescriptor();
+				pSceneDsc.readXMLDescription(attr);
 				pSceneDsc.setSceneType(SceneType.DEFAULT);
 				break;
 			}
 		}
 		else{
-			pSceneDsc = ReadDefaultSceneDescriptor(new SceneDescriptor(),attr);
+			pSceneDsc = new SceneDescriptor();
+			pSceneDsc.readXMLDescription(attr);
 		}
 		//Parse JSON strings
 		JSONObject jObject;
@@ -444,203 +450,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		pSceneDescManager.addScene(pSceneDsc.sceneName, pSceneDsc);
 		return pSceneDsc;
 	}
-	private MemorySceneDescriptor readMemorySeceneDescriptor(MemorySceneDescriptor pScene, Attributes attr){
-		
-		// Read default values
-		ReadDefaultSceneDescriptor(pScene,attr);
-		int stdCardH=0;
-		int stdCardW=0;
-		String resourceName="";
-		float flipTime=0;
-		
-		
-		if(attr.getValue(ScnTags.S_A_MAX_LEVELS)!= null)
-			pScene.setMaxLevelAllowed(GameLevel.valueOf(attr.getValue(ScnTags.S_A_MAX_LEVELS)));
-		if(attr.getValue(ScnTags.S_A_TOPBOTTOMBORDER)!= null)
-			pScene.setTopBottomBorder(Integer.parseInt(attr.getValue(ScnTags.S_A_TOPBOTTOMBORDER)));
-		if(attr.getValue(ScnTags.S_A_LEFTRIGHTBORDER)!= null)
-			pScene.setLeftRightBorder(Integer.parseInt(attr.getValue(ScnTags.S_A_LEFTRIGHTBORDER)));
-		if(attr.getValue(ScnTags.S_A_VINTREBORDER)!= null)
-			pScene.setVIntraBorder(Integer.parseInt(attr.getValue(ScnTags.S_A_VINTREBORDER)));
-		if(attr.getValue(ScnTags.S_A_HINTREBORDER)!= null)
-			pScene.setHIntraBorder(Integer.parseInt(attr.getValue(ScnTags.S_A_HINTREBORDER)));
-		if(attr.getValue(ScnTags.S_A_MAXNBOFSYMBOLS)!= null)
-			pScene.setMaxNbOfSymbols(Integer.parseInt(attr.getValue(ScnTags.S_A_MAXNBOFSYMBOLS)));
-		if(attr.getValue(ScnTags.S_A_STDCARDHEIGHT)!= null){
-			stdCardH=Integer.parseInt(attr.getValue(ScnTags.S_A_STDCARDHEIGHT));
-			pScene.setStdCardHeight(stdCardH);
-		}
-		if(attr.getValue(ScnTags.S_A_STDCARDWIDTH)!= null){
-			stdCardW=Integer.parseInt(attr.getValue(ScnTags.S_A_STDCARDWIDTH));
-			pScene.setStdCardWidth(stdCardW);
-		}
-		if(attr.getValue(ScnTags.S_A_RESOURCES)!= null){
-			resourceName = attr.getValue(ScnTags.S_A_RESOURCES);
-			pScene.setResouceName(resourceName);
-		}
-		if(attr.getValue(ScnTags.S_A_FLIP_TIME)!= null){
-			pScene.setFlipTime(Float.parseFloat(attr.getValue(ScnTags.S_A_FLIP_TIME)));
-			flipTime = pScene.getFlipTime();
-		}
-		if(attr.getValue(ScnTags.S_A_WAIT_BACK_FLIP)!= null){
-			pScene.setWaitBackFlip(Float.parseFloat(attr.getValue(ScnTags.S_A_WAIT_BACK_FLIP)));
-		}
-		
-		//Parse JSON strings
-		JSONObject jObject;
-		//Geometry
-		try {
-			//Parse Geometry
-			if(attr.getValue(ScnTags.S_A_GEOMETRY)!= null){
-				jObject = new JSONObject(attr.getValue(ScnTags.S_A_GEOMETRY));
-				JSONArray geometries = jObject.getJSONArray(ScnTags.S_A_GEOMETRY);
-
-				if((pScene.getMaxLevelAllowed()).ordinal() > geometries.length())
-					pScene.setMaxLevelAllowed(GameLevel.fromOrdinal(geometries.length()));
-
-				//create array will contians the geometry
-				int[][] geometryArray = new int[geometries.length()][MemorySceneDescriptor.GEOMETRY_DSC_NBCOL];
-
-				//parse the array
-				for (int i=0; i<geometries.length(); i++){
-					JSONArray currLine = (JSONArray)geometries.get(i);
-					for (int j=0; j<MemorySceneDescriptor.GEOMETRY_DSC_NBCOL; j++){
-						geometryArray[i][j]=currLine.getInt(j);
-					}
-					pScene.setMemoryStructure(geometryArray);
-				} 
-			}
-			//Parse tiled Maps
-			if(attr.getValue(ScnTags.S_A_MAPCARDTILES)!= null){
-				jObject = new JSONObject(attr.getValue(ScnTags.S_A_MAPCARDTILES));
-				JSONArray mapOfTiles = jObject.getJSONArray(ScnTags.S_A_MAPCARDTILES);
-
-				if(pScene.getMaxNbOfSymbols() > mapOfTiles.length())
-					pScene.setMaxNbOfSymbols(mapOfTiles.length());
-
-				//create array will contains the geometry
-				int[][] mapOfCardTiles = new int[mapOfTiles.length()][3];
-
-				//parse the array
-				for (int i=0; i<mapOfTiles.length(); i++){
-					JSONArray currLine = (JSONArray)mapOfTiles.get(i);
-					
-					//create a sprite descriptor
-					SpriteObjectDescriptor oCardDsc  = new SpriteObjectDescriptor();
-					oCardDsc.setClassName("com.welmo.andengine.scenes.components.CardSprite");
-					oCardDsc.ID = currLine.getInt(0);
-					oCardDsc.setSidesTiles(currLine.getInt(1), currLine.getInt(2));
-					oCardDsc.getIDimension().setHeight(stdCardH);
-					oCardDsc.getIDimension().setWidth(stdCardW);
-					oCardDsc.getIPosition().setX(0);
-					oCardDsc.getIPosition().setY(0);
-					oCardDsc.getIPosition().setZorder(0);
-					oCardDsc.textureName = new String(resourceName);
-					oCardDsc.setSoundName(currLine.getString(3));
-					oCardDsc.setType(SpritesTypes.CLICKABLE);
-					pScene.pChild.put(oCardDsc.ID,oCardDsc);
 	
-					ComponentEventHandlerDescriptor pNewEvent = new ComponentEventHandlerDescriptor();
-					
-					//create card event actions & modifiers
-					pNewEvent.event = Events.ON_CLICK;
-					pNewEvent.setID(0);
-					
-					//flip action 
-					SceneActions action1 = new SceneActions();
-					//Disable
-					action1.type = ActionType.DISABLE_SCENE_TOUCH;
-					pNewEvent.preModAction.add(action1);
-					//Flip
-					SceneActions action2 = new SceneActions();
-					action2.type = ActionType.FLIP;
-					action2.flipTime = flipTime;
-					pNewEvent.preModAction.add(action2);
-
-					//sound on going  
-					SceneActions action3 = new SceneActions();
-					action3.type = ActionType.PLAY_SOUND;
-					action3.resourceName = currLine.getString(3);
-					pNewEvent.preModAction.add(action3);
-					
-					//Disable
-					SceneActions action4 = new SceneActions();
-					action4.type = ActionType.ENABLE_SCENE_TOUCH;
-					pNewEvent.postModAction.add(action4);
-				
-					oCardDsc.pEventHandlerList.put(pNewEvent.event, pNewEvent);
-				}
-				pScene.setMemoryMapOfCardsTiles(mapOfCardTiles);
-			} 
-		}
-		catch (JSONException e) {
-		}		
-		return pScene;
-	}
-	private SceneDescriptor ReadDefaultSceneDescriptor(SceneDescriptor pScene, Attributes attr){
-		// Read scene description	
-		pScene.sceneName = new String(attr.getValue(ScnTags.S_A_NAME));
-		if(attr.getValue(ScnTags.S_FATHER)!= null)
-			pScene.sceneFather = new String(attr.getValue(ScnTags.S_FATHER));
-		if(attr.getValue(ScnTags.S_CLASS_NAME)!= null)
-			pScene.className = new String(attr.getValue(ScnTags.S_CLASS_NAME));
-		if(attr.getValue(ScnTags.S_A_PINTCHZOOM)!= null)
-			pScene.setPinchAndZoom(Boolean.parseBoolean(attr.getValue(ScnTags.S_A_PINTCHZOOM)));
-		if(attr.getValue(ScnTags.S_A_HUD)!= null)
-			pScene.hasHUD(Boolean.parseBoolean(attr.getValue(ScnTags.S_A_HUD)));
-		return pScene;
-	}
-	/*
-	private BackGroundObjectDescriptor readBackGroudDescription(Attributes attributes){
-		Log.i(TAG,"\t\t readBackGroudDescription");
-		if(this.pBackGroundDescriptor != null) //check if new action object descriptor
-			throw new NullPointerException("ParserXMLSceneDescriptor encountered background description with another background description inside");
-		
-		pBackGroundDescriptor = new BackGroundObjectDescriptor();
 	
-		pBackGroundDescriptor.ID=Integer.parseInt(attributes.getValue(ScnTags.S_A_ID ));
-		pBackGroundDescriptor.type=BackGroundObjectDescriptor.BackGroundTypes.valueOf(attributes.getValue(ScnTags.S_A_TYPE));
-		switch (pBackGroundDescriptor.type){
-		case COLOR:
-			pBackGroundDescriptor.color=attributes.getValue(ScnTags.S_A_COLOR);
-			break;
-		default:
-			break;
-		}	
-		return pBackGroundDescriptor;
-	}*/
-	/*private SpriteObjectDescriptor readSpriteDescription(Attributes attr){
-		Log.i(TAG,"\t\t readSpriteDescription");
-		
-		pSpriteDsc = new SpriteObjectDescriptor();
-		
-		// Read the sprite
-		pSpriteDsc.ID=Integer.parseInt(attr.getValue(ScnTags.S_A_ID));
-		Log.i(TAG,"\t\t readSpriteDescription ID " + pSpriteDsc.ID);
-		pSpriteDsc.textureName = new String(attr.getValue(ScnTags.S_A_RESOURCE_NAME));
-		if(attr.getValue(ScnTags.S_A_TYPE)!= null)
-			pSpriteDsc.type = SpriteObjectDescriptor.SpritesTypes.valueOf(attr.getValue(ScnTags.S_A_TYPE));
-		else
-			pSpriteDsc.type = SpriteObjectDescriptor.SpritesTypes.valueOf("STATIC");
-
-		//parse position, dimension & orientation attributes
-		this.parseAttributesPosition(pSpriteDsc.getIPosition(),attr);
-		this.parseAttributesDimensions(pSpriteDsc.getIDimension(),attr);
-		this.parseAttributesOrientation(pSpriteDsc.getIOriantation(),attr);
-		this.parseAttributesCharacteristics(pSpriteDsc.getICharacteristis(),attr);
-	
-		if(attr.getValue(ScnTags.S_CLASS_NAME)!= null)
-			pSpriteDsc.className = new String(attr.getValue(ScnTags.S_CLASS_NAME));
-		
-		if((attr.getValue(ScnTags.S_A_SIDEA)!= null) && (attr.getValue(ScnTags.S_A_SIDEB) != null)){
-			pSpriteDsc.nSideATile = Integer.parseInt(attr.getValue(ScnTags.S_A_SIDEA));
-			pSpriteDsc.nSideBTile = Integer.parseInt(attr.getValue(ScnTags.S_A_SIDEB));
-		}
-		
-	
-		return pSpriteDsc;
-	}*/
-	/*
 	private SpriteObjectDescriptor readCupondSprite(Attributes attr){
 		Log.i(TAG,"\t\t readCupondSprite");
 		if(this.pCompoundSpriteDsc != null) //check if new compound sprite
@@ -655,194 +466,16 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 		pCompoundSpriteDsc.ID=Integer.parseInt(attr.getValue(ScnTags.S_A_ID ));
 		pCompoundSpriteDsc.type = SpriteObjectDescriptor.SpritesTypes.valueOf(attr.getValue(ScnTags.S_A_TYPE));
 		//manage position and dimensions
-		this.parseAttributesPosition(pCompoundSpriteDsc.getIPosition(),attr);
+		// FTO To reactivete this.parseAttributesPosition(pCompoundSpriteDsc.getIPosition(),attr);
 
 		//add compound sprite to scene
 		pSceneDsc.pChild.put(pCompoundSpriteDsc.ID,pCompoundSpriteDsc);	
 		return pCompoundSpriteDsc;
-	}*/
-	private ComponentEventHandlerDescriptor readComponentEventHandlerDescriptor(Attributes attributes){
-		Log.i(TAG,"\t\t ComponentEventHandlerDescriptor");
-		//create new action
-		ComponentEventHandlerDescriptor pDescriptor = new ComponentEventHandlerDescriptor();
-
-		if(attributes.getValue(ScnTags.S_A_ID) != null)
-			pDescriptor.setID(Integer.parseInt(attributes.getValue(ScnTags.S_A_ID)));
-		
-		if(attributes.getValue(ScnTags.S_A_CLONEID) != null)
-			pDescriptor.setCloneID(Integer.parseInt(attributes.getValue(ScnTags.S_A_CLONEID)));
-		
-		pDescriptor.event=ComponentEventHandlerDescriptor.Events.valueOf(attributes.getValue(ScnTags.S_A_EVENT));
-		return pDescriptor;
-	}
-	@SuppressWarnings("incomplete-switch")
-	private ComponentModifierDescriptor readComponentModifierDescriptor(Attributes attributes){
-		Log.i(TAG,"\t\t readComponentModifierDescriptor");
-		//create new action
-		ComponentModifierDescriptor pDescriptor = new ComponentModifierDescriptor();
-
-		pDescriptor.getIModifier().setType(ComponentModifierDescriptor.ModifierType.valueOf(attributes.getValue(ScnTags.S_A_TYPE)));
-		switch(pDescriptor.getIModifier().getType()){
-		case SCALE:
-			pDescriptor.getIModifier().setScaleBegin(Float.parseFloat(attributes.getValue(ScnTags.S_A_SCALE_BEGIN)));
-			pDescriptor.getIModifier().setScaleEnd(Float.parseFloat(attributes.getValue(ScnTags.S_A_SCALE_END)));
-			if(attributes.getValue(ScnTags.S_A_DURATION) != null)
-				pDescriptor.getIModifier().setDuration(Float.parseFloat(attributes.getValue(ScnTags.S_A_DURATION)));
-			break;
-		case SOUND:
-			pDescriptor.getIModifier().setSoundName(attributes.getValue(ScnTags.S_A_NAME));
-			break;
-		case MOVE:
-			if(attributes.getValue(ScnTags.S_A_DURATION) != null)
-				pDescriptor.getIModifier().setDuration(Float.parseFloat(attributes.getValue(ScnTags.S_A_DURATION)));
-			break;
-		}
-		return pDescriptor;
-	}
-	public ComponentModifierListDescriptor readComponentModifierListDescriptor(Attributes attributes){ 
-		Log.i(TAG,"\t\t readComponentModifierListDescriptor");
-		ComponentModifierListDescriptor newDescriptor=new ComponentModifierListDescriptor();
-		String tagString = attributes.getValue(ScnTags.S_A_EXECUTION_ORDER);
-		Log.i(TAG,"\t\t readComponentModifierListDescriptor " + tagString);
-		newDescriptor.getIModifierList().setExecOrder(ExecutionOrder.valueOf(
-				(attributes.getValue(ScnTags.S_A_EXECUTION_ORDER))));
-		return newDescriptor;
-	}
-	public SceneActions readComponentActionDescriptor(Attributes attributes){
-		Log.i(TAG,"\t\t readComponentActionDescriptor");
-		SceneActions newAction = new SceneActions();
-		newAction.type = ActionType.valueOf(attributes.getValue(ScnTags.S_A_TYPE));
-		switch(newAction.type){
-		case PLAY_SOUND:
-			newAction.resourceName = new String(attributes.getValue(ScnTags.S_A_RESOURCE_NAME));
-			break;
-		case CHANGE_SCENE:
-			newAction.NextScene = new String(attributes.getValue(ScnTags.S_A_NEXT_SCENE));
-			break;
-		case CHANGE_Z_ORDER:
-			newAction.ZIndex = Integer.parseInt(attributes.getValue(ScnTags.S_A_Z_ORDER));
-			break;
-		case FLIP:
-			if(attributes.getValue(ScnTags.S_A_FLIP_TIME) != null)
-					newAction.flipTime = Integer.parseInt(attributes.getValue(ScnTags.S_A_FLIP_TIME));
-			break;
-		case ON_MOVE_FOLLOW:
-			break;
-		default:
-			break;
-		}
-		return newAction;
-	}
-	//-------------------------------------------------------------------------------------
-	// Private functions to read the action/modifiers 
-	//-------------------------------------------------------------------------------------
-	private SceneActions readAction(Attributes attr){
-		Log.i(TAG,"\t\t\t read Action");
-		if(this.pAction != null) //check if new action object descriptor
-			throw new NullPointerException("ParserXMLSceneDescriptor encountered action description with another action description inside");
-		if(this.pSpriteDsc == null && this.pCompoundSpriteDsc == null ) //check if action is part of a sprite
-			throw new NullPointerException("ParserXMLSceneDescriptor encountered acton description not in a sprite or compound sprite");
-
-		//create new action
-		pAction = new SceneActions();
-
-		// read type and init the correct parameter as per action type
-		pAction.type=SceneActions.ActionType.valueOf(attr.getValue(ScnTags.S_A_TYPE));
-		switch (SceneActions.ActionType.valueOf(attr.getValue(ScnTags.S_A_TYPE))){
-		case CHANGE_SCENE:
-			pAction.NextScene=attr.getValue(ScnTags.S_A_NEXT_SCENE);
-			break;
-		case STICK:	
-			pAction.stick_with=Integer.parseInt(attr.getValue(ScnTags.S_A_STICK_WITH));
-			pAction.stickMode=Stick.StickMode.valueOf(attr.getValue(ScnTags.S_A_STICK_MODE));
-			break;
-		default:
-			break;
-		}
-
-		//the event
-		pAction.event = ComponentEventHandlerDescriptor.Events.valueOf(attr.getValue(ScnTags.S_A_EVENT));
-		return pAction;
 	}
 	//-------------------------------------------------------------------------------------
 	// Specfic private functions to read the attributes
 	//-------------------------------------------------------------------------------------
-	/*
-	private void parseAttributesPosition(IPosition pPosition,Attributes attributes){
-		Log.i(TAG,"\t\t\t parseAttributesPosition");
-		if((attributes.getValue(ScnTags.S_A_POSITION_X) != null) && (attributes.getValue(ScnTags.S_A_POSITION_Y) != null)){
-			pPosition.setX(dimHelper.parsPosition(ScreenDimensionHelper.X,attributes.getValue(ScnTags.S_A_POSITION_X)));
-			pPosition.setY(dimHelper.parsPosition(ScreenDimensionHelper.Y,attributes.getValue(ScnTags.S_A_POSITION_Y)));
-		}
-		else{
-			pPosition.setX(0);
-			pPosition.setY(0);
-		}
-		//read Z Order
-		if(attributes.getValue(ScnTags.S_A_Z_ORDER) != null){ 
-			pPosition.setZorder(Integer.parseInt(attributes.getValue(ScnTags.S_A_Z_ORDER)));
-		}
-		else{
-			pPosition.setZorder(0);
-		}
-		//read H Alignment
-		if(attributes.getValue(ScnTags.S_A_H_ALIGNEMENT) != null){ 
-			pPosition.setHorizontalAlignment(Alignment.valueOf(attributes.getValue(ScnTags.S_A_H_ALIGNEMENT)));
-		}
-		else{
-			pPosition.setHorizontalAlignment(Alignment.NO_ALIGNEMENT);
-		}
-		//read V Alignment
-		if(attributes.getValue(ScnTags.S_A_H_ALIGNEMENT) != null){ 
-			pPosition.setVerticalAlignment(Alignment.valueOf(attributes.getValue(ScnTags.S_A_V_ALIGNEMENT)));
-		}
-		else{
-			pPosition.setVerticalAlignment(Alignment.NO_ALIGNEMENT);
-		}
-	}
-	private void parseAttributesDimensions(IDimension pDimensions,Attributes attributes){
-		Log.i(TAG,"\t\t\t parseAttributesDimensions");
-		if((attributes.getValue(ScnTags.S_A_WIDTH) != null) && (attributes.getValue(ScnTags.S_A_WIDTH) != null)){
-			pDimensions.setWidth(dimHelper.parsLenght(ScreenDimensionHelper.W, attributes.getValue(ScnTags.S_A_WIDTH)));
-			pDimensions.setHeight(dimHelper.parsLenght(ScreenDimensionHelper.H, attributes.getValue(ScnTags.S_A_HEIGHT)));
-		}
-		else{
-			pDimensions.setWidth(100);
-			pDimensions.setHeight(100);
-		}
-	}
-	/*
-	private void parseAttributesOrientation(IOrientation pDimensions,Attributes attributes){
-		Log.i(TAG,"\t\t\t parseAttributesOrientation");
-		
-		if(attributes.getValue(ScnTags.S_A_ORIENTATION) != null)
-			pDimensions.setOrientation(Float.parseFloat(attributes.getValue(ScnTags.S_A_ORIENTATION)));
-		else
-			pDimensions.setOrientation(0f);
-		
-		if(attributes.getValue(ScnTags.S_A_ROTAION_CENTER_X) != null)
-			pDimensions.setRotationCenterX(Float.parseFloat(attributes.getValue(ScnTags.S_A_ROTAION_CENTER_X)));
-		else
-			pDimensions.setRotationCenterX(0f);
-		
-		if(attributes.getValue(ScnTags.S_A_ROTAION_CENTER_Y) != null)
-			pDimensions.setRotationCenterY(Float.parseFloat(attributes.getValue(ScnTags.S_A_ROTAION_CENTER_Y)));
-		else
-			pDimensions.setRotationCenterY(0f);
-		
-	}
 	
-	private void parseAttributesCharacteristics(ICharacteristics pCharacteristics,Attributes attributes){
-		Log.i(TAG,"\t\t\t parseAttributesCharacteristics");
-		if(attributes.getValue(ScnTags.S_A_COLOR) != null){
-			Log.i(TAG,"parseAttributesCharacteristics Color = " + attributes.getValue(ScnTags.S_A_COLOR));
-			pCharacteristics.setColor(attributes.getValue(ScnTags.S_A_COLOR));
-			Log.i(TAG,"parseAttributesCharacteristics Color Set-up= " + pCharacteristics.getColor());
-		}
-		else
-			pCharacteristics.setColor("");
-	}
-	*/
 	@Override
 	// * Fonction étant déclenchée lorsque le parser à parsé
 	// * l'intérieur de la balise XML La méthode characters
