@@ -19,4 +19,5 @@ public interface IComponent{
 	void 	setParent(IEntity parent);
 	//method
 	void	configure(BasicDescriptor pDSC);
+	void	setActionSceneListner(IActionSceneListener scenelistener);
 }

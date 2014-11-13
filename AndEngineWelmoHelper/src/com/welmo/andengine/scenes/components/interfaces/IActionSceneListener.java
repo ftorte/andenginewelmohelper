@@ -6,8 +6,8 @@ import com.welmo.andengine.scenes.components.CardSprite;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 
-public interface IActionOnSceneListener {
-	public void setIActionOnSceneListener(IActionOnSceneListener pListener);
+public interface IActionSceneListener {
+	public void setIActionOnSceneListener(IActionSceneListener pListener);
 	public void onStick(IAreaShape currentShapeToStick, SceneActions stickActionDescription);
 	public void onFlipCard(int CardID, CardSide currentSide);
 	public void lockTouch();

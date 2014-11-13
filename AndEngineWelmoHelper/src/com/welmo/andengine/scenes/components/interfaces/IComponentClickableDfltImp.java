@@ -53,7 +53,7 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 		hmEventHandlers.put(theEvent, oCmpDefEventHandler);
 	}
 	@Override
-	public IActionOnSceneListener getActionOnSceneListener() {
+	public IActionSceneListener getActionOnSceneListener() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -117,6 +117,15 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 	}
 	@Override
 	public void configure(BasicDescriptor pDsc) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public IComponentEventHandler getEventsHandler(Events theEvent) {
+		return hmEventHandlers.get(theEvent);// TODO Auto-generated method stub
+	}
+	@Override
+	public void setActionSceneListner(IActionSceneListener scenelistener) {
 		// TODO Auto-generated method stub
 		
 	}
