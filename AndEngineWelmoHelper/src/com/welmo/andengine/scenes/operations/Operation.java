@@ -7,49 +7,59 @@ import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
 
 public class Operation {
 
-	public 		OperationTypes 				type;			//	type of message
-	public 		List<Integer> 				parameters;		//  Parameter of the message
-	protected 	IOperationHandler 			hdHandler = null; //  Contain the Object path the massage has made 
-															//  from the source to the final object
+	public 		OperationTypes 				type;					//	type of message
+	public 		List<Float> 				parametersNumbers;		//  Parameter of the message
+	public 		List<String> 				parametersStrings;		//  Parameter of the message
+	
+	protected 	IOperationHandler 			hdHandler = null; 		//  Contain the Object path the massage has made 
+																	//  from the source to the final object
 	
 	//--------------------------------------------------------------------------------------
 	//Constructors
 	//--------------------------------------------------------------------------------------
-	public Operation(OperationTypes type, List<Integer> parameter){
+	/*public Operation(OperationTypes type, List<Integer> parameter){
 		this.type=type;
-		parameters = new ArrayList<Integer>();
-		parameters.clear();
+		parametersNumbers = new ArrayList<Float>();
+		parametersNumbers.clear();
 		if(parameter != null){
 			for(int i=0; i < parameter.size();i++)
-				parameters.add(new Integer(parameter.get(i)));
+				parametersNumbers.add(new Float(parameter.get(i)));
 		}
-	}
+		parametersStrings = new ArrayList<String>();
+		parametersStrings.clear();
+	}*/
 	public Operation(Operation copy){
 		this.type=copy.type;
-		this.parameters = new ArrayList<Integer>();
-		this.parameters.clear();
-		if(copy.parameters != null){
-			for(int i=0; i < copy.parameters.size();i++)
-				this.parameters.add(new Integer(copy.parameters.get(i)));
+		this.parametersNumbers = new ArrayList<Float>();
+		this.parametersNumbers.clear();
+		if(copy.parametersNumbers != null){
+			for(int i=0; i < copy.parametersNumbers.size();i++)
+				this.parametersNumbers.add(new Float(copy.parametersNumbers.get(i)));
+		}
+		if(copy.parametersStrings != null){
+			for(int i=0; i < copy.parametersStrings.size();i++)
+				this.parametersStrings.add(new String(copy.parametersStrings.get(i)));
 		}
 		this.hdHandler = copy.hdHandler;
 	}
 	public Operation(){
 		this.type=OperationTypes.NULL;
-		parameters = new ArrayList<Integer>();
-		parameters.clear();
+		parametersNumbers = new ArrayList<Float>();
+		parametersNumbers.clear();
+		parametersStrings = new ArrayList<String>();
+		parametersStrings.clear();
 
 	}
-	public Operation(OperationTypes type, Integer parameter){
+	public Operation(OperationTypes type, Float parameter){
 		this.type=type;
-		parameters = new ArrayList<Integer>();
-		parameters.clear();
-		parameters.add(parameter);
+		parametersNumbers = new ArrayList<Float>();
+		parametersNumbers.clear();
+		parametersNumbers.add(parameter);
 	}
 	public Operation(OperationTypes type) {
 		this.type=type;
-		parameters = new ArrayList<Integer>();
-		parameters.clear();
+		parametersNumbers = new ArrayList<Float>();
+		parametersNumbers.clear();
 	}
 	//--------------------------------------------------------------------------------------
 	public OperationTypes getType(){
@@ -58,21 +68,44 @@ public class Operation {
 	public void setType(OperationTypes theType){
 		type=theType;
 	}
-	public int getParameter(int id){
-		if(id >= parameters.size() || id < 0)
+	// *************************************************************************************
+	// get/set parameter as numbers
+	// *************************************************************************************
+	public Float getParameterNumber(int id){
+		if(id >= parametersNumbers.size() || id < 0)
 			throw new NullPointerException("The message don't has the requested parameter");
-		return parameters.get(id);
+		return parametersNumbers.get(id);
 	}
-	public void setParameter(int... params) {
-		parameters.clear();
+	public void setParameterNumbers(Float... params) {
+		parametersNumbers.clear();
 	    for (int i = 0; i < params.length; ++i) {
-	    	parameters.add(params[i]);
+	    	parametersNumbers.add(params[i]);
 	    }
 	}
-	public void setParameter(List<Integer> arParameters) {
-		parameters.clear();
+	public void setParameterNumbers(List<Float> arParameters) {
+		parametersNumbers.clear();
 	    for (int i = 0; i < arParameters.size(); ++i){
-	    	parameters.add(arParameters.get(i));
+	    	parametersNumbers.add(arParameters.get(i));
+	    }
+	}
+	// *************************************************************************************
+	// get/set parameter as Strings
+	// *************************************************************************************
+	public String getParameterString(int id){
+		if(id >= parametersStrings.size() || id < 0)
+			throw new NullPointerException("The message don't has the requested parameter");
+		return parametersStrings.get(id);
+	}
+	public void setParameterString(String... params) {
+		parametersStrings.clear();
+	    for (int i = 0; i < params.length; ++i) {
+	    	parametersStrings.add(params[i]);
+	    }
+	}
+	public void setParameterString(List<String> arParameters) {
+		parametersStrings.clear();
+	    for (int i = 0; i < arParameters.size(); ++i){
+	    	parametersStrings.add(arParameters.get(i));
 	    }
 	}
 	public void pushHander(IOperationHandler hdOper){

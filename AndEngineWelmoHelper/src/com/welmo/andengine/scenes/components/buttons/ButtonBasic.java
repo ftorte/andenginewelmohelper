@@ -179,12 +179,12 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 		if(pDsc.getOnClickMessage()!=""){
 			StringTokenizer st = new StringTokenizer(pDsc.getOnClickMessage(),",");
 			Operation theMessage = new Operation(OperationTypes.valueOf(st.nextToken()));
-			List<Integer> arParameters = new ArrayList<Integer>();
+			List<Float> arParameters = new ArrayList<Float>();
 			while (st.hasMoreTokens()) {
-				arParameters.add(Integer.parseInt(st.nextToken()));
+				arParameters.add(Float.parseFloat(st.nextToken()));
 			}
 			if(arParameters.size()>0)
-				theMessage.setParameter(arParameters);
+				theMessage.setParameterNumbers(arParameters);
 			//add message to message list
 			this.mMessages.add(theMessage);
 		}

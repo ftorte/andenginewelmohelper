@@ -4,6 +4,7 @@ package com.welmo.andengine.scenes.components.buttons;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
+import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
@@ -44,5 +45,11 @@ public class ButtonClick extends ButtonBasic{
 	
 		configure((ButtonDescriptor)pDsc);
 		init();
+	}
+
+	@Override
+	public void setActionSceneListner(IActionSceneListener scenelistener) {
+		// TODO Auto-generated method stub
+		
 	}
 }

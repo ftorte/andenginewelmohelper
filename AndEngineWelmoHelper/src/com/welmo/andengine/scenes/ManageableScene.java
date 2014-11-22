@@ -22,6 +22,7 @@ import org.andengine.ui.activity.BaseGameActivity;
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.ResourcesManager.SoundType;
 import com.welmo.andengine.managers.SceneManager;
+import com.welmo.andengine.managers.SharedPreferenceManager;
 import com.welmo.andengine.scenes.components.ClickableSprite;
 import com.welmo.andengine.scenes.components.ComponentDefaultEventHandler;
 import com.welmo.andengine.scenes.components.CompoundSprite;
@@ -29,12 +30,13 @@ import com.welmo.andengine.scenes.components.Stick;
 import com.welmo.andengine.scenes.components.TextComponent;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.components.buttons.ButtonSceneLauncher;
-import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
 import com.welmo.andengine.scenes.components.interfaces.IComponentLifeCycle;
+import com.welmo.andengine.scenes.components.interfaces.IPersistent;
 import com.welmo.andengine.scenes.components.puzzle.PuzzleSprites;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
@@ -49,26 +51,12 @@ import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.utility.SoundSequence;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 
-public class ManageableScene extends Scene implements IManageableScene, IActionOnSceneListener{
+public class ManageableScene extends Scene implements IManageableScene, IActionSceneListener{
 	//------------------------------------------------------------------------------------------
 	// Variables
 	//------------------------------------------------------------------------------------------
@@ -80,6 +68,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	protected Context 										mContext;
 	protected ResourcesManager								pRM;
 	protected SceneManager									pSM;
+	protected SharedPreferenceManager						pSPM;
 	protected HashMap<Integer, IAreaShape> 					mapOfObjects;
 	protected HashMap<String, SoundSequence> 				mapOfSoundSequences;
 	protected boolean										bImplementPinchAndZoom;
@@ -109,6 +98,15 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	// ===========================================================================================
 	// Interface IManageableScene
 	// ===========================================================================================
+	@Override
+	public void refreshPersistentComponents(SharedPreferenceManager pSPM) {
+	    for (Object value : mapOfObjects.values()) {
+	    	if(value instanceof IPersistent){
+				((IPersistent)value).doLoad(pSPM);
+			}
+	    }
+	}
+	@Override
 	public void loadScene(SceneDescriptor sceneDescriptor) {
 		pSCDescriptor = sceneDescriptor;
 
@@ -164,11 +162,13 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	// ===========================================================
 	// Load components
 	// ===========================================================
-	protected void loadComponent2(BasicDescriptor scObjDsc, IEntity pEntityFather) {
+	protected IEntity loadComponent2(BasicDescriptor scObjDsc, IEntity pEntityFather) {
+		IEntity entity;
 		if(scObjDsc instanceof BackGroundObjectDescriptor){
 			//this.setBackground(createBackground((BackGroundObjectDescriptor)scObjDsc));
 			//return newEntity;
 			this.setBackground(((BackGroundObjectDescriptor)scObjDsc).createBackground(this.mEngine));
+			return null;
 		}
 		else{
 			//create the component
@@ -178,105 +178,31 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 			newSceneComponent.configure(scObjDsc);
 			pEntityFather.attachChild((IEntity)newSceneComponent);
 
-			//if component is a tucheable one 
+			//if component is a touchable one register the touch area
 			if(scObjDsc.isTouchable()){
 				this.registerTouchArea((ITouchArea) newSceneComponent);
 				mapOfObjects.put(scObjDsc.getID(), (IAreaShape) newSceneComponent);
 			}
+			
+			//if component is a persistent one read the configuration paramters from the sharedpreference file
+			if(newSceneComponent instanceof IPersistent){
+				((IPersistent)newSceneComponent).doLoad(pSPM);
+			}
 
+			if(newSceneComponent instanceof IActionSceneListener)
+				((IActionSceneListener)newSceneComponent).setIActionOnSceneListener(this);
+
+			if(newSceneComponent instanceof IActivitySceneListener)
+				((IActivitySceneListener)newSceneComponent).setIActivitySceneListener(pSM.getIActivitySceneListener());
+			
 			//Create events handler
-
 			if(!scObjDsc.pEventHandlerList.isEmpty()){
-
-				if(newSceneComponent instanceof IActionOnSceneListener)
-					((IActionOnSceneListener)newSceneComponent).setIActionOnSceneListener(this);
-
-				if(newSceneComponent instanceof IActivitySceneListener)
-					((IActivitySceneListener)newSceneComponent).setIActivitySceneListener(pSM.getIActivitySceneListener());
-
 
 				Set<Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor>> eventHandlersSet;
 				eventHandlersSet = scObjDsc.pEventHandlerList.entrySet();
 
-				for (Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> entry : eventHandlersSet){
-					ComponentEventHandlerDescriptor eventHandler = entry.getValue();
-					Events theEvent = entry.getKey();
-
-					ComponentDefaultEventHandler oCmpDefEventHandler =  new ComponentDefaultEventHandler();
-					if(eventHandler.cloneID!=-1){
-						IComponentEventHandler eventHandlerToClone = hmEventHandlers.get(eventHandler.cloneID);
-						if (eventHandlerToClone!=null){
-							((ButtonSceneLauncher)newSceneComponent).addEventsHandler(theEvent, eventHandlerToClone.cloneEvent(eventHandler));
-						}
-						else
-							throw new NullPointerException("Invalid Event clone ID createClickableSprite [Clone ID = " + eventHandler.cloneID + " ]");
-					}
-					else{
-						oCmpDefEventHandler.setUpEventsHandler(eventHandler);
-						((ButtonSceneLauncher)newSceneComponent).addEventsHandler(theEvent, oCmpDefEventHandler);
-					}	
-				}
-			}
-		}
-	}
-	
-	protected IEntity loadComponent(BasicDescriptor scObjDsc, IEntity pEntityFather) {
-		IEntity newEntity = null;
-		
-		
-		if(scObjDsc instanceof BackGroundObjectDescriptor){
-			//this.setBackground(createBackground((BackGroundObjectDescriptor)scObjDsc));
-			//return newEntity;
-			//this.setBackground(((BackGroundObjectDescriptor)scObjDsc).createBackground(this.mEngine));
-			//return null;
-			loadComponent2(scObjDsc,pEntityFather);	
-			return null;
-		}
-		/*
-		if(scObjDsc instanceof SpriteObjectDescriptor){
-			SpriteObjectDescriptor pSprtDsc = (SpriteObjectDescriptor)scObjDsc;
-			switch(pSprtDsc.getType()){	
-			case  STATIC:
-				newEntity = createSprite(pSprtDsc);
-				break;
-			case CLICKABLE: // Create the clickable sprite elements
-				newEntity = createClickableSprite(pSprtDsc);
-				break;
-			case COMPOUND_SPRITE:
-				newEntity = createCompoundSprite(pSprtDsc);
-				break;
-			case ANIMATED: // Create the animated sprite elements
-				newEntity = createAnimatedSprite(pSprtDsc);
-				break;
-			default:
-				break;
-			}
-			if(newEntity != null)pEntityFather.attachChild(newEntity);
-		}*/
-		if(scObjDsc instanceof SpriteObjectDescriptor){
-			SpriteObjectDescriptor pSprtDsc = (SpriteObjectDescriptor)scObjDsc;
-			switch(pSprtDsc.getType()){	
-				case  STATIC:
-					newEntity = createSprite(pSprtDsc);
-					//newEntity =  loadComponent2(scObjDsc,pEntityFather);	
-					break;
-				case CLICKABLE: // Create the clickable sprite elements
-					IComponent newSceneComponent = pSprtDsc.CreateComponentInstance(this.mEngine);
-
-					this.registerTouchArea((IAreaShape) newSceneComponent);
-					mapOfObjects.put(pSprtDsc.getID(), (IAreaShape)newSceneComponent); 
-					
-					if(newSceneComponent instanceof IActionOnSceneListener)
-						((IActionOnSceneListener)newSceneComponent).setIActionOnSceneListener(this);
-					
-					if(newSceneComponent instanceof IActivitySceneListener)
-						((IActivitySceneListener)newSceneComponent).setIActivitySceneListener(pSM.getIActivitySceneListener());
-					
-					newSceneComponent.setID(pSprtDsc.getID());
-					//Create events handler
-
-					Set<Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor>> eventHandlersSet;
-					eventHandlersSet = pSprtDsc.pEventHandlerList.entrySet();
+				if(newSceneComponent instanceof IComponentClickable){
+					IComponentClickable clicableComponent = (IComponentClickable)newSceneComponent;
 
 					for (Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> entry : eventHandlersSet){
 						ComponentEventHandlerDescriptor eventHandler = entry.getValue();
@@ -286,145 +212,60 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 						if(eventHandler.cloneID!=-1){
 							IComponentEventHandler eventHandlerToClone = hmEventHandlers.get(eventHandler.cloneID);
 							if (eventHandlerToClone!=null){
-								((IComponentClickable)newSceneComponent).addEventsHandler(theEvent, eventHandlerToClone.cloneEvent(eventHandler));
+								clicableComponent.addEventsHandler(theEvent, eventHandlerToClone.cloneEvent(eventHandler));
 							}
 							else
 								throw new NullPointerException("Invalid Event clone ID createClickableSprite [Clone ID = " + eventHandler.cloneID + " ]");
 						}
 						else{
 							oCmpDefEventHandler.setUpEventsHandler(eventHandler);
-							((IComponentClickable)newSceneComponent).addEventsHandler(theEvent, oCmpDefEventHandler);
+							clicableComponent.addEventsHandler(theEvent, oCmpDefEventHandler);
 						}	
 					}
-
-					newEntity = (IEntity) newSceneComponent;
-					
+				}
+			}
+			return (IEntity)newSceneComponent;
+		}
+	}
+	
+	protected IEntity loadComponent(BasicDescriptor scObjDsc, IEntity pEntityFather) {
+		IEntity newEntity 				= null;
+		IComponent newSceneComponent 	= null;
+		
+		if(scObjDsc instanceof BackGroundObjectDescriptor){
+			loadComponent2(scObjDsc,pEntityFather);	
+			return null;
+		}
+		if(scObjDsc instanceof SpriteObjectDescriptor){
+			SpriteObjectDescriptor pSprtDsc = (SpriteObjectDescriptor)scObjDsc;
+			switch(pSprtDsc.getType()){	
+				case  STATIC:
+					newEntity = createSprite(pSprtDsc);
+					//newEntity =  loadComponent2(scObjDsc,pEntityFather);	
+					break;
+				case CLICKABLE: // Create the clickable sprite elements
+					newEntity = loadComponent2(scObjDsc,this);	
 					break;
 				case COMPOUND_SPRITE:
-					//FT replaced with next code => newEntity = createCompoundSprite(pSprtDsc);
-					newSceneComponent = pSprtDsc.CreateComponentInstance(this.mEngine);
 					
-					newSceneComponent.configure(scObjDsc);
-					
-					pEntityFather.attachChild((IEntity)newSceneComponent);
-					
-					if(scObjDsc.isTouchable()){
-						this.registerTouchArea((IAreaShape)newSceneComponent);
-						mapOfObjects.put(pSprtDsc.getID(), (IAreaShape)newSceneComponent); 
-					}
-					
-					newEntity = (IEntity) newSceneComponent;
-					//newEntity =  loadComponent2(scObjDsc,pEntityFather);
+					newEntity = loadComponent2(scObjDsc,this);	
 					break;
 				case ANIMATED: // Create the animated sprite elements
-					newEntity = createAnimatedSprite(pSprtDsc);
+					newEntity = loadComponent2(scObjDsc,this);	
 					break;
 				default:
 					break;
 				}
-				if(newEntity != null)
-					pEntityFather.attachChild(newEntity);
 				return newEntity;
 		}
 		if(scObjDsc instanceof TextObjectDescriptor){
-			//newEntity =  loadComponent2(scObjDsc,pEntityFather);
-			
-			//newEntity = createText((TextObjectDescriptor)scObjDsc,pEntityFather);
-			
-			//instantiate a new component
-			IComponent newSceneComponent = scObjDsc.CreateComponentInstance(this.mEngine);
-			
-			//configure the component 
-			newSceneComponent.configure(scObjDsc);
-			
-			//attache to the father
-			pEntityFather.attachChild((IEntity)newSceneComponent);
-			
-			/*IEntity newEntity = null;
-			switch(spTxtDsc.getType()){	
-			case SIMPLE: //TODO add to text description Text Option with default value
-				if(pEntityFather instanceof IAreaShape)
-					newEntity = new TextComponent(spTxtDsc, pRM, mEngine, (IAreaShape)pEntityFather);
-				else
-					newEntity = new TextComponent(spTxtDsc, pRM, mEngine, null);
-				//pEntityFather.attachChild(newEntity);
-			//	break;
-			//default:
-			//	break;
-			//}
-			 * */
+			newEntity = loadComponent2(scObjDsc,this);	
 		}
 		if(scObjDsc instanceof PuzzleObjectDescriptor){
-			loadComponent2(scObjDsc,pEntityFather);
-			/*// FT newEntity = createPuzzle((PuzzleObjectDescriptor)scObjDsc,pEntityFather);
-			
-			IComponent newSceneComponent = scObjDsc.CreateComponentInstance(this.mEngine);
-			 
-			
-			newSceneComponent.configure(scObjDsc);
-			
-			pEntityFather.attachChild((IEntity)newSceneComponent);
-			
-			if(scObjDsc.isTouchable()){
-				this.registerTouchArea((ITouchArea) newSceneComponent);
-				mapOfObjects.put(scObjDsc.getID(), (IAreaShape) newSceneComponent); 
-			}
-			
-			if(newSceneComponent instanceof IActionOnSceneListener)
-				((IActionOnSceneListener)newSceneComponent).setIActionOnSceneListener(this);
-			
-			if(newSceneComponent instanceof IActivitySceneListener)
-				((IActivitySceneListener)newSceneComponent).setIActivitySceneListener(pSM.getIActivitySceneListener());
-			*/
+			newEntity = loadComponent2(scObjDsc,pEntityFather);
 		}
 		if(scObjDsc instanceof ButtonSceneLauncherDescriptor){
-			//newEntity =  loadComponent2(scObjDsc,pEntityFather);
-			
-			//newEntity = createButtonSceneLauncher((ButtonSceneLauncherDescriptor)scObjDsc,pEntityFather);
-			IComponent newSceneComponent = (IComponent) ((ButtonSceneLauncherDescriptor)scObjDsc).CreateComponentInstance(this.mEngine);
-			
-			newSceneComponent.configure(scObjDsc);
-			pEntityFather.attachChild((IEntity)newSceneComponent);
-			
-			if(scObjDsc.isTouchable()){
-				this.registerTouchArea((ITouchArea) newSceneComponent);
-				mapOfObjects.put(scObjDsc.getID(), (IAreaShape) newSceneComponent);
-			}
-
-			//Create events handler
-
-			if(!scObjDsc.pEventHandlerList.isEmpty()){
-				
-				if(newSceneComponent instanceof IActionOnSceneListener)
-					((IActionOnSceneListener)newSceneComponent).setIActionOnSceneListener(this);
-				
-				if(newSceneComponent instanceof IActivitySceneListener)
-					((IActivitySceneListener)newSceneComponent).setIActivitySceneListener(pSM.getIActivitySceneListener());
-
-				
-				Set<Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor>> eventHandlersSet;
-				eventHandlersSet = scObjDsc.pEventHandlerList.entrySet();
-
-				for (Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> entry : eventHandlersSet){
-					ComponentEventHandlerDescriptor eventHandler = entry.getValue();
-					Events theEvent = entry.getKey();
-
-					ComponentDefaultEventHandler oCmpDefEventHandler =  new ComponentDefaultEventHandler();
-					if(eventHandler.cloneID!=-1){
-						IComponentEventHandler eventHandlerToClone = hmEventHandlers.get(eventHandler.cloneID);
-						if (eventHandlerToClone!=null){
-							((ButtonSceneLauncher)newSceneComponent).addEventsHandler(theEvent, eventHandlerToClone.cloneEvent(eventHandler));
-						}
-						else
-							throw new NullPointerException("Invalid Event clone ID createClickableSprite [Clone ID = " + eventHandler.cloneID + " ]");
-					}
-					else{
-						oCmpDefEventHandler.setUpEventsHandler(eventHandler);
-						((ButtonSceneLauncher)newSceneComponent).addEventsHandler(theEvent, oCmpDefEventHandler);
-					}	
-				}
-			}
-			
+			newEntity = loadComponent2(scObjDsc,pEntityFather);
 		}
 		//handle children
 		if(newEntity != null)
@@ -488,8 +329,8 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		mapOfObjects.put(spDsc.getID(), theButton); 
 		
 
-		if(theButton instanceof IActionOnSceneListener)
-			((IActionOnSceneListener)theButton).setIActionOnSceneListener(this);
+		if(theButton instanceof IActionSceneListener)
+			((IActionSceneListener)theButton).setIActionOnSceneListener(this);
 		
 		if(theButton instanceof IActivitySceneListener)
 			((IActivitySceneListener)theButton).setIActivitySceneListener(pSM.getIActivitySceneListener());
@@ -524,83 +365,6 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		
 	}
 	// ===========================================================
-	// Create component Clickable Sprite
-	// ===========================================================
-	/*protected IEntity createClickableSprite(SpriteObjectDescriptor spDsc) {
-			
-		IComponentClickable newClickableSprite = null;
-		String className = spDsc.getClassName();
-		try {
-			if(!className.equals("")){
-				// Get the class of className
-				Class<?> classe = Class.forName (className);
-				
-				// Get the constructor
-				Constructor<?> constructor = 
-						classe.getConstructor (new Class [] {Class.forName ("com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor"),
-								Class.forName ("com.welmo.andengine.managers.ResourcesManager"),
-								Class.forName ("org.andengine.engine.Engine")});
-				
-	
-				newClickableSprite = (IComponentClickable) constructor.newInstance (new Object [] {spDsc,pRM,mEngine});
-		}
-			else newClickableSprite = (IComponentClickable) new ClickableSprite (spDsc,pRM,mEngine);
-				
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}catch (NoSuchMethodException e){
-			e.printStackTrace();
-		}catch (java.lang.reflect.InvocationTargetException e){
-			e.printStackTrace();
-		}catch (IllegalArgumentException e){
-			e.printStackTrace();
-		}
-		
-		
-		this.registerTouchArea((IAreaShape) newClickableSprite);
-		mapOfObjects.put(spDsc.getID(), (IAreaShape)newClickableSprite); 
-		
-		if(newClickableSprite instanceof IActionOnSceneListener)
-			((IActionOnSceneListener)newClickableSprite).setIActionOnSceneListener(this);
-		
-		if(newClickableSprite instanceof IActivitySceneListener)
-			((IActivitySceneListener)newClickableSprite).setIActivitySceneListener(pSM.getIActivitySceneListener());
-		
-		newClickableSprite.setID(spDsc.getID());
-		//Create events handler
-
-		Set<Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor>> eventHandlersSet;
-		eventHandlersSet = spDsc.pEventHandlerList.entrySet();
-
-		for (Entry<ComponentEventHandlerDescriptor.Events,ComponentEventHandlerDescriptor> entry : eventHandlersSet){
-			ComponentEventHandlerDescriptor eventHandler = entry.getValue();
-			Events theEvent = entry.getKey();
-
-			ComponentDefaultEventHandler oCmpDefEventHandler =  new ComponentDefaultEventHandler();
-			if(eventHandler.cloneID!=-1){
-				IComponentEventHandler eventHandlerToClone = hmEventHandlers.get(eventHandler.cloneID);
-				if (eventHandlerToClone!=null){
-						newClickableSprite.addEventsHandler(theEvent, eventHandlerToClone.cloneEvent(eventHandler));
-				}
-				else
-					throw new NullPointerException("Invalid Event clone ID createClickableSprite [Clone ID = " + eventHandler.cloneID + " ]");
-			}
-			else{
-				oCmpDefEventHandler.setUpEventsHandler(eventHandler);
-				newClickableSprite.addEventsHandler(theEvent, oCmpDefEventHandler);
-			}	
-		}
-
-		return (IEntity) newClickableSprite;
-	}*/
-	// ===========================================================
 	// Create component Animated Sprite
 	// ===========================================================
 	protected IEntity createAnimatedSprite(SpriteObjectDescriptor spDsc){
@@ -611,14 +375,17 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		animatedObject.animate(100);
 		return animatedObject;
 	}
+	
 	public void initScene(SceneManager sceneManager, Engine theEngine, Context ctx, BaseGameActivity activity) {
 		mEngine = theEngine;
 		mContext = ctx;
 		pSM = sceneManager;
+		pSPM = SharedPreferenceManager.getInstance(ctx);
 		
 		this.setTouchAreaBindingOnActionDownEnabled(true);
 		this.setTouchAreaBindingOnActionMoveEnabled(true);
 	}
+	
 	public void resetScene(){	
 		//reset values
 		for(Integer ID  : mapOfObjects.keySet()){
@@ -705,7 +472,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 		return this.bImplementPinchAndZoom;
 	}
 	@Override
-	public void setIActionOnSceneListener(IActionOnSceneListener pListener) {
+	public void setIActionOnSceneListener(IActionSceneListener pListener) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -721,5 +488,10 @@ public class ManageableScene extends Scene implements IManageableScene, IActionO
 	@Override
 	public void setFatherSceneMessageHandler(IOperationHandler pMgsHnd) {
 		hdFatherSceneMessageHandler = pMgsHnd;
+	}
+	@Override
+	public void onResult(int result) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.components.interfaces.IComponentClickableDfltImp;
-import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
@@ -134,7 +134,7 @@ public class CompoundSprite extends Rectangle implements IComponent, IComponentC
 	public void addEventsHandler(Events theEvent, IComponentEventHandler oCmpDefEventHandler){
 		mIClicakableImpmementation.addEventsHandler(theEvent, oCmpDefEventHandler);
 	}
-	public IActionOnSceneListener getActionOnSceneListener(){
+	public IActionSceneListener getActionOnSceneListener(){
 		return mIClicakableImpmementation.getActionOnSceneListener();
 	}
 	public int getID() {
@@ -153,6 +153,16 @@ public class CompoundSprite extends Rectangle implements IComponent, IComponentC
 	}
 	@Override
 	public void configure(BasicDescriptor pDsc) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public IComponentEventHandler getEventsHandler(Events theEvent) {
+		mIClicakableImpmementation.getEventsHandler(theEvent);
+		return null;
+	}
+	@Override
+	public void setActionSceneListner(IActionSceneListener scenelistener) {
 		// TODO Auto-generated method stub
 		
 	}

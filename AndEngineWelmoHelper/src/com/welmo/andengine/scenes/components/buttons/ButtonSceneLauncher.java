@@ -10,14 +10,20 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+
 import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.managers.SharedPreferenceManager;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.components.interfaces.IComponentClickableDfltImp;
-import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
+import com.welmo.andengine.scenes.components.interfaces.IPersistent;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDescriptor.ImgData;
@@ -27,29 +33,35 @@ import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescri
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
-public class ButtonSceneLauncher extends Rectangle implements IComponentClickable, IActivitySceneListener, IActionOnSceneListener{
+public class ButtonSceneLauncher extends Rectangle implements IComponentClickable, IActivitySceneListener, IActionSceneListener, IPersistent{
 
 	// ========================================================================
 	// Fields implementation of IClickable, IActivitySceneListener, IActionOnSceneListene
 	// ========================================================================
-	IComponentClickable						mIClicakableImpmementation 		= null;	
-	IActionOnSceneListener			mIActionOnSceneListener 		= null;
+	IComponentClickable				mIClicakableImpmementation 		= null;	
+	IActionSceneListener			mIActionOnSceneListener 		= null;
 	IActivitySceneListener			mIActivitySceneListener 		= null;
 	// ========================================================================
 
 	ButtonSceneLauncherDescriptor.Status 	theStatus				= Status.NotActive;
+	ButtonSceneLauncherDescriptor.Status 	theDefaultStatus		= Status.NotActive;
+	SharedPreferenceManager					pSPM					= null;
+	
 	
 	protected VertexBufferObjectManager		pVBO 					= null;
-	Sprite 									spBG_Inactive			= null;
-	Sprite 									spBG_final				= null;
-	Sprite									spIco_locked 			= null;
-	Sprite									spIco_free 				= null;
-	Sprite									spIco_star_1 			= null;
-	Sprite									spIco_star_2 			= null;
-	Sprite									spIco_star_3 			= null;
-	Sprite									spIco_star_inactive_1 	= null;
-	Sprite									spIco_star_inactive_2 	= null;
-	Sprite									spIco_star_inactive_3 	= null;
+	protected Sprite 						spBG_Inactive			= null;
+	protected Sprite 						spBG_final				= null;
+	protected Sprite						spIco_locked 			= null;
+	protected Sprite						spIco_free 				= null;
+	protected Sprite						spIco_star_1 			= null;
+	protected Sprite						spIco_star_2 			= null;
+	protected Sprite						spIco_star_3 			= null;
+	protected Sprite						spIco_star_inactive_1 	= null;
+	protected Sprite						spIco_star_inactive_2 	= null;
+	protected Sprite						spIco_star_inactive_3 	= null;
+	protected String						sFatherName				= "";
+	
+	
 	
 		
 	public ButtonSceneLauncher(ButtonSceneLauncherDescriptor pDsc,
@@ -83,7 +95,7 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 		if(!(null == mIClicakableImpmementation))
 			mIClicakableImpmementation.addEventsHandler(theEvent, oCmpDefEventHandler);
 	}
-	public IActionOnSceneListener getActionOnSceneListener(){
+	public IActionSceneListener getActionOnSceneListener(){
 		return mIClicakableImpmementation.getActionOnSceneListener();
 	}
 	public boolean onTouched(TouchEvent pSceneTouchEvent,
@@ -129,7 +141,7 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 		mIActionOnSceneListener.unLockTouch();
 	}
 	@Override
-	public void setIActionOnSceneListener(IActionOnSceneListener pListener){
+	public void setIActionOnSceneListener(IActionSceneListener pListener){
 		mIActionOnSceneListener = pListener;
 	}
 	// =================================================================================	
@@ -146,6 +158,10 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	@Override
 	public void setIActivitySceneListener(IActivitySceneListener pListener){
 		mIActivitySceneListener = pListener;
+	}
+	@Override
+	public boolean onFatherScene(){
+		return mIActivitySceneListener.onFatherScene();
 	}
 	// =================================================================================	
 
@@ -165,6 +181,11 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 		//obtine access to the Resource manger
 		ResourcesManager pRM = ResourcesManager.getInstance();
 		ImgData theImage = null;
+		
+		this.mIClicakableImpmementation.setID(pDsc.getID()); 
+		
+		
+		sFatherName = new String(theDescriptor.getNextScene());
 		
 		//create background
 		if((theImage=imagesList.get(ImgType.bg_inactive))!= null)
@@ -196,6 +217,7 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 			spIco_star_inactive_3 = createSprite(theImage,pRM);	
 		
 		//get default status from descriptor and init the button
+		theDefaultStatus = theDescriptor.getDefaultStatus();
 		setStatus(theDescriptor.getDefaultStatus());
 	}
 	// ===========================================================
@@ -260,5 +282,63 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 		spIco_star_inactive_1.setVisible(false);
 		spIco_star_inactive_2.setVisible(false);
 		spIco_star_inactive_3.setVisible(false);
+	}
+	
+	@Override
+	public IComponentEventHandler getEventsHandler(Events theEvent) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	// *************************************************************************************
+	// Implement interface IPersistnt
+	// *************************************************************************************
+	@Override
+	public void doLoad(SharedPreferences sp, String url_root) {
+	}
+	@Override
+	public void doSave(SharedPreferences sp, String url_root) {
+	}
+	@Override
+	public void setSharedPreferenceManager(SharedPreferenceManager sp) {
+		pSPM = sp;// TODO Auto-generated method stub
+
+	}
+	@Override
+	public void doLoad() {
+		if(pSPM == null)
+			throw new NullPointerException("In doSave the Shared Preferences Manager is null");
+		
+		SharedPreferences	sp = pSPM.getSharedPreferences(sFatherName);
+		
+		String strLaunchStatus = sp.getString("LaunchStatus", theDefaultStatus.name());
+		
+		this.setStatus(ButtonSceneLauncherDescriptor.Status.valueOf(strLaunchStatus));
+		
+	}
+
+	@Override
+	public void doSave() {
+	}
+	@Override
+	public void doLoad(SharedPreferenceManager sp) {
+		pSPM = sp;
+		doLoad();
+	}
+
+	@Override
+	public void doSave(SharedPreferenceManager sp) {
+		pSPM = sp;
+		doSave();
+	}
+	// *************************************************************************************
+
+	@Override
+	public void setActionSceneListner(IActionSceneListener scenelistener) {
+		// TODO Auto-generated method stub
+	}
+	@Override
+	public void onResult(int result) {
+		// TODO Auto-generated method stub
+		
 	}
 }

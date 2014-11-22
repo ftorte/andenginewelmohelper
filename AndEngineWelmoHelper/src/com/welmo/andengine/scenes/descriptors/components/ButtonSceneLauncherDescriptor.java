@@ -31,7 +31,9 @@ public class ButtonSceneLauncherDescriptor extends BasicComponentDescriptor{
 		imagesList.putAll(objectCopy.imagesList);
 	}
 	protected Status 				defaultstatus 			= Status.NotActive;
+	protected String				strNextScene			= "";
 	EnumMap<ImgType, ImgData> 		imagesList 				= new EnumMap<ImgType, ImgData>(ImgType.class);
+	
 	
 	/* maps active image in function of the buttons status
 	
@@ -107,6 +109,10 @@ public class ButtonSceneLauncherDescriptor extends BasicComponentDescriptor{
 		//read ico_star, ico_star_inactive
 		value = attributes.getValue(ScnTags.S_A_ICO_STAR_INACTIVE_3);
 		if(value!= null) imagesList.put(ImgType.ico_star_inactive_3,readImageDataFromString(value));
+		
+		//read the next scene is launched while button is pressed
+		value = attributes.getValue(ScnTags.S_A_NEXT_SCENE);
+		if(value!= null) strNextScene = new String(value);
 	}
 
 	private ImgData readImageDataFromString(String imgData){
@@ -138,5 +144,8 @@ public class ButtonSceneLauncherDescriptor extends BasicComponentDescriptor{
 	@Override
 	public IComponent CreateComponentInstance(Engine theEng) {
 		return 	new ButtonSceneLauncher(this, theEng.getVertexBufferObjectManager());
+	}
+	public String getNextScene() {
+		return strNextScene;
 	}
 }

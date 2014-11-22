@@ -15,6 +15,8 @@ public class ScnTags {
 	public final static String S_IS_ISTANCE_OF_ID	= "isIstanceOfID";
 	public final static String S_MULTIVIEWSCENE 	= "multiviewscene";
 	public final static String S_FATHER				= "sceneFather";
+	public final static String S_A_PERSISTENCE_FILE	= "persistenceFile";
+	public final static String S_A_PERSISTENCE_MODE	= "persistenceMode";
 	
 	//--------------------------------------------------------
 	//Scene Objects

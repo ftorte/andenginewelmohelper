@@ -10,7 +10,7 @@ import android.util.Log;
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.components.interfaces.IComponentClickableDfltImp;
-import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
@@ -21,7 +21,7 @@ import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescri
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
-public class ClickableSprite extends Sprite implements IComponentClickable, IActivitySceneListener, IActionOnSceneListener,IComponent{
+public class ClickableSprite extends Sprite implements IComponentClickable, IActivitySceneListener, IActionSceneListener,IComponent{
 	// ========================================================================
 	// Constants
 	// ========================================================================
@@ -32,7 +32,7 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 	// ========================================================================
 	//DefaultIClickableImplementation 	mIClicakableImpmementation = null;
 	IComponentClickable						mIClicakableImpmementation 	= null;	
-	IActionOnSceneListener			mIActionOnSceneListener 	= null;
+	IActionSceneListener			mIActionOnSceneListener 	= null;
 	IActivitySceneListener			mIActivitySceneListener 	= null;
 	// ========================================================================
 	// Constructors
@@ -93,7 +93,7 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 		if(!(null == mIClicakableImpmementation))
 			mIClicakableImpmementation.addEventsHandler(theEvent, oCmpDefEventHandler);
 	}
-	public IActionOnSceneListener getActionOnSceneListener(){
+	public IActionSceneListener getActionOnSceneListener(){
 			return mIClicakableImpmementation.getActionOnSceneListener();
 	}
 	public int getID() {
@@ -115,6 +115,10 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 	public void onFireEventAction(Events event, ActionType type) {
 		if(!(null == mIClicakableImpmementation))
 			mIClicakableImpmementation.onFireEventAction(event, type);
+	}
+	@Override
+	public IComponentEventHandler getEventsHandler(Events theEvent) {
+		return mIClicakableImpmementation.getEventsHandler(theEvent);
 	}
 	// ===========================================================		
 	// ====== IActionOnSceneListener ==== 	
@@ -138,7 +142,7 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 		mIActionOnSceneListener.unLockTouch();
 	}
 	@Override
-	public void setIActionOnSceneListener(IActionOnSceneListener pListener){
+	public void setIActionOnSceneListener(IActionSceneListener pListener){
 		mIActionOnSceneListener = pListener;
 	}
 	// =================================================================================	
@@ -157,6 +161,22 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 	}
 	@Override
 	public void configure(BasicDescriptor pDsc) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public boolean onFatherScene(){
+		return mIActivitySceneListener.onFatherScene();
+	}
+
+	@Override
+	public void setActionSceneListner(IActionSceneListener scenelistener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onResult(int result) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -4,6 +4,7 @@ import org.andengine.engine.Engine;
 import org.andengine.ui.activity.BaseGameActivity;
 
 import com.welmo.andengine.managers.SceneManager;
+import com.welmo.andengine.managers.SharedPreferenceManager;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 
@@ -18,4 +19,6 @@ public interface IManageableScene {
 	public boolean 	hasPinchAndZoomActive();
 	public boolean 	hasHUD();
 	public void 	setFatherSceneMessageHandler(IOperationHandler pMgsHnd);
+	public void 	refreshPersistentComponents(SharedPreferenceManager pSPM);
+	
 }
