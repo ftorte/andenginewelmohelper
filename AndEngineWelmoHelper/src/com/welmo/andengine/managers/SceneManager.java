@@ -46,6 +46,7 @@ public class SceneManager {
 	private SceneDescriptorsManager 		pSDM;					// private pointer to the Scene Descriptor Manager used while requesting a scene not yet created
 	boolean 								initialized = false;	// flag to see if is initialized correctly
 	BaseGameActivity						theApplication; 		// the activity
+	private SharedPreferenceManager			pSPM = null;
 	// ===========================================================
 	
 	// Constructors
@@ -75,6 +76,7 @@ public class SceneManager {
 		mContext = ctx;
 		//create the map that will contains all scenes
 		mapScenes = new HashMap<String, IManageableScene>();
+		pSPM = SharedPreferenceManager.getInstance(ctx);
 	}  
 	
 	// ===========================================================
@@ -94,7 +96,7 @@ public class SceneManager {
 		
 		//get the scene
 		theScene = (Scene)mapScenes.get(strSceneName);
-		
+	
 		//if scene not found check if it is a request for a configurable scene
 		if(theScene == null) 
 			theScene = getConfiguredScene(strSceneName);
@@ -103,6 +105,9 @@ public class SceneManager {
 		if(theScene == null)
 			theScene =  (Scene) BuildScene(strSceneName);
 		
+		//refresh persistent components
+		((IManageableScene)theScene).refreshPersistentComponents(pSPM);
+				
 		return theScene;
 		
 	}	
@@ -151,7 +156,7 @@ public class SceneManager {
 		// Call Methods to initialize and load the scene
 		if(iManageableScene != null){
 			iManageableScene.initScene(this, mEngine, mContext,theApplication); 	// Initialize scene with context info
-			iManageableScene.loadScene(pSCDercriptor);								// Create the scene by loading & initializing all scene component
+			iManageableScene.loadScene(pSCDercriptor);								// Create the scene by loading & initializing all scene component			//refresh persistent components
 			mapScenes.put(strSceneName, iManageableScene);							// add scene to active scene map
 		}
 		else
@@ -185,12 +190,12 @@ public class SceneManager {
 			//get the master-scene (recursively crete it if the scene is not in the map)
 			Scene theScene = (Scene) getScene(pCFGScene.getNameOfSceneMaster());
 
-			//if master scene is not obtined  then generate an exception
+			//if master scene is not obtained  then generate an exception
 			if(!(theScene instanceof IConfigurableScene))
 				throw new NullPointerException("Instantiation of a non Configurable Scene"); 
 
 			//configure the scene
-			((IConfigurableScene)theScene).configure(pCFGScene.getParameterList());
+			((IConfigurableScene)theScene).configure(pCFGScene);
 
 			return theScene;
 		}

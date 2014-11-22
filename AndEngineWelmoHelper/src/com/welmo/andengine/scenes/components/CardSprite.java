@@ -18,7 +18,7 @@ import org.andengine.opengl.vbo.DrawType;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.components.interfaces.IComponentClickableDfltImp;
-import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
@@ -38,7 +38,7 @@ import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 import android.util.Log;
 
 
-public class CardSprite extends TiledSprite implements IComponentClickable, IActionOnSceneListener, IComponent{
+public class CardSprite extends TiledSprite implements IComponentClickable, IActionSceneListener, IComponent{
 
 	// =========================================================================================
 	// Constants
@@ -56,8 +56,8 @@ public class CardSprite extends TiledSprite implements IComponentClickable, IAct
 	protected int 										nSideBTileNb	= 0;
 	protected String									sSoundNAme		= "";
 	protected CardSide									currentSide 	= CardSide.A;
-	protected IComponentClickable 								mIClicakableImpmementation = null;
-	protected IActionOnSceneListener 					mIActionSceneListnerImpmementation = null;
+	protected IComponentClickable 						mIClicakableImpmementation = null;
+	protected IActionSceneListener 						mIActionSceneListnerImpmementation = null;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -191,7 +191,7 @@ public class CardSprite extends TiledSprite implements IComponentClickable, IAct
 	public void addEventsHandler(Events theEvent, IComponentEventHandler oCmpDefEventHandler){
 		mIClicakableImpmementation.addEventsHandler(theEvent, oCmpDefEventHandler);
 	}
-	public IActionOnSceneListener getActionOnSceneListener(){
+	public IActionSceneListener getActionOnSceneListener(){
 		return mIClicakableImpmementation.getActionOnSceneListener();
 	}
 	public int getID() {
@@ -207,6 +207,11 @@ public class CardSprite extends TiledSprite implements IComponentClickable, IAct
 	@Override
 	public void onFireEventAction(Events event, ActionType type) {
 		mIClicakableImpmementation.onFireEventAction(event, type);
+	}
+	@Override
+	public IComponentEventHandler getEventsHandler(Events theEvent) {
+		mIClicakableImpmementation.getEventsHandler(theEvent);
+		return null;
 	}
 	// ===========================================================		
 	// ====== IActionOnSceneListener ==== 	
@@ -227,11 +232,21 @@ public class CardSprite extends TiledSprite implements IComponentClickable, IAct
 	public void unLockTouch() {
 		mIActionSceneListnerImpmementation.unLockTouch();
 	}
-	public void setIActionOnSceneListener(IActionOnSceneListener pListener){
+	public void setIActionOnSceneListener(IActionSceneListener pListener){
 		mIActionSceneListnerImpmementation = pListener;
 	}
 	@Override
 	public void configure(BasicDescriptor pDsc) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void setActionSceneListner(IActionSceneListener scenelistener) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void onResult(int result) {
 		// TODO Auto-generated method stub
 		
 	}

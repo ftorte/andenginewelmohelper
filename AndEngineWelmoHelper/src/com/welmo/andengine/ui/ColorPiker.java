@@ -203,7 +203,7 @@ public class ColorPiker extends Rectangle{
 			pButtons[nSelectedButton].setColor(Red(SELCTEDTOOLBACKGROUND),Green(SELCTEDTOOLBACKGROUND),Blue(SELCTEDTOOLBACKGROUND));
 			listSelector.get(ID).setVisible(true);
 			// send message to the scene
-			theMessageHandler.doOperation(new Operation(OperationTypes.SET_COLOR,pButtons[nSelectedButton].getButtonColor())); 
+			theMessageHandler.doOperation(new Operation(OperationTypes.SET_COLOR,(float)pButtons[nSelectedButton].getButtonColor())); 
 			
 			// TODO Lauch the task to hide the selector with a delay of 2 seconds
 
@@ -213,7 +213,7 @@ public class ColorPiker extends Rectangle{
 			pButtons[theID].setButtonColor(color);
 			listSelector.get(theID).setVisible(false);
 			// send message to the scene
-			theMessageHandler.doOperation(new Operation(OperationTypes.SET_COLOR,color)); 
+			theMessageHandler.doOperation(new Operation(OperationTypes.SET_COLOR,(float)color)); 
 		};
 		
 	}

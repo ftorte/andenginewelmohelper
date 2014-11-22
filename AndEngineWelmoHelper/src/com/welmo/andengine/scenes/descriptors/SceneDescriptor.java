@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 
 import org.xml.sax.Attributes;
 
+import android.content.Context;
+
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
@@ -35,6 +37,9 @@ public class SceneDescriptor extends BasicDescriptor {
 	@SuppressWarnings("unused")
 	private HUDDescriptor								pHUDDsc 		= null;
 	
+	//Persistence variable
+	private String 										sPersistenceFileName	= "DefaulsPreferences";
+	private int 										nPersistenceMode		= Context.MODE_PRIVATE;
 	
 	
 	// ===========================================================
@@ -68,6 +73,12 @@ public class SceneDescriptor extends BasicDescriptor {
 	
 	public SceneType 		getSceneType(){return sceneType;}
 	public void 			setSceneType(SceneType sceneType){this.sceneType = sceneType;}
+	
+	public String getPersistenceFileName() {return sPersistenceFileName;}
+	public void setsPersistenceFileName(String sPersistenceName) {this.sPersistenceFileName = sPersistenceName;}
+
+	public int getPersistenceMode() {return nPersistenceMode;}
+	public void setnPersistenceMode(int nPersistenceMode) {this.nPersistenceMode = nPersistenceMode;}
 	// ===========================================================
 	// Constructor(s)
 	// ===========================================================
@@ -111,5 +122,10 @@ public class SceneDescriptor extends BasicDescriptor {
 			this.setPinchAndZoom(Boolean.parseBoolean(attributes.getValue(ScnTags.S_A_PINTCHZOOM)));
 		if(attributes.getValue(ScnTags.S_A_HUD)!= null)
 			this.hasHUD(Boolean.parseBoolean(attributes.getValue(ScnTags.S_A_HUD)));
+		if(attributes.getValue(ScnTags.S_A_PERSISTENCE_FILE)!= null)
+			this.sPersistenceFileName = new String(attributes.getValue(ScnTags.S_A_PERSISTENCE_FILE));
+		if(attributes.getValue(ScnTags.S_A_PERSISTENCE_MODE)!= null)
+			this.setnPersistenceMode(Integer.parseInt(attributes.getValue(ScnTags.S_A_PERSISTENCE_MODE)));	
 	}
+
 }

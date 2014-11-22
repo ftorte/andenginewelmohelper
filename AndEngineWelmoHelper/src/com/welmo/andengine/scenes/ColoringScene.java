@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.welmo.andengine.scenes.components.ColoringSprite;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
+import com.welmo.andengine.scenes.descriptors.ConfiguredSceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.ScnTags;
 import com.welmo.andengine.scenes.descriptors.components.ColoringSpriteDescriptor;
@@ -30,7 +31,10 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 	Deque<Operation> 			qMessageStack = new LinkedList<Operation>();
 
 	@Override
-	public void configure(ArrayList<String> parameterList) {
+	public void configure(ConfiguredSceneDescriptor pCFGScene) {
+		
+		ArrayList<String> parameterList = pCFGScene.getParameterList();
+		
 		String fileName = parameterList.get(0);
 		theColoringImage.loadImage(fileName);
 	}
@@ -60,7 +64,7 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 		}
 	}
 	
-	public void setColorFill(int color){
+	public void setColorFill(Float color){
 		theColoringImage.setColorFill(color);
 	}
 
@@ -74,7 +78,7 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 		switch(msg.type){
 			case SET_COLOR:
 				Log.i(TAG,"SET_COLOR");
-				setColorFill(msg.parameters.get(0));
+				setColorFill(msg.parametersNumbers.get(0));
 				break;
 			case RESET_SCROLL_ZOOM:
 				Log.i(TAG,"RESET_SCROLL");

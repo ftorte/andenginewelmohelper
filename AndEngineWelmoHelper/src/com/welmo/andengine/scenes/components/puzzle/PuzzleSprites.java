@@ -3,24 +3,32 @@ package com.welmo.andengine.scenes.components.puzzle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 import org.andengine.engine.Engine;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.primitive.Rectangle;
+import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
 
+import android.content.SharedPreferences;
+
 import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.managers.SharedPreferenceManager;
+import com.welmo.andengine.scenes.components.CardSprite.CardSide;
+import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
 import com.welmo.andengine.scenes.components.interfaces.IComponentLifeCycle;
 import com.welmo.andengine.scenes.components.interfaces.IComponentLifeCycleListener;
+import com.welmo.andengine.scenes.components.interfaces.IPersistent;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
 /**
@@ -29,7 +37,7 @@ import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
  * 
  *
  */
-public class PuzzleSprites extends Rectangle implements IComponent, IComponentLifeCycle, IComponentEventHandler{
+public class PuzzleSprites extends Rectangle implements IComponent, IComponentLifeCycle, IComponentEventHandler, IActionSceneListener{
 	// --------------------------------------------------------------------
 	// constants
 	// --------------------------------------------------------------------
@@ -85,9 +93,11 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	
 	protected	Engine							mTheEngine 			= null;
 	
+	
 	//listeners
 	protected 	IComponentLifeCycleListener		mLifeCycleListener	= null;
-	protected int								mStatus				= STATUS_START;
+	protected 	int								mStatus				= STATUS_START;
+	protected 	IActionSceneListener			mActSceneListener 	= null;
 	// --------------------------------------------------------------------
 	// Constructors
 	// --------------------------------------------------------------------
@@ -379,6 +389,11 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 
 	public void deleteFromList(PuzzleElement thePuzzleElement) {
 		this.mPiecesList.remove(thePuzzleElement);
+		//if there are no pieces anumore the puzzle is finished
+		if(mPiecesList.size()==0){
+			//Fire Result to scene
+			mActSceneListener.onResult(1);
+		}
 	}
 	public boolean isPieceListEmpty() {
 		return this.mPiecesList.isEmpty();
@@ -442,8 +457,10 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		this.hasActiveZone = hasActiveZone;
 	}
 
-
+	// **************************************************************************************
 	// implements IComponent
+	// **************************************************************************************
+	
 	@Override
 	public int getID() {
 		// TODO Auto-generated method stub
@@ -457,6 +474,10 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	public void configure(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub
 		
+	}
+	@Override
+	public void setActionSceneListner(IActionSceneListener scenelistener) {
+		mActSceneListener = scenelistener;// TODO Auto-generated method stub	
 	}
 
 	/* **************************************************************************************
@@ -485,6 +506,34 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	}
 	@Override
 	public void onFireAction(ActionType type, IEntity pItem) {
+		// TODO Auto-generated method stub
+	}
+
+	
+	// ===========================================================		
+	// ====== IActionOnSceneListener ==== 	
+	@Override
+	public void onStick(IAreaShape currentShapeToStick,
+			SceneActions stickActionDescription) {
+		mActSceneListener.onStick(currentShapeToStick, stickActionDescription);
+	}
+	@Override
+	public void onFlipCard(int CardID, CardSide currentSide) {
+		mActSceneListener.onFlipCard(CardID,currentSide);	
+	}	
+	@Override
+	public void lockTouch() {
+		mActSceneListener.lockTouch();
+	}
+	@Override
+	public void unLockTouch() {
+		mActSceneListener.unLockTouch();
+	}
+	public void setIActionOnSceneListener(IActionSceneListener pListener){
+		mActSceneListener = pListener;
+	}
+	@Override
+	public void onResult(int result) {
 		// TODO Auto-generated method stub
 	}
 }

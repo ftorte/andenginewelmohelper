@@ -19,7 +19,7 @@ import org.andengine.util.modifier.IModifier;
 import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.scenes.components.interfaces.IActionOnSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
@@ -59,8 +59,8 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 	public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
 		Log.i(TAG,"\t onModifierFinished");
 		if(onFlipModifier == pModifier)
-			if(pItem instanceof IActionOnSceneListener)
-				((IActionOnSceneListener)pItem).onFlipCard(((CardSprite)pItem).getID(),((CardSprite)pItem).getCurrentSidet());
+			if(pItem instanceof IActionSceneListener)
+				((IActionSceneListener)pItem).onFlipCard(((CardSprite)pItem).getID(),((CardSprite)pItem).getCurrentSidet());
 		
 		if(oPostModifierAction != null)
 			for(SceneActions action:oPostModifierAction){ 
@@ -217,6 +217,10 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		case CHANGE_SCENE:
 			executeChangeScene(action, pItem);
 			break;
+		case CHANGE_TO_FATHER_SCENE:
+			action.NextScene = "";
+			executeChangeSceneToFather(pItem);
+			break;
 		case STICK:
 			break;
 		case PLAY_SOUND:
@@ -246,6 +250,11 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 	//------------------------------------------------------------
 	//protected methods
 	//------------------------------------------------------------
+	protected void executeChangeSceneToFather(IEntity pItem){
+		Log.i(TAG,"\t Change Scene");
+		if(pItem instanceof IActivitySceneListener)
+			((IActivitySceneListener)pItem).onFatherScene();
+	}
 	protected void executeChangeScene(SceneActions action, IEntity pItem){
 		Log.i(TAG,"\t Change Scene");
 		if(pItem instanceof IActivitySceneListener)
@@ -287,13 +296,13 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 	}
 	protected void enableTouch(IEntity pItem){
 		Log.i(TAG,"\t Enable scene touch ");
-		if(pItem instanceof IActionOnSceneListener)
-			((IActionOnSceneListener)pItem).unLockTouch();
+		if(pItem instanceof IActionSceneListener)
+			((IActionSceneListener)pItem).unLockTouch();
 	}
 	protected void disableTouch(IEntity pItem){
 		Log.i(TAG,"\t Disable scene touch ");
-		if(pItem instanceof IActionOnSceneListener)
-			((IActionOnSceneListener)pItem).lockTouch();
+		if(pItem instanceof IActionSceneListener)
+			((IActionSceneListener)pItem).lockTouch();
 	}
 	protected void executeOnMoveFollow(IEntity pItem,TouchEvent pTouchEvent,TouchEvent lastTouchEvent){
 		float deltaX = pTouchEvent.getX() - lastTouchEvent.getX();

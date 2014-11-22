@@ -8,6 +8,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager.DecoratedTextures;
+import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
@@ -87,7 +88,7 @@ public class ColoringSprite  extends Sprite implements IComponent, IOperationHan
 		theStack = new PixelsStack(theDecoratedTexture.getWidth(), theDecoratedTexture.getHeight());
 		nLongClick = 0x0;
 		//create the on click message
-		msgClickMessage = new Operation (IOperationHandler.OperationTypes.COLORING_CKIK,0);
+		msgClickMessage = new Operation (IOperationHandler.OperationTypes.COLORING_CKIK,0f);
 		
 		//transfor the spirte in pure black/white image 
 		//transforToBW();
@@ -127,8 +128,8 @@ public class ColoringSprite  extends Sprite implements IComponent, IOperationHan
 		return colorFill;
 	}
 
-	public void setColorFill(int colorFill) {
-		this.colorFill = colorFill;
+	public void setColorFill(Float theColor) {
+		this.colorFill = theColor.intValue() & 0xFFFFFFFF;
 	}
 	
 	// --------------------------------------------------------------------------------
@@ -158,7 +159,7 @@ public class ColoringSprite  extends Sprite implements IComponent, IOperationHan
 				long deltaTime = lCurrentTimeInCentSec - lTimeStartInCentSec;
 				if((deltaTime >= lMinClickTime) & (deltaTime <= lMaxClickTime )){
 					int oldColor = theDecoratedTexture.getPixelsCopy()[convertXYtoID((int)pTouchAreaLocalX,(int)pTouchAreaLocalY)];
-					msgClickMessage.setParameter((int) pTouchAreaLocalX, (int)pTouchAreaLocalY,colorFill,oldColor);
+					msgClickMessage.setParameterNumbers(pTouchAreaLocalX, pTouchAreaLocalY,(float)colorFill,(float)oldColor);
 					msgClickMessage.pushHander(this);
 					this.doOperation(msgClickMessage);
 					//Dispatch to parent to store in the undo queue
@@ -277,7 +278,7 @@ public class ColoringSprite  extends Sprite implements IComponent, IOperationHan
 			case COLORING_CKIK:
 				Log.i(TAG,"COLORING_CKIK");
 				// Cancel any scroll movements (position the camera center to the origin)
-				flood(msg.getParameter(0),msg.getParameter(1),msg.getParameter(2));
+				flood(msg.getParameterNumber(0).intValue(),msg.getParameterNumber(1).intValue(),msg.getParameterNumber(2).intValue());
 				break;
 			default:
 				break;
@@ -292,7 +293,7 @@ public class ColoringSprite  extends Sprite implements IComponent, IOperationHan
 				case COLORING_CKIK:
 					Log.i(TAG,"BACK COLORING_CKIK");
 					// Cancel any scroll movements (position the camera center to the origin)
-					flood(ope.getParameter(0),ope.getParameter(1),ope.getParameter(3));
+					flood(ope.getParameterNumber(0).intValue(),ope.getParameterNumber(1).intValue(),ope.getParameterNumber(3).intValue());
 				break;
 			default:
 				break;
@@ -301,5 +302,11 @@ public class ColoringSprite  extends Sprite implements IComponent, IOperationHan
 		else
 			handler.undoOperation(ope);
 			
+	}
+
+	@Override
+	public void setActionSceneListner(IActionSceneListener scenelistener) {
+		// TODO Auto-generated method stub
+		
 	}
 }

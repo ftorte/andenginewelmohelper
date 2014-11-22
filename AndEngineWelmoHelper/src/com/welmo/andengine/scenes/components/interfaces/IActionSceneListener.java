@@ -12,4 +12,5 @@ public interface IActionSceneListener {
 	public void onFlipCard(int CardID, CardSide currentSide);
 	public void lockTouch();
 	public void unLockTouch();
+	public void onResult(int result);
 }

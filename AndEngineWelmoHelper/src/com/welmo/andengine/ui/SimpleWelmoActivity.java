@@ -608,7 +608,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	// ------------------------------------------------------------------------------
 	// Implement IActivitySceneListener detector
 	// ------------------------------------------------------------------------------
-	//@Override
+	@Override
 	public boolean onChangeScene(String nextScene) {
 		ManageableScene psc = (ManageableScene) mSceneManager.getScene(nextScene);
 		if(psc != null){
@@ -638,6 +638,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 				psc.setOnSceneTouchListener(null);
 				psc.setTouchAreaBindingOnActionDownEnabled(false);
 			}
+			
 			//set father message handler for messages that the scene don't handle
 			psc.setFatherSceneMessageHandler(this);
 			
@@ -676,5 +677,17 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	public void undoOperation(Operation msg) {
 		IOperationHandler hdOperation = msg.getHander();// TODO Auto-generated method stub
 		hdOperation.undoOperation(msg);
+	}
+	@Override
+	public boolean onFatherScene() {
+		Scene currentScene = this.mEngine.getScene();
+		if(currentScene instanceof IManageableScene){
+			String fatherSceneName = ((IManageableScene)currentScene).getFatherScene();
+			if(fatherSceneName.length() > 0){
+				this.onChangeScene(fatherSceneName);
+				return true;
+			}
+		}
+		return false;
 	}	
 }

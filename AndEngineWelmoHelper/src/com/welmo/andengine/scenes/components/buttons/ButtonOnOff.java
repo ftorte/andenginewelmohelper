@@ -3,6 +3,7 @@ package com.welmo.andengine.scenes.components.buttons;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
+import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.scenes.operations.Operation;
@@ -17,7 +18,7 @@ public class ButtonOnOff extends ButtonBasic{
 	
 	boolean 								bON 		= false;
 	
-	protected Operation  						msgON		= null;
+	protected Operation  					msgON		= null;
 	protected Operation						msgOFF		= null;
 	
 	
@@ -25,8 +26,8 @@ public class ButtonOnOff extends ButtonBasic{
 			VertexBufferObjectManager pVertexBufferObjectManager) {
 		super(parameters,messageHandler,pVertexBufferObjectManager);
 		
-		msgON = new Operation(OperationTypes.ON,0);
-		msgOFF = new Operation(OperationTypes.OFF,0);
+		msgON = new Operation(OperationTypes.ON,0f);
+		msgOFF = new Operation(OperationTypes.OFF,0f);
 	}
 	@Override
 	public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
@@ -67,5 +68,10 @@ public class ButtonOnOff extends ButtonBasic{
 	@Override
 	public void parseMessage(ButtonDescriptor pDsc) {
 		pDsc.getOnClickMessage();
+	}
+	@Override
+	public void setActionSceneListner(IActionSceneListener scenelistener) {
+		// TODO Auto-generated method stub
+		
 	}
 }
