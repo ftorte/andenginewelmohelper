@@ -41,6 +41,7 @@ import com.welmo.andengine.scenes.components.puzzle.PuzzleSprites;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
@@ -265,6 +266,9 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 			newEntity = loadComponent2(scObjDsc,pEntityFather);
 		}
 		if(scObjDsc instanceof ButtonSceneLauncherDescriptor){
+			newEntity = loadComponent2(scObjDsc,pEntityFather);
+		}
+		if(scObjDsc instanceof ButtonDescriptor){
 			newEntity = loadComponent2(scObjDsc,pEntityFather);
 		}
 		//handle children

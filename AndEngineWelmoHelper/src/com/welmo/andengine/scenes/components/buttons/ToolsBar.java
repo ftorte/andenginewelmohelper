@@ -80,19 +80,20 @@ public class ToolsBar extends Rectangle implements IOperationHandler{
 				case BASIC:
 					break;
 				case CLICK:
-					newButton = new ButtonClick(pBtnDsc,this,pVBO);
+					newButton = new ButtonClick(pBtnDsc,pVBO);
 					break;
 				case ON_OFF:
-					newButton = new ButtonOnOff(pBtnDsc,this,pVBO);
+					newButton = new ButtonOnOff(pBtnDsc,pVBO);
 					break;
 				case ON_OFF_WITH_TIMER:
-					newButton = new ButtonOnOffwithTimer(pBtnDsc,this,pVBO);
+					newButton = new ButtonOnOffwithTimer(pBtnDsc,pVBO);
 					break;
 				case PULSE:
-					newButton = new ButtonPulse(pBtnDsc,this,pVBO);
+					newButton = new ButtonPulse(pBtnDsc,pVBO);
 					break;	
 			}
 			newButton.configure(pBtnDsc);
+			newButton.setOperationsHandler(this);
 			newButton.nID = ButtonIndex++;
 			nListOfButtons.add(newButton);
 			this.attachChild(newButton);

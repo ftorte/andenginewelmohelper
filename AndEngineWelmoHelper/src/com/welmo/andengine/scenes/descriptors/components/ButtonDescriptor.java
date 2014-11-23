@@ -2,14 +2,21 @@ package com.welmo.andengine.scenes.descriptors.components;
 
 import java.util.List;
 
+import org.andengine.engine.Engine;
 import org.xml.sax.Attributes;
 
+import com.welmo.andengine.scenes.components.buttons.ButtonBasic;
+import com.welmo.andengine.scenes.components.buttons.ButtonBasic.Types;
+import com.welmo.andengine.scenes.components.buttons.ButtonClick;
+import com.welmo.andengine.scenes.components.buttons.ButtonSceneLauncher;
+import com.welmo.andengine.scenes.components.interfaces.IComponent;
+import com.welmo.andengine.scenes.components.puzzle.PuzzleSprites;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.ScnTags;
 
 import android.util.Log;
 
-public class ButtonDescriptor extends BasicDescriptor{
+public class ButtonDescriptor extends BasicComponentDescriptor{
 	
 	//	*****************************************************************************************************
 	//		Constants
@@ -76,6 +83,7 @@ public class ButtonDescriptor extends BasicDescriptor{
 		/*
 		<button ID=200; type="ON-OFF" action="" sprite-ON="" sprite-OFF=""/>
 		*/
+		super.readXMLDescription(attr);
 	
 		Log.i(TAG,"\t\t readXMLDescription");	
 		//call XML parser for class parent parameters
@@ -98,5 +106,24 @@ public class ButtonDescriptor extends BasicDescriptor{
 		
 		if((value = attr.getValue(ScnTags.S_A_INT_DIM))!=null)
 			nInternalDimension = Integer.parseInt(value);
+	}
+	@Override
+	public IComponent CreateComponentInstance(Engine theEngine) {
+		super.CreateComponentInstance(theEngine);
+		switch(Types.valueOf(this.sSubType)){
+		case BASIC:
+			break;
+		case CLICK:
+			return 	new ButtonClick(this,theEngine.getVertexBufferObjectManager());
+		case ON_OFF:
+			break;
+		case ON_OFF_WITH_TIMER:
+			break;
+		case PULSE:
+			break;
+		default:
+			break;
+		}
+		return null;
 	}
 }

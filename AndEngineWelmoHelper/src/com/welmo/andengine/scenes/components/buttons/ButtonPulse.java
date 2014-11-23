@@ -7,10 +7,8 @@ import com.welmo.andengine.scenes.operations.IOperationHandler;
 
 public class ButtonPulse extends ButtonOnOff {
 
-	public ButtonPulse(ButtonDescriptor parameters,
-			IOperationHandler messageHandler,
-			VertexBufferObjectManager pVertexBufferObjectManager) {
-		super(parameters, messageHandler, pVertexBufferObjectManager);
+	public ButtonPulse(ButtonDescriptor parameters,VertexBufferObjectManager pVertexBufferObjectManager) {
+		super(parameters, pVertexBufferObjectManager);
 		// TODO Auto-generated constructor stub
 	}
 
