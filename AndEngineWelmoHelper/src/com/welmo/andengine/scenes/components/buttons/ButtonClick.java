@@ -11,10 +11,8 @@ import com.welmo.andengine.scenes.operations.IOperationHandler;
 
 public class ButtonClick extends ButtonBasic{
 	
-	public ButtonClick(ButtonDescriptor parameters,
-			IOperationHandler messageHandler,
-			VertexBufferObjectManager pVertexBufferObjectManager) {
-		super(parameters, messageHandler, pVertexBufferObjectManager);
+	public ButtonClick(ButtonDescriptor parameters,	VertexBufferObjectManager pVertexBufferObjectManager) {
+		super(parameters, pVertexBufferObjectManager);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -42,8 +40,6 @@ public class ButtonClick extends ButtonBasic{
 			throw new NullPointerException("Wrong descriptor type: expected ButtonDescriptor");
 		if (Types.CLICK != Types.valueOf(pDsc.getSubType()))
 			throw new NullPointerException("Wrong button type");
-	
-		configure((ButtonDescriptor)pDsc);
 		init();
 	}
 

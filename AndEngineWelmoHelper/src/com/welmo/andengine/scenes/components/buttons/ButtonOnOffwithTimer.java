@@ -7,10 +7,8 @@ import com.welmo.andengine.scenes.operations.IOperationHandler;
 
 public class ButtonOnOffwithTimer extends ButtonOnOff{
 
-	public ButtonOnOffwithTimer(ButtonDescriptor parameters,
-			IOperationHandler messageHandler,
-			VertexBufferObjectManager pVertexBufferObjectManager) {
-		super(parameters, messageHandler, pVertexBufferObjectManager);
+	public ButtonOnOffwithTimer(ButtonDescriptor parameters,VertexBufferObjectManager pVertexBufferObjectManager) {
+		super(parameters, pVertexBufferObjectManager);
 		// TODO Auto-generated constructor stub
 	}
 

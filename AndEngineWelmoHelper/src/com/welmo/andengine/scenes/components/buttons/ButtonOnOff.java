@@ -22,9 +22,8 @@ public class ButtonOnOff extends ButtonBasic{
 	protected Operation						msgOFF		= null;
 	
 	
-	public ButtonOnOff(ButtonDescriptor parameters, IOperationHandler messageHandler,
-			VertexBufferObjectManager pVertexBufferObjectManager) {
-		super(parameters,messageHandler,pVertexBufferObjectManager);
+	public ButtonOnOff(ButtonDescriptor parameters, VertexBufferObjectManager pVertexBufferObjectManager) {
+		super(parameters,pVertexBufferObjectManager);
 		
 		msgON = new Operation(OperationTypes.ON,0f);
 		msgOFF = new Operation(OperationTypes.OFF,0f);

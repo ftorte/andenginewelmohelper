@@ -62,36 +62,38 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 	List<Operation>									mMessages				=null;
 	
 
-	public ButtonBasic(ButtonDescriptor parameters, IOperationHandler messageHandler, VertexBufferObjectManager pVertexBufferObjectManager) {
+	public ButtonBasic(ButtonDescriptor parameters,VertexBufferObjectManager pVertexBufferObjectManager) {
 		
-		super(0, 0, parameters.nExternaDimension, parameters.nExternaDimension, pVertexBufferObjectManager);
+		super(parameters.getIPosition().getX(),parameters.getIPosition().getY(), parameters.nExternaDimension, parameters.nExternaDimension, pVertexBufferObjectManager);
 		
-		if(! (messageHandler instanceof IOperationHandler))
-			throw new NullPointerException("the message handler is not right class type");
-		
-		//Init Variables
-		
-		mMessageHandler = messageHandler;
-		mMessages = new ArrayList<Operation>();
 		pVBO = pVertexBufferObjectManager;
-		configure(parameters);
+		mParameters = parameters;
+		mMessages = new ArrayList<Operation>();
+		configure(mParameters);
 	}
 	
-	public void configure(ButtonDescriptor parameters){
-		//Constructor copy disabled mParameters = new ButtonDescriptor(parameters);	
-		mParameters = parameters;	
-		nStatus = ButtonBasic.CONFIGURED;
-		init();
-	}
 
+	public void setOperationsHandler(IOperationHandler messageHandler){
+		//initialize message handler
+		mMessageHandler = messageHandler;
+		if(! (messageHandler instanceof IOperationHandler))
+			throw new NullPointerException("the message handler is not right class type");
+				
+	}
+	
+
+		
 	void init(){
 
-		//set button default background
-		int backgroundCol=mParameters.nSelectedColotBackGround;
-		this.setColor(ColorHelper.Red(backgroundCol),ColorHelper.Green(backgroundCol),ColorHelper.Blue(backgroundCol));
-		
 		//Set Button ID
 		this.setID(mParameters.getID());
+				
+		//set button default background
+		//TODO  int backgroundCol=mParameters.nSelectedColotBackGround;
+		//TODO  this.setColor(ColorHelper.Red(backgroundCol),ColorHelper.Green(backgroundCol),ColorHelper.Blue(backgroundCol));
+		//set Transparent Background
+		this.setColor(0.0f,0.0f,0.0f,0.0f);
+		
 		
 		//create inside button 1st check that there are not yet background and buttons sprites already configured
 		if(insButtonBG != null){
@@ -168,13 +170,11 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 	public void configure(BasicDescriptor pDsc) {
 		if(!(pDsc instanceof ButtonDescriptor))
 			throw new NullPointerException("Wrong descriptor type: expected ButtonDescriptor");
-		if (Types.BASIC != Types.valueOf(pDsc.getSubType()))
-			throw new NullPointerException("Wrong button type");
-		configure((ButtonDescriptor)pDsc);
 		init();
 	}
 	@Override
 	abstract public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y);
+	
 	public void parseMessage(ButtonDescriptor pDsc){
 		if(pDsc.getOnClickMessage()!=""){
 			StringTokenizer st = new StringTokenizer(pDsc.getOnClickMessage(),",");
