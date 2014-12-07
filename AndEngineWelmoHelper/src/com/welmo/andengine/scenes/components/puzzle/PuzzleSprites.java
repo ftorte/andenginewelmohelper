@@ -30,6 +30,7 @@ import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
 
 /**
  * @author SESA10148
@@ -535,5 +536,12 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	@Override
 	public void onResult(int result) {
 		// TODO Auto-generated method stub
+	}
+
+
+	@Override
+	public void setOperationsHandler(IOperationHandler messageHandler) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.andengine.entity.Entity;
+import org.andengine.entity.IEntity;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.entity.scene.Scene;
@@ -14,13 +15,13 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import com.welmo.andengine.managers.ResourcesManager;
+import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.scenes.operations.Operation;
 import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
-import com.welmo.andengine.utility.ColorHelper;
 
 /*
  * A button basic is an abstract square button build as an extension of a Rectangle.
@@ -34,9 +35,7 @@ import com.welmo.andengine.utility.ColorHelper;
 
 public abstract class ButtonBasic extends Rectangle implements IComponent{
 	
-	public enum Types{
-		BASIC, CLICK, ON_OFF, ON_OFF_WITH_TIMER, PULSE
-	}
+	public enum Types{BASIC, CLICK, ON_OFF, ON_OFF_WITH_TIMER}
 
 	final static String 							TAG 					= "ButtonBasic";
 	public int 										nID 					= -1;
@@ -45,41 +44,36 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 	protected Entity								insButtonON 			= null;
 	protected Entity								insButtonOFF 			= null;
 	
+	// button handling status
 	protected int									nStatus					= START;
+	public static int								START 					= 0;
+	public static int								CONFIGURED 				= 1;
+	public static int								INITIALIZED 			= 2;
 	protected Types									mtype					= Types.BASIC;
 	
 	protected IOperationHandler						mMessageHandler			= null;
 	protected VertexBufferObjectManager				pVBO 					= null;
+	
 	//Parameters	
 	ButtonDescriptor								mParameters				= null;
 	
 	//Object Status values handler
-	public static int								START 					= 0;
-	public static int								CONFIGURED 				= 0;
-	public static int								INITIALIZED 			= 1;
 	
 	//EventMessage
 	List<Operation>									mMessages				=null;
 	
 
 	public ButtonBasic(ButtonDescriptor parameters,VertexBufferObjectManager pVertexBufferObjectManager) {
-		
 		super(parameters.getIPosition().getX(),parameters.getIPosition().getY(), parameters.nExternaDimension, parameters.nExternaDimension, pVertexBufferObjectManager);
 		
 		pVBO = pVertexBufferObjectManager;
 		mParameters = parameters;
 		mMessages = new ArrayList<Operation>();
 		configure(mParameters);
+		
+		nStatus = START;
 	}
 	
-
-	public void setOperationsHandler(IOperationHandler messageHandler){
-		//initialize message handler
-		mMessageHandler = messageHandler;
-		if(! (messageHandler instanceof IOperationHandler))
-			throw new NullPointerException("the message handler is not right class type");
-				
-	}
 	
 
 		
@@ -111,25 +105,37 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 		
 		if(mParameters.bSpriteBased){
 			ResourcesManager pRM = ResourcesManager.getInstance();
-			ITextureRegion textureBG = pRM.getTextureRegion(mParameters.sBackGroundTextureName); 
-			ITextureRegion textureON = pRM.getTextureRegion(mParameters.sButtonTextureON);
-			ITextureRegion textureOFF = pRM.getTextureRegion(mParameters.sButtonTextureOFF);
+			
+			ITextureRegion textureBG = null;
+			ITextureRegion textureON = null;
+			ITextureRegion textureOFF = null;
+			
+			
+			if(mParameters.sBackGroundTextureName != null){
+				textureBG = pRM.getTextureRegion(mParameters.sBackGroundTextureName); 
+			}
+			textureON = pRM.getTextureRegion(mParameters.sButtonTextureON);
+			textureOFF = pRM.getTextureRegion(mParameters.sButtonTextureOFF);
+			
+			if(textureON == null || textureOFF == null)
+				throw new NullPointerException("no teXture defined for the button");
 
-			if(textureBG == null ||  textureON == null || textureOFF == null)
-				throw new NullPointerException("no tecture defined for the button");
-
-			this.insButtonBG = new Sprite(0,0,mParameters.nExternaDimension,mParameters.nExternaDimension,textureBG,pVBO);
+			if(textureBG != null)
+				this.insButtonBG = new Sprite(0,0,mParameters.nExternaDimension,mParameters.nExternaDimension,textureBG,pVBO);
+			
 			this.insButtonON = new Sprite(0,0,mParameters.nInternalDimension,mParameters.nInternalDimension,textureON,pVBO);
 			this.insButtonOFF = new Sprite(0,0,mParameters.nInternalDimension,mParameters.nInternalDimension,textureOFF,pVBO);
 			
 			//set postions
 			int posXY = (mParameters.nExternaDimension - mParameters.nInternalDimension)/2;
-			insButtonBG.setPosition(0,0);
+			if(mParameters.sBackGroundTextureName != null)
+				insButtonBG.setPosition(0,0);
 			insButtonON.setPosition(posXY,posXY);
 			insButtonOFF.setPosition(posXY,posXY);
 			
 			// set Z orders
-			insButtonBG.setZIndex(1);
+			if(mParameters.sBackGroundTextureName != null)
+				insButtonBG.setZIndex(1);
 			insButtonON.setZIndex(10);
 			insButtonOFF.setZIndex(10);
 			
@@ -138,7 +144,8 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 			insButtonOFF.setVisible(true);
 			
 			//Attache buttons to parend rectangle
-			attachChild(insButtonBG);
+			if(mParameters.sBackGroundTextureName != null)
+				attachChild(insButtonBG);
 			attachChild(insButtonON);
 			attachChild(insButtonOFF);
 		}
@@ -151,30 +158,18 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 		}
 		
 		this.parseMessage(mParameters);
-		
-		nStatus = ButtonBasic.INITIALIZED;
 	}
 
-	public int getID() {
-		return nID;
-	}
-
-	public void setID(int nID) {
-		this.nID = nID;
-	}
+	// -----------------------------------------------------------------------------------------------------------------
+	// Getter & Setters
+	// -----------------------------------------------------------------------------------------------------------------
 
 	public void registerTouchAreaToScene(Scene theScene){
 		theScene.registerTouchArea((ITouchArea) this);
 	}
-	@Override
-	public void configure(BasicDescriptor pDsc) {
-		if(!(pDsc instanceof ButtonDescriptor))
-			throw new NullPointerException("Wrong descriptor type: expected ButtonDescriptor");
-		init();
-	}
-	@Override
-	abstract public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y);
-	
+	// -----------------------------------------------------------------------------------------------------------------
+	// Override functions 
+	// -----------------------------------------------------------------------------------------------------------------
 	public void parseMessage(ButtonDescriptor pDsc){
 		if(pDsc.getOnClickMessage()!=""){
 			StringTokenizer st = new StringTokenizer(pDsc.getOnClickMessage(),",");
@@ -189,4 +184,33 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 			this.mMessages.add(theMessage);
 		}
 	}
+	// -----------------------------------------------------------------------------------------------------------------
+	// Implement Interfaces.
+	// -----------------------------------------------------------------------------------------------------------------
+	@Override
+	public int 	getID() {return nID;}
+	@Override
+	public void setID(int nID) {this.nID = nID;}
+	@Override
+	public void configure(BasicDescriptor pDsc) {
+		if(!(pDsc instanceof ButtonDescriptor))
+			throw new NullPointerException("Wrong descriptor type: expected a ButtonDescriptor");
+		init();
+		nStatus = ButtonBasic.CONFIGURED;
+	}
+	@Override		
+	public void setOperationsHandler(IOperationHandler messageHandler){
+		//initialize message handler
+		mMessageHandler = messageHandler;
+		if(! (messageHandler instanceof IOperationHandler))
+			throw new NullPointerException("the message handler is not right class type");
+		nStatus = ButtonBasic.INITIALIZED;
+	}
+	// -----------------------------------------------------------------------------------------------------------------
+	// abstract methods
+	// -----------------------------------------------------------------------------------------------------------------
+	abstract public IEntity getParent();
+	abstract public void 	setParent(IEntity parent);
+	@Override
+	abstract public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y);
 }

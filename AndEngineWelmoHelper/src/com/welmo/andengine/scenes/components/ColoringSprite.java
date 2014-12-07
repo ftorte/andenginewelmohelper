@@ -309,4 +309,10 @@ public class ColoringSprite  extends Sprite implements IComponent, IOperationHan
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void setOperationsHandler(IOperationHandler messageHandler) {
+		// TODO Auto-generated method stub
+		
+	}
 }

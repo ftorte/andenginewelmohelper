@@ -88,9 +88,6 @@ public class ToolsBar extends Rectangle implements IOperationHandler{
 				case ON_OFF_WITH_TIMER:
 					newButton = new ButtonOnOffwithTimer(pBtnDsc,pVBO);
 					break;
-				case PULSE:
-					newButton = new ButtonPulse(pBtnDsc,pVBO);
-					break;	
 			}
 			newButton.configure(pBtnDsc);
 			newButton.setOperationsHandler(this);

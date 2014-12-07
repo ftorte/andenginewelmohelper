@@ -51,13 +51,14 @@ import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescri
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
+import com.welmo.andengine.scenes.operations.Operation;
 import com.welmo.andengine.utility.SoundSequence;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
 
-public class ManageableScene extends Scene implements IManageableScene, IActionSceneListener{
+public class ManageableScene extends Scene implements IManageableScene, IActionSceneListener, IOperationHandler {
 	//------------------------------------------------------------------------------------------
 	// Variables
 	//------------------------------------------------------------------------------------------
@@ -174,6 +175,8 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 		else{
 			//create the component
 			IComponent newSceneComponent = scObjDsc.CreateComponentInstance(this.mEngine);
+			
+			newSceneComponent.setOperationsHandler(this);
 
 			//Configured the new component and attach it to the father
 			newSceneComponent.configure(scObjDsc);
@@ -495,6 +498,16 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 	}
 	@Override
 	public void onResult(int result) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void doOperation(Operation msg) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void undoOperation(Operation msg) {
 		// TODO Auto-generated method stub
 		
 	}

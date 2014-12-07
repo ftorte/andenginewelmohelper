@@ -207,4 +207,12 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 		pSPM = sp;
 		doSave();
 	}
+	@Override
+	public void doOperation(Operation msg){
+		super.doOperation(msg);
+	}
+	@Override
+	public void undoOperation(Operation msg){
+		super.undoOperation(msg);
+	}
 }

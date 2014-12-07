@@ -2,6 +2,7 @@ package com.welmo.andengine.scenes.components.interfaces;
 
 import org.andengine.entity.IEntity;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
 
 /*
  * The I BasicComponent Interface implement the default methods any component should implement
@@ -12,12 +13,13 @@ import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 
 public interface IComponent{
 	//getters
-	int 	getID();
-	IEntity getParent();
+	public int 	getID();
+	public IEntity getParent();
 	//setters
-	void 	setID(int ID);	
-	void 	setParent(IEntity parent);
+	public void 	setID(int ID);	
+	public void 	setParent(IEntity parent);
 	//method
-	void	configure(BasicDescriptor pDSC);
-	void	setActionSceneListner(IActionSceneListener scenelistener);
+	public void	configure(BasicDescriptor pDSC);
+	public void	setActionSceneListner(IActionSceneListener scenelistener);
+	public void setOperationsHandler(IOperationHandler messageHandler);
 }

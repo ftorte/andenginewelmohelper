@@ -1,6 +1,7 @@
 package com.welmo.andengine.scenes.components.buttons;
 
 
+import org.andengine.entity.IEntity;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
@@ -45,6 +46,18 @@ public class ButtonClick extends ButtonBasic{
 
 	@Override
 	public void setActionSceneListner(IActionSceneListener scenelistener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public IEntity getParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setParent(IEntity parent) {
 		// TODO Auto-generated method stub
 		
 	}
