@@ -17,6 +17,7 @@ import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
 
 public class CompoundSprite extends Rectangle implements IComponent, IComponentClickable{
 
@@ -163,6 +164,11 @@ public class CompoundSprite extends Rectangle implements IComponent, IComponentC
 	}
 	@Override
 	public void setActionSceneListner(IActionSceneListener scenelistener) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void setOperationsHandler(IOperationHandler messageHandler) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -32,6 +32,7 @@ import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDesc
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
 
 public class ButtonSceneLauncher extends Rectangle implements IComponentClickable, IActivitySceneListener, IActionSceneListener, IPersistent{
 
@@ -338,6 +339,11 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	}
 	@Override
 	public void onResult(int result) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void setOperationsHandler(IOperationHandler messageHandler) {
 		// TODO Auto-generated method stub
 		
 	}

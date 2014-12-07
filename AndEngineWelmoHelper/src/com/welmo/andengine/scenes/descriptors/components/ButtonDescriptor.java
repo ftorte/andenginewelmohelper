@@ -8,6 +8,9 @@ import org.xml.sax.Attributes;
 import com.welmo.andengine.scenes.components.buttons.ButtonBasic;
 import com.welmo.andengine.scenes.components.buttons.ButtonBasic.Types;
 import com.welmo.andengine.scenes.components.buttons.ButtonClick;
+import com.welmo.andengine.scenes.components.buttons.ButtonOnOff;
+import com.welmo.andengine.scenes.components.buttons.ButtonOnOffwithTimer;
+import com.welmo.andengine.scenes.components.buttons.ButtonPulse;
 import com.welmo.andengine.scenes.components.buttons.ButtonSceneLauncher;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.components.puzzle.PuzzleSprites;
@@ -83,8 +86,6 @@ public class ButtonDescriptor extends BasicComponentDescriptor{
 		/*
 		<button ID=200; type="ON-OFF" action="" sprite-ON="" sprite-OFF=""/>
 		*/
-		super.readXMLDescription(attr);
-	
 		Log.i(TAG,"\t\t readXMLDescription");	
 		//call XML parser for class parent parameters
 		super.readXMLDescription(attr);
@@ -116,11 +117,9 @@ public class ButtonDescriptor extends BasicComponentDescriptor{
 		case CLICK:
 			return 	new ButtonClick(this,theEngine.getVertexBufferObjectManager());
 		case ON_OFF:
-			break;
+			return 	new ButtonOnOff(this,theEngine.getVertexBufferObjectManager());
 		case ON_OFF_WITH_TIMER:
-			break;
-		case PULSE:
-			break;
+			return 	new ButtonOnOffwithTimer(this,theEngine.getVertexBufferObjectManager());
 		default:
 			break;
 		}

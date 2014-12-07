@@ -1,5 +1,10 @@
 package com.welmo.andengine.scenes.components.buttons;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import org.andengine.entity.IEntity;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
@@ -24,9 +29,6 @@ public class ButtonOnOff extends ButtonBasic{
 	
 	public ButtonOnOff(ButtonDescriptor parameters, VertexBufferObjectManager pVertexBufferObjectManager) {
 		super(parameters,pVertexBufferObjectManager);
-		
-		msgON = new Operation(OperationTypes.ON,0f);
-		msgOFF = new Operation(OperationTypes.OFF,0f);
 	}
 	@Override
 	public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y){
@@ -64,9 +66,35 @@ public class ButtonOnOff extends ButtonBasic{
 			this.insButtonOFF.setVisible(true);
 		}
 	}
+	// -----------------------------------------------------------------------------------------------------------------
+	// Override functions 
+	// -----------------------------------------------------------------------------------------------------------------
+	public void parseMessage(ButtonDescriptor pDsc){
+		
+		if(msgON == null)
+			msgON = new Operation(OperationTypes.NULL,0f);
+		if(msgOFF == null)
+			msgOFF = new Operation(OperationTypes.NULL,0f);
+		
+		
+		if(pDsc.getOnClickMessage()!=""){
+			StringTokenizer st = new StringTokenizer(pDsc.getOnClickMessage(),",");
+			String strOperation = st.nextToken();
+			msgON.setType(OperationTypes.valueOf(strOperation));
+			msgON.setParameterNumbers(0f);
+			msgOFF.setType(msgON.getType());
+			msgON.setParameterNumbers(1f);
+		}
+	}
 	@Override
-	public void parseMessage(ButtonDescriptor pDsc) {
-		pDsc.getOnClickMessage();
+	public IEntity getParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void setParent(IEntity parent) {
+		// TODO Auto-generated method stub
+		
 	}
 	@Override
 	public void setActionSceneListner(IActionSceneListener scenelistener) {

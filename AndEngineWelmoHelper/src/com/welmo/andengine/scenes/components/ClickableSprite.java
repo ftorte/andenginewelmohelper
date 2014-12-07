@@ -20,6 +20,7 @@ import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
 
 public class ClickableSprite extends Sprite implements IComponentClickable, IActivitySceneListener, IActionSceneListener,IComponent{
 	// ========================================================================
@@ -177,6 +178,12 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 
 	@Override
 	public void onResult(int result) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setOperationsHandler(IOperationHandler messageHandler) {
 		// TODO Auto-generated method stub
 		
 	}

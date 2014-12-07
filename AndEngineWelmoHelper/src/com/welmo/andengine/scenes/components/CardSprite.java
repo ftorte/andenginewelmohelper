@@ -27,6 +27,7 @@ import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
 
 //import com.welmo.andengine.managers.ResourcesManager;
 //import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
@@ -247,6 +248,11 @@ public class CardSprite extends TiledSprite implements IComponentClickable, IAct
 	}
 	@Override
 	public void onResult(int result) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void setOperationsHandler(IOperationHandler messageHandler) {
 		// TODO Auto-generated method stub
 		
 	}

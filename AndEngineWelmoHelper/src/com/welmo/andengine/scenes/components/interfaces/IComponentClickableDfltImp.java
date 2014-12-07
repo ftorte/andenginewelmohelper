@@ -11,6 +11,7 @@ import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
+import com.welmo.andengine.scenes.operations.IOperationHandler;
 
 /*****************************************************************************************
 // Default Impementation of the IComponent Clickable interface that may be used by a compont
@@ -24,6 +25,7 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 	protected IEntity										mParent			= null;
 	protected boolean										on_move			= false;
 	protected TouchEvent									lastTouchEvent	= null;
+	protected IOperationHandler 							pMessageHandler = null;
 	
 			
 	public IComponentClickableDfltImp(){
@@ -128,6 +130,12 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 	public void setActionSceneListner(IActionSceneListener scenelistener) {
 		// TODO Auto-generated method stub
 		
+	}
+	public void setOperationsHandler(IOperationHandler messageHandler){
+		if(! (messageHandler instanceof IOperationHandler))
+			throw new NullPointerException("the message handler is not right class type");
+		pMessageHandler = messageHandler;
+				
 	}
 }
 
