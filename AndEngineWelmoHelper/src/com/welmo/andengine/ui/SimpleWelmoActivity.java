@@ -8,6 +8,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.andengine.audio.music.Music;
+import org.andengine.audio.music.exception.MusicReleasedException;
 import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
@@ -31,6 +32,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -44,6 +46,7 @@ import com.welmo.andengine.scenes.ManageableScene;
 import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.descriptors.ParserXMLSceneDescriptor;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
+import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
 import com.welmo.andengine.scenes.operations.Operation;
 import com.welmo.andengine.utility.AsyncResourcesScenesLoader;
 import com.welmo.andengine.utility.IAsyncCallBack;
@@ -239,6 +242,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		}
 		else
 			engineOptions.getAudioOptions().setNeedsMusic(false);
+		
 		if(mPreferences.getBoolean(SOUND_ON,false)){
 			engineOptions.getAudioOptions().setNeedsSound(true);
 		}
@@ -252,7 +256,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		mPrefEdt.putBoolean(MUSIC_ON, true);
 		mPrefEdt.putBoolean(SOUND_ON, true);
 		mPrefEdt.putInt(GAME_LEVEL, 0);
-		//mPrefEdt.apply();
+		mPrefEdt.commit();
 	}
 
 	@Override
@@ -298,8 +302,6 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		
 		
 		if(this.mPreferences.getBoolean(MUSIC_ON, false)){
-			//Startup
-			//Music msc = mResourceManager.getMusic(mPreferences.getString(GAME_MUSIC, ""));
 			Music msc = mResourceManager.getMusic("Startup");
 			
 			msc.setVolume(10000);
@@ -602,7 +604,6 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			}
 			this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
 		}
-
 		return true;
 	}
 	// ------------------------------------------------------------------------------
@@ -638,12 +639,17 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 				psc.setOnSceneTouchListener(null);
 				psc.setTouchAreaBindingOnActionDownEnabled(false);
 			}
-			
+			if(this.mPreferences.getBoolean(MUSIC_ON, false)){
+				
+				Music msc = mResourceManager.getMusic("Startup");
+				
+				msc.setVolume(10000);
+				msc.setLooping(true);
+				msc.play();
+			}
 			//set father message handler for messages that the scene don't handle
 			psc.setFatherSceneMessageHandler(this);
-			
 			//FTO to complete psc.fireEvent(SCENELOADED);
-			
 			//add scene to the engine to be displayed
 			mEngine.setScene(psc);
 			return true;
@@ -668,6 +674,25 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 				// Cancel any scroll movements (position the camera center to the origin)
 				this.mSmoothCamera.setCenterDirect(nCameraWidth/2, nCameraHeight/2);
 				this.mSmoothCamera.setZoomFactorDirect(1);
+				break;
+			case SET_MUSIC_ONOFF:
+				boolean bMusicON = msg.getParameterBoolean(0).booleanValue();
+				Editor edt = this.mPreferences.edit();
+				edt.putBoolean(MUSIC_ON, bMusicON);
+				edt.commit();
+				Music msc = mResourceManager.getMusic("Startup");
+				if(bMusicON){
+					if(!msc.isPlaying()){
+						msc.setVolume(10000);
+						msc.setLooping(true);
+						msc.play();
+					}
+				}
+				else{
+					if(msc.isPlaying())
+						msc.pause();
+				}
+				
 				break;
 			default:
 				break;

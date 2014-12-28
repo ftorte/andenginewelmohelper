@@ -81,9 +81,9 @@ public class ButtonOnOff extends ButtonBasic{
 			StringTokenizer st = new StringTokenizer(pDsc.getOnClickMessage(),",");
 			String strOperation = st.nextToken();
 			msgON.setType(OperationTypes.valueOf(strOperation));
-			msgON.setParameterNumbers(0f);
+			msgON.setParametersBoolean(true);
 			msgOFF.setType(msgON.getType());
-			msgON.setParameterNumbers(1f);
+			msgOFF.setParametersBoolean(false);
 		}
 	}
 	@Override
