@@ -179,7 +179,7 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 				arParameters.add(Float.parseFloat(st.nextToken()));
 			}
 			if(arParameters.size()>0)
-				theMessage.setParameterNumbers(arParameters);
+				theMessage.setParametersNumbers(arParameters);
 			//add message to message list
 			this.mMessages.add(theMessage);
 		}

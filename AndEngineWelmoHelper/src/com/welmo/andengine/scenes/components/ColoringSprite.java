@@ -278,7 +278,7 @@ public class ColoringSprite  extends Sprite implements IComponent, IOperationHan
 			case COLORING_CKIK:
 				Log.i(TAG,"COLORING_CKIK");
 				// Cancel any scroll movements (position the camera center to the origin)
-				flood(msg.getParameterNumber(0).intValue(),msg.getParameterNumber(1).intValue(),msg.getParameterNumber(2).intValue());
+				flood(msg.getParametersNumber(0).intValue(),msg.getParametersNumber(1).intValue(),msg.getParametersNumber(2).intValue());
 				break;
 			default:
 				break;
@@ -293,7 +293,7 @@ public class ColoringSprite  extends Sprite implements IComponent, IOperationHan
 				case COLORING_CKIK:
 					Log.i(TAG,"BACK COLORING_CKIK");
 					// Cancel any scroll movements (position the camera center to the origin)
-					flood(ope.getParameterNumber(0).intValue(),ope.getParameterNumber(1).intValue(),ope.getParameterNumber(3).intValue());
+					flood(ope.getParametersNumber(0).intValue(),ope.getParametersNumber(1).intValue(),ope.getParametersNumber(3).intValue());
 				break;
 			default:
 				break;

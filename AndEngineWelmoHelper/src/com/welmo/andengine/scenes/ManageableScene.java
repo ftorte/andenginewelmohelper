@@ -503,12 +503,12 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 	}
 	@Override
 	public void doOperation(Operation msg) {
-		// TODO Auto-generated method stub
-		
+		if(hdFatherSceneMessageHandler != null)
+			hdFatherSceneMessageHandler.doOperation(msg);
 	}
 	@Override
 	public void undoOperation(Operation msg) {
-		// TODO Auto-generated method stub
-		
+		if(hdFatherSceneMessageHandler != null)
+			hdFatherSceneMessageHandler.doOperation(msg);
 	}
 }

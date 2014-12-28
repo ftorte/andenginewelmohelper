@@ -10,6 +10,7 @@ public class Operation {
 	public 		OperationTypes 				type;					//	type of message
 	public 		List<Float> 				parametersNumbers;		//  Parameter of the message
 	public 		List<String> 				parametersStrings;		//  Parameter of the message
+	public		List<Boolean>				parametersBoolean;		//  Parameter of the message
 	
 	protected 	IOperationHandler 			hdHandler = null; 		//  Contain the Object path the massage has made 
 																	//  from the source to the final object
@@ -17,28 +18,22 @@ public class Operation {
 	//--------------------------------------------------------------------------------------
 	//Constructors
 	//--------------------------------------------------------------------------------------
-	/*public Operation(OperationTypes type, List<Integer> parameter){
-		this.type=type;
-		parametersNumbers = new ArrayList<Float>();
-		parametersNumbers.clear();
-		if(parameter != null){
-			for(int i=0; i < parameter.size();i++)
-				parametersNumbers.add(new Float(parameter.get(i)));
-		}
-		parametersStrings = new ArrayList<String>();
-		parametersStrings.clear();
-	}*/
 	public Operation(Operation copy){
+		this();
 		this.type=copy.type;
 		this.parametersNumbers = new ArrayList<Float>();
 		this.parametersNumbers.clear();
 		if(copy.parametersNumbers != null){
 			for(int i=0; i < copy.parametersNumbers.size();i++)
-				this.parametersNumbers.add(new Float(copy.parametersNumbers.get(i)));
+				this.parametersNumbers.add(new Float(copy.parametersNumbers.get(i).floatValue()));
 		}
 		if(copy.parametersStrings != null){
 			for(int i=0; i < copy.parametersStrings.size();i++)
 				this.parametersStrings.add(new String(copy.parametersStrings.get(i)));
+		}
+		if(copy.parametersBoolean != null){
+			for(int i=0; i < copy.parametersBoolean.size();i++)
+				this.parametersBoolean.add(new Boolean(copy.parametersBoolean.get(i)));
 		}
 		this.hdHandler = copy.hdHandler;
 	}
@@ -48,18 +43,19 @@ public class Operation {
 		parametersNumbers.clear();
 		parametersStrings = new ArrayList<String>();
 		parametersStrings.clear();
+		parametersBoolean = new ArrayList<Boolean>();
+		parametersBoolean.clear();
 
 	}
 	public Operation(OperationTypes type, Float parameter){
+		this();
 		this.type=type;
-		parametersNumbers = new ArrayList<Float>();
 		parametersNumbers.clear();
 		parametersNumbers.add(parameter);
 	}
 	public Operation(OperationTypes type) {
+		this();
 		this.type=type;
-		parametersNumbers = new ArrayList<Float>();
-		parametersNumbers.clear();
 	}
 	//--------------------------------------------------------------------------------------
 	public OperationTypes getType(){
@@ -71,8 +67,8 @@ public class Operation {
 	// *************************************************************************************
 	// get/set parameter as numbers
 	// *************************************************************************************
-	public Float getParameterNumber(int id){
-		if(id >= parametersNumbers.size() || id < 0)
+	public Float getParametersNumber(int id){
+		if(id >= parametersBoolean.size() || id < 0)
 			throw new NullPointerException("The message don't has the requested parameter");
 		return parametersNumbers.get(id);
 	}
@@ -82,10 +78,30 @@ public class Operation {
 	    	parametersNumbers.add(params[i]);
 	    }
 	}
-	public void setParameterNumbers(List<Float> arParameters) {
+	public void setParametersNumbers(List<Float> arParameters) {
 		parametersNumbers.clear();
 	    for (int i = 0; i < arParameters.size(); ++i){
 	    	parametersNumbers.add(arParameters.get(i));
+	    }
+	}
+	// *************************************************************************************
+	// get/set parameter as boolean
+	// *************************************************************************************
+	public Boolean getParameterBoolean(int id){
+		if(id >= parametersBoolean.size() || id < 0)
+			throw new NullPointerException("The message don't has the requested parameter");
+		return parametersBoolean.get(id);
+	}
+	public void setParametersBoolean(Boolean... params) {
+		parametersBoolean.clear();
+	    for (int i = 0; i < params.length; ++i) {
+	    	parametersBoolean.add(params[i]);
+	    }
+	}
+	public void setParametersBoolean(List<Boolean> arParameters) {
+		parametersBoolean.clear();
+	    for (int i = 0; i < arParameters.size(); ++i){
+	    	parametersBoolean.add(arParameters.get(i));
 	    }
 	}
 	// *************************************************************************************
