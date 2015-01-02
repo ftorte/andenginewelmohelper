@@ -161,6 +161,12 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 	    }
 	}
 
+	@Override
+	public String getSceneName() {
+		// TODO Auto-generated method stub
+		return this.pSCDescriptor.sceneName;
+	}
+	
 	// ===========================================================
 	// Load components
 	// ===========================================================
@@ -511,4 +517,5 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 		if(hdFatherSceneMessageHandler != null)
 			hdFatherSceneMessageHandler.doOperation(msg);
 	}
+	
 }

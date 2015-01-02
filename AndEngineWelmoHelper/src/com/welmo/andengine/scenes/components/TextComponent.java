@@ -111,6 +111,10 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 		mIClicakableImpmementation.onFireEventAction(event, type);
 	}
 	@Override
+	public String getPersistenceURL() {
+		return mIClicakableImpmementation.getPersistenceURL();
+	}
+	@Override
 	public void configure(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub
 		

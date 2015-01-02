@@ -8,7 +8,6 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.andengine.audio.music.Music;
-import org.andengine.audio.music.exception.MusicReleasedException;
 import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
@@ -40,6 +39,7 @@ import android.widget.Toast;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SceneManager;
+import com.welmo.andengine.managers.SharedPreferenceManager;
 import com.welmo.andengine.resources.descriptors.ParserXMLResourcesDescriptor;
 import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.ManageableScene;
@@ -62,8 +62,10 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	final String 							FONTHBASEPATH 	= "font/";
 	final String 							TEXTUREBASEPATH = "gfx/";
 	
-	final String							MUSIC_ON		= "musicOn";
-	final String							SOUND_ON		= "soundOn";
+	final String							HAS_MUSIC		= "HasMusic";
+	final String							MUSIC_ON		= "MusicON";
+	final String							HAS_SOUND		= "HasSouns";
+	final String							SOUND_ON		= "SoundON";
 	final String							GAME_LEVEL		= "gameLevel";
 	
 	
@@ -229,21 +231,24 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		executeStartup		= new Semaphore(1, true);
 
 		//Check if first installation and configure default option
-		mPreferences = getSharedPreferences("preferences",MODE_PRIVATE);
+		mPreferences = getSharedPreferences(SharedPreferenceManager.STDPreferences.GLOBA_VARIABLES.name(),MODE_PRIVATE);
 		mPreferencesEditor = mPreferences.edit();
 		
-		//if new installation load preferences from the XML file
-		if(mPreferences.getBoolean("newInstallation", true))
+		//if is new installation load preferences from the XML file
+		if(mPreferences.getBoolean("newInstallation", true)){
 			setUpDefaultPreferences(mPreferencesEditor);
+			mPreferencesEditor.putBoolean("newInstallation", false);
+			
+		}
 		
 		//Manage music & sound option
-		if(mPreferences.getBoolean(MUSIC_ON,false)){
+		if(mPreferences.getBoolean(HAS_MUSIC,false)){
 			engineOptions.getAudioOptions().setNeedsMusic(true);
 		}
 		else
 			engineOptions.getAudioOptions().setNeedsMusic(false);
 		
-		if(mPreferences.getBoolean(SOUND_ON,false)){
+		if(mPreferences.getBoolean(HAS_SOUND,false)){
 			engineOptions.getAudioOptions().setNeedsSound(true);
 		}
 		else
@@ -253,7 +258,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		return engineOptions;
 	}
 	protected void setUpDefaultPreferences(SharedPreferences.Editor mPrefEdt){
+		mPrefEdt.putBoolean(HAS_MUSIC, true);
 		mPrefEdt.putBoolean(MUSIC_ON, true);
+		mPrefEdt.putBoolean(HAS_SOUND, true);
 		mPrefEdt.putBoolean(SOUND_ON, true);
 		mPrefEdt.putInt(GAME_LEVEL, 0);
 		mPrefEdt.commit();
@@ -303,7 +310,6 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		
 		if(this.mPreferences.getBoolean(MUSIC_ON, false)){
 			Music msc = mResourceManager.getMusic("Startup");
-			
 			msc.setVolume(10000);
 			msc.setLooping(true);
 			msc.play();
@@ -642,7 +648,6 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			if(this.mPreferences.getBoolean(MUSIC_ON, false)){
 				
 				Music msc = mResourceManager.getMusic("Startup");
-				
 				msc.setVolume(10000);
 				msc.setLooping(true);
 				msc.play();

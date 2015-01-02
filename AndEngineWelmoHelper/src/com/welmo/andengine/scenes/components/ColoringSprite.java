@@ -1,6 +1,7 @@
 package com.welmo.andengine.scenes.components;
 
 
+import org.andengine.entity.IEntity;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
@@ -8,6 +9,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager.DecoratedTextures;
+import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
@@ -144,6 +146,24 @@ public class ColoringSprite  extends Sprite implements IComponent, IOperationHan
 	@Override
 	public void setID(int ID) {
 		this.ID=ID;
+	}
+	@Override
+	public String getPersistenceURL() {
+		String sPersistenceURL = null;
+
+		IEntity pFather = this.getParent();
+		if(pFather instanceof IManageableScene){
+			sPersistenceURL = new String(((IManageableScene)pFather).getSceneName());
+		}
+		else{
+			if(pFather instanceof IComponent){
+				sPersistenceURL = new String(((IComponent)pFather).getPersistenceURL());
+			}
+			else
+				throw new NullPointerException("Not Correct Hierarchy compnent is not attached to another component or a scene");
+		}
+		sPersistenceURL = sPersistenceURL.concat(new String("/" + this.getID()));
+		return sPersistenceURL;
 	}
 	// --------------------------------------------------------------------------------
 	// Override interface ITouchArea

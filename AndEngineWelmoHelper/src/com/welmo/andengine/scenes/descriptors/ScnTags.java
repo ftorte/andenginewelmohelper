@@ -174,5 +174,7 @@ public class ScnTags {
 	public static final String S_A_ICO_STAR_INACTIVE_2= "ico_star_inactive_2";
 	public static final String S_A_ICO_STAR_INACTIVE_3= "ico_star_inactive_3";
 	
-	public static final String S_A_STATUS_DEFAUTL	= "status_default";	
+	public static final String S_A_STATUS_DEFAUTL	= "status_default";
+	public static final String S_A_PERSISTENCE 		= "persistent";
+	public static final String S_A_PERSISTENCE_VARNAME = "persistent_value";	
 }

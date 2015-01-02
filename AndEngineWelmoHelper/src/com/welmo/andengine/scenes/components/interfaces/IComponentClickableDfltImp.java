@@ -7,6 +7,7 @@ import org.andengine.input.touch.TouchEvent;
 
 import android.util.Log;
 
+import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
@@ -131,11 +132,30 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 		// TODO Auto-generated method stub
 		
 	}
+	@Override
 	public void setOperationsHandler(IOperationHandler messageHandler){
 		if(! (messageHandler instanceof IOperationHandler))
 			throw new NullPointerException("the message handler is not right class type");
 		pMessageHandler = messageHandler;
 				
+	}
+	@Override
+	public String getPersistenceURL() {
+		String sPersistenceURL = null;
+
+		IEntity pFather = this.getParent();
+		if(pFather instanceof IManageableScene){
+			sPersistenceURL = new String(((IManageableScene)pFather).getSceneName());
+		}
+		else{
+			if(pFather instanceof IComponent){
+				sPersistenceURL = new String(((IComponent)pFather).getPersistenceURL());
+			}
+			else
+				throw new NullPointerException("Not Correct Hierarchy compnent is not attached to another component or a scene");
+		}
+		sPersistenceURL = sPersistenceURL.concat(new String("/" + this.getID()));
+		return sPersistenceURL;
 	}
 }
 

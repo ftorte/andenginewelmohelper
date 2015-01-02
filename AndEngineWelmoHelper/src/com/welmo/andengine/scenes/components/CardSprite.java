@@ -214,6 +214,10 @@ public class CardSprite extends TiledSprite implements IComponentClickable, IAct
 		mIClicakableImpmementation.getEventsHandler(theEvent);
 		return null;
 	}
+	@Override
+	public String getPersistenceURL() {
+		return mIClicakableImpmementation.getPersistenceURL();
+	}
 	// ===========================================================		
 	// ====== IActionOnSceneListener ==== 	
 	@Override

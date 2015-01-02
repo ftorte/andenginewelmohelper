@@ -20,5 +20,6 @@ public interface IManageableScene {
 	public boolean 	hasHUD();
 	public void 	setFatherSceneMessageHandler(IOperationHandler pMgsHnd);
 	public void 	refreshPersistentComponents(SharedPreferenceManager pSPM);
+	public String 	getSceneName();
 	
 }

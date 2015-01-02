@@ -121,6 +121,10 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 	public IComponentEventHandler getEventsHandler(Events theEvent) {
 		return mIClicakableImpmementation.getEventsHandler(theEvent);
 	}
+	@Override
+	public String getPersistenceURL() {
+		return mIClicakableImpmementation.getPersistenceURL();
+	}
 	// ===========================================================		
 	// ====== IActionOnSceneListener ==== 	
 	@Override

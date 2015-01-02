@@ -17,6 +17,7 @@ import android.content.SharedPreferences;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SharedPreferenceManager;
+import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
@@ -480,7 +481,24 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	public void setActionSceneListner(IActionSceneListener scenelistener) {
 		mActSceneListener = scenelistener;// TODO Auto-generated method stub	
 	}
+	@Override
+	public String getPersistenceURL() {
+		String sPersistenceURL = null;
 
+		IEntity pFather = this.getParent();
+		if(pFather instanceof IManageableScene){
+			sPersistenceURL = new String(((IManageableScene)pFather).getSceneName());
+		}
+		else{
+			if(pFather instanceof IComponent){
+				sPersistenceURL = new String(((IComponent)pFather).getPersistenceURL());
+			}
+			else
+				throw new NullPointerException("Not Correct Hierarchy compnent is not attached to another component or a scene");
+		}
+		sPersistenceURL = sPersistenceURL.concat(new String("/" + this.getID()));
+		return sPersistenceURL;
+	}
 	/* **************************************************************************************
 	// Implement Interface IComponentEventHandler
 	// 	public void setUpEventsHandler(ComponentEventHandlerDescriptor entry);

@@ -8,13 +8,21 @@ import org.andengine.entity.IEntity;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.util.Log;
+
+import com.welmo.andengine.managers.SharedPreferenceManager;
 import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
+import com.welmo.andengine.scenes.components.interfaces.IPersistent;
+import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDescriptor;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.scenes.operations.Operation;
 import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
 
-public class ButtonOnOff extends ButtonBasic{
+public class ButtonOnOff extends ButtonBasic implements IPersistent{
 	
 	public static boolean					ON 			= true;
 	public static boolean					OFF 		= false;
@@ -23,8 +31,11 @@ public class ButtonOnOff extends ButtonBasic{
 	
 	boolean 								bON 		= false;
 	
-	protected Operation  					msgON		= null;
-	protected Operation						msgOFF		= null;
+	protected Operation  					msgPUT_ON		= null;
+	protected Operation						msgPUT_OFF		= null;
+	
+	protected boolean						bActivePersitence  = true;
+	
 	
 	
 	public ButtonOnOff(ButtonDescriptor parameters, VertexBufferObjectManager pVertexBufferObjectManager) {
@@ -37,12 +48,14 @@ public class ButtonOnOff extends ButtonBasic{
 			if(this.mParameters.bSpriteBased){
 				if(bON) {
 					this.setOFF();
-					this.mMessageHandler.doOperation(msgON);
+					this.mMessageHandler.doOperation(msgPUT_OFF);
 				}
 				else{
 					this.setON();
-					this.mMessageHandler.doOperation(msgOFF);
+					this.mMessageHandler.doOperation(msgPUT_ON);
 				}
+				if(this.bIsPersistent)
+					this.doSave();
 			}
 			else{
 
@@ -69,21 +82,22 @@ public class ButtonOnOff extends ButtonBasic{
 	// -----------------------------------------------------------------------------------------------------------------
 	// Override functions 
 	// -----------------------------------------------------------------------------------------------------------------
+	@Override
 	public void parseMessage(ButtonDescriptor pDsc){
 		
-		if(msgON == null)
-			msgON = new Operation(OperationTypes.NULL,0f);
-		if(msgOFF == null)
-			msgOFF = new Operation(OperationTypes.NULL,0f);
+		if(msgPUT_ON == null)
+			msgPUT_ON = new Operation(OperationTypes.NULL,0f);
+		if(msgPUT_OFF == null)
+			msgPUT_OFF = new Operation(OperationTypes.NULL,0f);
 		
 		
 		if(pDsc.getOnClickMessage()!=""){
 			StringTokenizer st = new StringTokenizer(pDsc.getOnClickMessage(),",");
 			String strOperation = st.nextToken();
-			msgON.setType(OperationTypes.valueOf(strOperation));
-			msgON.setParametersBoolean(true);
-			msgOFF.setType(msgON.getType());
-			msgOFF.setParametersBoolean(false);
+			msgPUT_ON.setType(OperationTypes.valueOf(strOperation));
+			msgPUT_ON.setParametersBoolean(true);
+			msgPUT_OFF.setType(msgPUT_ON.getType());
+			msgPUT_OFF.setParametersBoolean(false);
 		}
 	}
 	@Override
@@ -100,5 +114,28 @@ public class ButtonOnOff extends ButtonBasic{
 	public void setActionSceneListner(IActionSceneListener scenelistener) {
 		// TODO Auto-generated method stub
 		
+	}
+	// -----------------------------------------------------------------------------------------------------------------
+	// Override IPersistent doLoad and doSave 
+	// -----------------------------------------------------------------------------------------------------------------
+	@Override
+	public void doLoad() {
+		super.doLoad();
+		if(mParameters.sGlobaVariable != null){
+			SharedPreferences sp = pSPM.getSharedPreferences(SharedPreferenceManager.STDPreferences.GLOBA_VARIABLES.name());
+			if(sp.getBoolean(mParameters.sGlobaVariable, true))
+				this.setON();
+			else
+				this.setOFF();
+		}
+	}
+
+	@Override
+	public void doSave() {
+		if(mParameters.sGlobaVariable != null){
+			Editor ed = pSPM.getSharedPreferences(SharedPreferenceManager.STDPreferences.GLOBA_VARIABLES.name()).edit();
+			ed.putBoolean(mParameters.sGlobaVariable, bON);
+			ed.commit();
+		}
 	}
 }
