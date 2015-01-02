@@ -153,6 +153,10 @@ public class CompoundSprite extends Rectangle implements IComponent, IComponentC
 		mIClicakableImpmementation.onFireEventAction(event, type);
 	}
 	@Override
+	public String getPersistenceURL() {
+		return mIClicakableImpmementation.getPersistenceURL();
+	}
+	@Override
 	public void configure(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub
 		

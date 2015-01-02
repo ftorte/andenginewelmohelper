@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 
 public class SharedPreferenceManager {
 
+	public enum STDPreferences {GLOBA_VARIABLES}
 	// ===========================================================
 	// Fields
 	// ===========================================================

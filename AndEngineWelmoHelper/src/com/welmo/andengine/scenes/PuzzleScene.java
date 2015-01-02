@@ -45,6 +45,10 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 	// ===========================================================	
 	Deque<Operation> 			qMessageStack 		= new LinkedList<Operation>();
 
+	//Object Status values handler
+	Boolean									bIsPersistent			= true;
+		
+		
 	@Override
 	public void loadScene(SceneDescriptor sceneDescriptor) {
 		super.loadScene(sceneDescriptor);
@@ -98,19 +102,19 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 	    
 	}
 
-	@Override
+	
 	public void doLoad(SharedPreferences sp, String url_root) {
 		nLastResult = sp.getInt("lastResult", 0);
 		strLaunchStatus = sp.getString("LaunchStatus", ButtonSceneLauncherDescriptor.Status.Locked.name());
 	}
 
-	@Override
-	public void doSave(SharedPreferences sp, String url_root) {
+	/*public void doSave(SharedPreferences sp, String url_root) {
 		Editor ed = sp.edit();
 		ed.putInt("lastResult", nLastResult);
 		ed.putString("LaunchStatus", strLaunchStatus);
 		ed.commit();
-	}
+	}*/
+	
 	@Override
 	public void setSharedPreferenceManager(SharedPreferenceManager sp) {
 		pSPM = sp;
@@ -206,5 +210,10 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 	public void doSave(SharedPreferenceManager sp) {
 		pSPM = sp;
 		doSave();
+	}
+
+	@Override
+	public boolean isPersitent() {
+		return bIsPersistent;
 	}
 }

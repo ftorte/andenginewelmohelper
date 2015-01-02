@@ -2,6 +2,7 @@ package com.welmo.andengine.scenes.components.buttons;
 
 import java.util.EnumMap;
 
+import org.andengine.entity.IEntity;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.primitive.vbo.IRectangleVertexBufferObject;
 import org.andengine.entity.shape.IAreaShape;
@@ -16,6 +17,7 @@ import android.content.SharedPreferences.Editor;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SharedPreferenceManager;
+import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.components.interfaces.IComponentClickableDfltImp;
 import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
@@ -45,9 +47,7 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	// ========================================================================
 
 	ButtonSceneLauncherDescriptor.Status 	theStatus				= Status.NotActive;
-	ButtonSceneLauncherDescriptor.Status 	theDefaultStatus		= Status.NotActive;
-	SharedPreferenceManager					pSPM					= null;
-	
+	ButtonSceneLauncherDescriptor.Status 	theDefaultStatus		= Status.NotActive;	
 	
 	protected VertexBufferObjectManager		pVBO 					= null;
 	protected Sprite 						spBG_Inactive			= null;
@@ -62,7 +62,9 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	protected Sprite						spIco_star_inactive_3 	= null;
 	protected String						sFatherName				= "";
 	
-	
+	//Object Status values handler
+	SharedPreferenceManager					pSPM					= null;
+	Boolean									bIsPersistent			= true;
 	
 		
 	public ButtonSceneLauncher(ButtonSceneLauncherDescriptor pDsc,
@@ -118,6 +120,24 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	public void setID(int ID) {
 		if(!(null == mIClicakableImpmementation))
 		 mIClicakableImpmementation.setID(ID);
+	}
+	@Override
+	public String getPersistenceURL() {
+		String sPersistenceURL = null;
+
+		IEntity pFather = this.getParent();
+		if(pFather instanceof IManageableScene){
+			sPersistenceURL = new String(((IManageableScene)pFather).getSceneName());
+		}
+		else{
+			if(pFather instanceof IComponent){
+				sPersistenceURL = new String(((IComponent)pFather).getPersistenceURL());
+			}
+			else
+				throw new NullPointerException("Not Correct Hierarchy compnent is not attached to another component or a scene");
+		}
+		sPersistenceURL = sPersistenceURL.concat(new String("/" + this.getID()));
+		return sPersistenceURL;
 	}
 	// ===========================================================
 	// ===========================================================		
@@ -291,19 +311,8 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 		return null;
 	}
 	// *************************************************************************************
-	// Implement interface IPersistnt
+	// Override IPersistent methods
 	// *************************************************************************************
-	@Override
-	public void doLoad(SharedPreferences sp, String url_root) {
-	}
-	@Override
-	public void doSave(SharedPreferences sp, String url_root) {
-	}
-	@Override
-	public void setSharedPreferenceManager(SharedPreferenceManager sp) {
-		pSPM = sp;// TODO Auto-generated method stub
-
-	}
 	@Override
 	public void doLoad() {
 		if(pSPM == null)
@@ -331,6 +340,11 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 		pSPM = sp;
 		doSave();
 	}
+	@Override
+	public boolean isPersitent() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	// *************************************************************************************
 
 	@Override
@@ -344,6 +358,11 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	}
 	@Override
 	public void setOperationsHandler(IOperationHandler messageHandler) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void setSharedPreferenceManager(SharedPreferenceManager sp) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -22,4 +22,5 @@ public interface IComponent{
 	public void	configure(BasicDescriptor pDSC);
 	public void	setActionSceneListner(IActionSceneListener scenelistener);
 	public void setOperationsHandler(IOperationHandler messageHandler);
+	public String getPersistenceURL();
 }

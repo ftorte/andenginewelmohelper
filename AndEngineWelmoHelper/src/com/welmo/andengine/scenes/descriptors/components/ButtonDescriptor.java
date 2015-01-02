@@ -27,6 +27,10 @@ public class ButtonDescriptor extends BasicComponentDescriptor{
 	private final static String 		TAG 						= "ButtonDescriptor";
 	
 	public boolean						bSpriteBased				= true;
+	public boolean						bIsPersistent				= false;
+	
+	public String						sGlobaVariable				= null;
+	
 	
 	//if sprite based here is where textures names are stored
 	public String 						sBackGroundTextureName;
@@ -39,12 +43,13 @@ public class ButtonDescriptor extends BasicComponentDescriptor{
 	public static int					SELCTEDBUTTONBACKGROUND 	= 0X505050;	
 	public int 							nDefaultColorBackGround 	= BUTTONBARBACKGROUND;
 	public int 							nSelectedColotBackGround 	= SELCTEDBUTTONBACKGROUND;
-	//geometrei
+	//geometry
 	public int							nExternaDimension			= 0;
 	public int							nInternalDimension			= 0;
 	
 	//messages
 	public List<String>				    lEventMessages				= null;
+
 	
 	
 	@SuppressWarnings("unused")
@@ -107,6 +112,13 @@ public class ButtonDescriptor extends BasicComponentDescriptor{
 		
 		if((value = attr.getValue(ScnTags.S_A_INT_DIM))!=null)
 			nInternalDimension = Integer.parseInt(value);
+		
+		if((value = attr.getValue(ScnTags.S_A_PERSISTENCE))!=null)
+			this.bIsPersistent = Boolean.parseBoolean(value);
+		
+		if((value = attr.getValue(ScnTags.S_A_PERSISTENCE_VARNAME))!=null)
+			sGlobaVariable = new String(value);
+		
 	}
 	@Override
 	public IComponent CreateComponentInstance(Engine theEngine) {
@@ -124,5 +136,13 @@ public class ButtonDescriptor extends BasicComponentDescriptor{
 			break;
 		}
 		return null;
+	}
+	public Boolean getPersistence() {
+		// TODO Auto-generated method stub
+		return bIsPersistent;
+	}
+	public void setPersistence(boolean value){
+		// TODO Auto-generated method stub
+		bIsPersistent = value;
 	}
 }

@@ -14,11 +14,17 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
+import android.content.SharedPreferences;
+import android.util.Log;
+
 import com.welmo.andengine.managers.ResourcesManager;
-import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
+import com.welmo.andengine.managers.SharedPreferenceManager;
+import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
+import com.welmo.andengine.scenes.components.interfaces.IPersistent;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDescriptor;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.scenes.operations.Operation;
 import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
@@ -33,7 +39,8 @@ import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
  *  To be configure the button get a parameter type class ButtonParameters
  */
 
-public abstract class ButtonBasic extends Rectangle implements IComponent{
+public abstract class ButtonBasic extends Rectangle implements IComponent, IPersistent{
+	
 	
 	public enum Types{BASIC, CLICK, ON_OFF, ON_OFF_WITH_TIMER}
 
@@ -58,9 +65,11 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 	ButtonDescriptor								mParameters				= null;
 	
 	//Object Status values handler
-	
+	SharedPreferenceManager							pSPM					= null;
+	SharedPreferences								pSP						= null;
+	Boolean											bIsPersistent			= false;
 	//EventMessage
-	List<Operation>									mMessages				=null;
+	List<Operation>									mMessages				= null;
 	
 
 	public ButtonBasic(ButtonDescriptor parameters,VertexBufferObjectManager pVertexBufferObjectManager) {
@@ -81,6 +90,9 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 
 		//Set Button ID
 		this.setID(mParameters.getID());
+		
+		//Setup is Persitent
+		this.bIsPersistent = mParameters.getPersistence();
 				
 		//set button default background
 		//TODO  int backgroundCol=mParameters.nSelectedColotBackGround;
@@ -185,7 +197,7 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 		}
 	}
 	// -----------------------------------------------------------------------------------------------------------------
-	// Implement Interfaces.
+	// Implement Interface ICompnent.
 	// -----------------------------------------------------------------------------------------------------------------
 	@Override
 	public int 	getID() {return nID;}
@@ -206,6 +218,72 @@ public abstract class ButtonBasic extends Rectangle implements IComponent{
 			throw new NullPointerException("the message handler is not right class type");
 		nStatus = ButtonBasic.INITIALIZED;
 	}
+	
+	
+	@Override	
+	public String getPersistenceURL(){
+
+		String sPersistenceURL = null;
+
+		IEntity pFather = this.getParent();
+		if(pFather instanceof IManageableScene){
+			sPersistenceURL = new String(((IManageableScene)pFather).getSceneName());
+		}
+		else{
+			if(pFather instanceof IComponent){
+				sPersistenceURL = new String(((IComponent)pFather).getPersistenceURL());
+			}
+			else
+				throw new NullPointerException("Not Correct Hierarchy compnent is not attached to another component or a scene");
+		}
+		sPersistenceURL = sPersistenceURL.concat(new String("/" + this.getID()));
+		return sPersistenceURL;
+	}
+	
+	// *************************************************************************************
+	// Implement interface IPersistent
+	// *************************************************************************************
+	@Override
+	public void setSharedPreferenceManager(SharedPreferenceManager sp) {
+		pSPM = sp;// TODO Auto-generated method stub
+				
+		pSP = pSPM.getSharedPreferences(this.getPersistenceURL());
+	}
+	@Override
+	public void doLoad() {
+		//if cannot be make as a persistent object do nothing
+		if(!bIsPersistent){
+			Log.i(TAG, "called doLoad on iPertistent but IsPersistent is false");
+			return;
+		}
+		
+		if(pSPM == null)
+			throw new NullPointerException("In doSave the Shared Preferences Manager is null");
+
+		// SharedPreferences	sp = pSPM.getSharedPreferences(sFatherName);
+
+		// String strLaunchStatus = sp.getString("LaunchStatus", theDefaultStatus.name());
+	}
+
+	@Override
+	public void doSave() {
+	}
+	@Override
+	public void doLoad(SharedPreferenceManager sp) {
+		pSPM = sp;
+		doLoad();
+	}
+
+	@Override
+	public void doSave(SharedPreferenceManager sp) {
+		pSPM = sp;
+		doSave();
+	}
+	@Override
+	public boolean isPersitent(){
+		return bIsPersistent;
+	}
+	// *************************************************************************************
 	// -----------------------------------------------------------------------------------------------------------------
 	// abstract methods
 	// -----------------------------------------------------------------------------------------------------------------
