@@ -663,6 +663,18 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			return false;
 	}
 	@Override
+	public boolean onChangeChildScene(String nextScene) {
+		Scene currentScene = this.mEngine.getScene();
+		
+		ManageableScene psc = (ManageableScene) mSceneManager.getScene(nextScene);
+		if(psc != null){
+			currentScene.setChildScene(psc,true, true, true);
+			return true;
+		}
+		else
+			return false;
+	}
+	@Override
 	public void setIActivitySceneListener(IActivitySceneListener pListener) {
 		// TODO Auto-generated method stub
 	}
@@ -698,6 +710,10 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 						msc.pause();
 				}
 				
+				break;
+			case RESET_PERSITENCE:
+				this.mPreferences.edit().clear();
+				this.mPreferences.edit().commit();
 				break;
 			default:
 				break;

@@ -184,6 +184,10 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	public boolean onFatherScene(){
 		return mIActivitySceneListener.onFatherScene();
 	}
+	@Override
+	public boolean onChangeChildScene(String nextScene) {
+		return mIActivitySceneListener.onChangeChildScene(nextScene);
+	}
 	// =================================================================================	
 
 

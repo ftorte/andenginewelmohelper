@@ -9,7 +9,8 @@ public interface IOperationHandler {
 		COLORING_CKIK,						// Coloring Sprite click on a point
 		UNDO,								// Undo last operation
 		ACTIVATE_BTN_NEXT_SCENE_LAUNCER,	// Set the button launcher status
-		SET_MUSIC_ONOFF					    // Set Music On or OFF
+		SET_MUSIC_ONOFF,					// Set Music On or OFF
+		RESET_PERSITENCE					// Clear all persistence status
 	}
 	public void doOperation(Operation msg);
 	public void undoOperation(Operation msg);
