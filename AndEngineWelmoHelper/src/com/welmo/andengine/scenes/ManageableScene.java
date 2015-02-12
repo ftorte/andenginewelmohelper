@@ -251,13 +251,13 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 			switch(pSprtDsc.getType()){	
 				case  STATIC:
 					newEntity = createSprite(pSprtDsc);
+					this.attachChild(newEntity);
 					//newEntity =  loadComponent2(scObjDsc,pEntityFather);	
 					break;
 				case CLICKABLE: // Create the clickable sprite elements
 					newEntity = loadComponent2(scObjDsc,this);	
 					break;
 				case COMPOUND_SPRITE:
-					
 					newEntity = loadComponent2(scObjDsc,this);	
 					break;
 				case ANIMATED: // Create the animated sprite elements
@@ -266,7 +266,6 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 				default:
 					break;
 				}
-				return newEntity;
 		}
 		if(scObjDsc instanceof TextObjectDescriptor){
 			newEntity = loadComponent2(scObjDsc,this);	

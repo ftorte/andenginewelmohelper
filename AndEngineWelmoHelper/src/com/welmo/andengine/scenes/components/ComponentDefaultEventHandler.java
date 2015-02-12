@@ -221,6 +221,9 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 			action.NextScene = "";
 			executeChangeSceneToFather(pItem);
 			break;
+		case CHANGE_TO_CHILD_SCENE:
+			executeChangeChildScene(action, pItem);
+			break;
 		case STICK:
 			break;
 		case PLAY_SOUND:
@@ -259,6 +262,11 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		Log.i(TAG,"\t Change Scene");
 		if(pItem instanceof IActivitySceneListener)
 			((IActivitySceneListener)pItem).onChangeScene(action.NextScene);
+	}
+	protected void executeChangeChildScene(SceneActions action, IEntity pItem){
+		Log.i(TAG,"\t Change Scene");
+		if(pItem instanceof IActivitySceneListener)
+			((IActivitySceneListener)pItem).onChangeChildScene(action.NextScene);
 	}
 	protected void executePlaySound(SceneActions action, IEntity pItem){
 		Log.i(TAG,"\t PLay Music");

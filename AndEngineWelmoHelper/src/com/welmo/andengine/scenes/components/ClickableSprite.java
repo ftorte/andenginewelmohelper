@@ -150,6 +150,7 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 	public void setIActionOnSceneListener(IActionSceneListener pListener){
 		mIActionOnSceneListener = pListener;
 	}
+	
 	// =================================================================================	
 	// ====== IActivityOnSceneListener ==== 
 	@Override
@@ -174,6 +175,11 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 		return mIActivitySceneListener.onFatherScene();
 	}
 
+	@Override
+	public boolean onChangeChildScene(String nextScene) {
+		return mIActivitySceneListener.onChangeChildScene(nextScene);
+	}
+	
 	@Override
 	public void setActionSceneListner(IActionSceneListener scenelistener) {
 		// TODO Auto-generated method stub

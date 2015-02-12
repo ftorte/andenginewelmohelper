@@ -24,7 +24,8 @@ public class SceneActions extends BasicModifierDescriptor{
 	public int sideA;
 	public int sideB;
 	public float flipTime;
-	public boolean bChangeToFather;
+	public boolean bChangeToFather				= false;
+	public boolean bChangeToChild 				= false;
 	
 	
 	public SceneActions() {
@@ -35,7 +36,7 @@ public class SceneActions extends BasicModifierDescriptor{
 	}
 	public enum ActionType {
 		NO_ACTION, CHANGE_SCENE,STICK,PLAY_SOUND,PLAY_MUSIC,CHANGE_Z_ORDER,FLIP,DISABLE_SCENE_TOUCH,
-		ENABLE_SCENE_TOUCH,ON_MOVE_FOLLOW, CHANGE_TO_FATHER_SCENE
+		ENABLE_SCENE_TOUCH,ON_MOVE_FOLLOW, CHANGE_TO_FATHER_SCENE, CHANGE_TO_CHILD_SCENE
 	}
 	public enum ActionMode {
 		NO_MODE, STICK_MERGE, 
@@ -55,6 +56,10 @@ public class SceneActions extends BasicModifierDescriptor{
 				break;
 			case CHANGE_TO_FATHER_SCENE:
 				this.bChangeToFather = true;
+				break;
+			case CHANGE_TO_CHILD_SCENE:
+				this.bChangeToChild = true;
+				this.NextScene = new String(attributes.getValue(ScnTags.S_A_NEXT_SCENE));
 				break;
 			case CHANGE_SCENE:
 				this.NextScene = new String(attributes.getValue(ScnTags.S_A_NEXT_SCENE));
