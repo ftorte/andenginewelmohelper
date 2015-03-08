@@ -79,7 +79,7 @@ public class ManageableCameraScene extends ManageableScene {
 			return super.onChildSceneTouchEvent(pSceneTouchEvent);
 		}
 	}
-
+	
 	@Override
 	protected void onApplyMatrix(final GLState pGLState, final Camera pCamera) {
 		this.mCamera.onApplyCameraSceneMatrix(pGLState);

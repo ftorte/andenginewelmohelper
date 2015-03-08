@@ -8,7 +8,7 @@ import android.util.Log;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.ScnTags;
 
-public abstract class BasicComponentDescriptor extends BasicDescriptor{
+public class BasicComponentDescriptor extends BasicDescriptor{
 	
 	public static String 				TAG ="BasicObjectDescriptor";
 	
@@ -84,8 +84,8 @@ public abstract class BasicComponentDescriptor extends BasicDescriptor{
 		orientation=0;
 		rX = 0;
 		rY = 0;
-		horizzontalAlignment=Alignment.CENTER; 
-		verticalAlignment=Alignment.CENTER;;
+		horizzontalAlignment=Alignment.NO_ALIGNEMENT; 
+		verticalAlignment=Alignment.NO_ALIGNEMENT;
 		colorName = new String("");
 	}
 	public void copyFrom(BasicComponentDescriptor copyfrom) {

@@ -1,19 +1,17 @@
 package com.welmo.andengine.scenes.components.buttons;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 
 import org.andengine.entity.IEntity;
 import org.andengine.entity.primitive.Rectangle;
-import org.andengine.entity.primitive.vbo.IRectangleVertexBufferObject;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SharedPreferenceManager;
@@ -38,6 +36,19 @@ import com.welmo.andengine.scenes.operations.IOperationHandler;
 
 public class ButtonSceneLauncher extends Rectangle implements IComponentClickable, IActivitySceneListener, IActionSceneListener, IPersistent{
 
+	public class ButtonSceneLauncherClickableImplementation extends IComponentClickableDfltImp{
+		@Override
+		public boolean onTouched(TouchEvent pSceneTouchEvent,float pTouchAreaLocalX, float pTouchAreaLocalY){
+			switch(theStatus){
+			case NotActive:
+			case Locked:
+				return true;
+			default:
+				return super.onTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+			}
+		}
+	};
+	
 	// ========================================================================
 	// Fields implementation of IClickable, IActivitySceneListener, IActionOnSceneListene
 	// ========================================================================
@@ -75,7 +86,7 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 		this.setAlpha(0);
 		
 		//create default interface implementations
-		mIClicakableImpmementation 	=   new IComponentClickableDfltImp();
+		mIClicakableImpmementation 	=   new ButtonSceneLauncherClickableImplementation();
 		mIActionOnSceneListener		= 	null;
 		mIActivitySceneListener 	=	null;
 		mIClicakableImpmementation.setParent(this);
@@ -310,7 +321,7 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	}
 	
 	@Override
-	public IComponentEventHandler getEventsHandler(Events theEvent) {
+	public ArrayList<IComponentEventHandler>  getEventsHandler(Events theEvent) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -367,6 +378,27 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	}
 	@Override
 	public void setSharedPreferenceManager(SharedPreferenceManager sp) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void onCloseChildScene() {
+		mIActivitySceneListener.onCloseChildScene();// TODO Auto-generated method stub	
+	}
+	@Override
+	public void onReloadScene() {
+		mIActivitySceneListener.onReloadScene();
+	}
+	@Override
+	public void onGoToMenu() {
+		mIActivitySceneListener.onGoToMenu();
+	}
+	@Override
+	public void onGoToNextLevel() {
+		mIActivitySceneListener.onGoToNextLevel();
+	}
+	@Override
+	public void onResult(int i, int j, String string) {
 		// TODO Auto-generated method stub
 		
 	}

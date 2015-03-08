@@ -1,6 +1,8 @@
 package com.welmo.andengine.scenes.components.interfaces;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.andengine.entity.IEntity;
 import org.andengine.input.touch.TouchEvent;
@@ -22,7 +24,7 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 	
 	private final static String 							TAG				= "DefaultIClickableImplementation";
 	protected int 											nID				=-1;
-	protected HashMap<Events,IComponentEventHandler> 		hmEventHandlers = null;
+	protected HashMap<Events,ArrayList<IComponentEventHandler>> 	hmEventHandlers = null;
 	protected IEntity										mParent			= null;
 	protected boolean										on_move			= false;
 	protected TouchEvent									lastTouchEvent	= null;
@@ -30,7 +32,7 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 	
 			
 	public IComponentClickableDfltImp(){
-		hmEventHandlers	= new HashMap<Events,IComponentEventHandler>();
+		hmEventHandlers	= new HashMap<Events,ArrayList<IComponentEventHandler>>();
 		lastTouchEvent = new TouchEvent();
 	}
 	// -----------------------------------------------------------------------------------------
@@ -53,7 +55,16 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 	// -----------------------------------------------------------------------------------------
 	// IClickable
 	public void addEventsHandler(Events theEvent, IComponentEventHandler oCmpDefEventHandler){
-		hmEventHandlers.put(theEvent, oCmpDefEventHandler);
+		//check if already has an handler for the event
+		ArrayList<IComponentEventHandler> 	lListEventHandlers = null;
+												
+		if((lListEventHandlers = hmEventHandlers.get(theEvent)) == null){
+			lListEventHandlers = new ArrayList<IComponentEventHandler>();
+			lListEventHandlers.add(oCmpDefEventHandler);
+			hmEventHandlers.put(theEvent, lListEventHandlers);
+		}
+		else
+			lListEventHandlers.add(oCmpDefEventHandler);
 	}
 	@Override
 	public IActionSceneListener getActionOnSceneListener() {
@@ -61,12 +72,22 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 		return null;
 	}
 	@Override
-	public void onFireEventAction(Events event, ActionType type){
-		if(hmEventHandlers == null){
-			throw new NullPointerException("onFireAction no eventshmEventHandlers is null");
+	public void onFireEventAction(Events thsEvent, ActionType type){
+		
+		ArrayList<IComponentEventHandler> 	lListEventHandlers = null;
+		
+		//check that EventesHandlers has been correctly initialized
+		if(hmEventHandlers == null) throw new NullPointerException("onFireAction no eventshmEventHandlers is null");
+		
+		//check that there is an event for the event fired
+		if((lListEventHandlers = hmEventHandlers.get(thsEvent)) == null )throw new NullPointerException("onFireAction no events for this event");
+		
+		Iterator<IComponentEventHandler> it = lListEventHandlers.iterator();
+		
+		while(it.hasNext()){
+			IComponentEventHandler handlerEvent = (IComponentEventHandler) it.next();
+			handlerEvent.onFireAction(type, mParent);
 		}
-		IComponentEventHandler handlerEvent = hmEventHandlers.get(event);
-		handlerEvent.onFireAction(type, mParent);
 	}
 	@Override
 	public boolean onTouched(TouchEvent pSceneTouchEvent,
@@ -77,20 +98,22 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 			boolean managed = false;
 			switch (pSceneTouchEvent.getAction()) {
 			case TouchEvent.ACTION_DOWN:
-				/*if (MLOG.LOG)Log.i(TAG,"onAreaTouched ACTION_DOWN = " + nID);
-		break;*/
 			case TouchEvent.ACTION_MOVE:
 				if(hmEventHandlers != null){
 					Log.i(TAG,"\t launch event handler trough object control");
-					IComponentEventHandler handlerEvent = hmEventHandlers.get(ComponentEventHandlerDescriptor.Events.ON_MOVE);
-					if(handlerEvent != null){
+					ArrayList<IComponentEventHandler> lstHandlerEvent = hmEventHandlers.get(ComponentEventHandlerDescriptor.Events.ON_MOVE);
+					if(lstHandlerEvent != null){
 						if(!on_move){
 							on_move = true;
 							lastTouchEvent.set(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
 						}
 						else{
-							handlerEvent.handleEvent(mParent,pSceneTouchEvent,lastTouchEvent);
+							Iterator<IComponentEventHandler> it = lstHandlerEvent.iterator();
 							lastTouchEvent.set(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
+							while(it.hasNext()){
+								IComponentEventHandler handlerEvent = (IComponentEventHandler) it.next();
+								handlerEvent.handleEvent(mParent,pSceneTouchEvent,lastTouchEvent);
+							}
 						}
 					}
 				}
@@ -100,10 +123,15 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 					on_move=false;
 				if(hmEventHandlers != null){
 					Log.i(TAG,"\t launch event handler trough object control");
-					IComponentEventHandler handlerEvent = hmEventHandlers.get(ComponentEventHandlerDescriptor.Events.ON_CLICK);
-					if(handlerEvent != null){
+					ArrayList<IComponentEventHandler> lstHandlerEvent  = hmEventHandlers.get(ComponentEventHandlerDescriptor.Events.ON_CLICK);
+					if(lstHandlerEvent != null){
 						Log.i(TAG,"\t launch event handler trough object found");
-						handlerEvent.handleEvent(mParent,pSceneTouchEvent,null);
+						Iterator<IComponentEventHandler> it = lstHandlerEvent.iterator();
+						while(it.hasNext()){
+							IComponentEventHandler handlerEvent = (IComponentEventHandler) it.next();
+							handlerEvent.handleEvent(mParent,pSceneTouchEvent,null);
+						}
+						
 					}
 				}
 				break;
@@ -124,8 +152,8 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 		
 	}
 	@Override
-	public IComponentEventHandler getEventsHandler(Events theEvent) {
-		return hmEventHandlers.get(theEvent);// TODO Auto-generated method stub
+	public ArrayList<IComponentEventHandler>  getEventsHandler(Events theEvent) {
+		return hmEventHandlers.get(theEvent);
 	}
 	@Override
 	public void setActionSceneListner(IActionSceneListener scenelistener) {

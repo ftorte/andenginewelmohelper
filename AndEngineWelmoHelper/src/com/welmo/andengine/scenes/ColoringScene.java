@@ -101,5 +101,12 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 	public void undoOperation(Operation ope) {
 		IOperationHandler hdOperation = ope.getHander();// TODO Auto-generated method stub
 		hdOperation.undoOperation(ope);
+	}
+
+
+
+	@Override
+	public String getNameOfInstantiatedScene() {
+		return null;
 	}	
 }

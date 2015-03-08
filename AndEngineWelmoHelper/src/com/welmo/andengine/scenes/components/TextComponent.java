@@ -1,6 +1,8 @@
 package com.welmo.andengine.scenes.components;
 
 
+import java.util.ArrayList;
+
 import org.andengine.engine.Engine;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.text.Text;
@@ -10,6 +12,7 @@ import org.andengine.opengl.font.IFont;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
 
+import android.R;
 import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager;
@@ -29,7 +32,8 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 	// Constants
 	// ===========================================================
 	//Log & Debug
-	private static final String TAG = "TextComponent";
+	private static final String 	TAG = "TextComponent";
+	private float					scale = 1.0f;
 
 	// ===========================================================
 	// Fields
@@ -47,20 +51,30 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 				pTextVertexBufferObject);
 		init();
 	}
-	public TextComponent(TextObjectDescriptor pTXTDscf, ResourcesManager pRM, Engine theEngine,IAreaShape theFather){
+	public TextComponent(TextObjectDescriptor pTXTDscf, ResourcesManager pRM, Engine theEngine){
 		super(0, 0, pRM.getFont(pTXTDscf.getFontName()), 
 				pTXTDscf.getMessage(), new TextOptions(HorizontalAlign.CENTER), 
 				theEngine.getVertexBufferObjectManager());
 		init();
 		configure(pTXTDscf);
-		if(theFather != null){
-			PositionHelper.align(pTXTDscf.getIPosition(), this, theFather);
-		}
+		
 		//set color	
 		String colorName = pTXTDscf.getICharacteristis().getColor();
 		Log.i(TAG,"Get Color: " + colorName);
 		if(!colorName.equals(""))
 				this.setColor(pRM.getColor(colorName));
+		
+		if(pTXTDscf.type == TextObjectDescriptor.TextTypes.RESOURCE){
+			CharSequence message = pRM.getStringResourceByName(pTXTDscf.message);
+			this.setText(message);
+		}
+		
+		//set scale 
+		if(pTXTDscf.scale != 1 ){
+			this.setScale(pTXTDscf.scale);
+			this.scale	= pTXTDscf.scale;
+		}
+		
 	}
 
 	// ===========================================================
@@ -120,7 +134,7 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 		
 	}
 	@Override
-	public IComponentEventHandler getEventsHandler(Events theEvent) {
+	public ArrayList<IComponentEventHandler>  getEventsHandler(Events theEvent) {
 		mIClicakableImpmementation.getEventsHandler(theEvent);
 		return null;
 	}

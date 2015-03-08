@@ -1,4 +1,6 @@
 package com.welmo.andengine.scenes.components;
+import java.util.ArrayList;
+
 import org.andengine.entity.IEntity;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.shape.IAreaShape;
@@ -162,7 +164,7 @@ public class CompoundSprite extends Rectangle implements IComponent, IComponentC
 		
 	}
 	@Override
-	public IComponentEventHandler getEventsHandler(Events theEvent) {
+	public ArrayList<IComponentEventHandler>  getEventsHandler(Events theEvent) {
 		mIClicakableImpmementation.getEventsHandler(theEvent);
 		return null;
 	}

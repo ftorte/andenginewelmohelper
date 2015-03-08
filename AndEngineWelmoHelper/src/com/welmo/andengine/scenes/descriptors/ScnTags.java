@@ -77,6 +77,7 @@ public class ScnTags {
 	public final static String S_A_POSITION_X		= "px";
 	public final static String S_A_POSITION_Y		= "py";
 	public final static String S_A_Z_ORDER			= "pz";
+	public static final String S_A_SCALE 			= "scale";
 	public final static String S_A_ORIENTATION		= "orientation";
 	public final static String S_A_ROTAION_CENTER_X	= "rX";
 	public final static String S_A_ROTAION_CENTER_Y	= "rX";
@@ -176,5 +177,6 @@ public class ScnTags {
 	
 	public static final String S_A_STATUS_DEFAUTL	= "status_default";
 	public static final String S_A_PERSISTENCE 		= "persistent";
-	public static final String S_A_PERSISTENCE_VARNAME = "persistent_value";	
+	public static final String S_A_PERSISTENCE_VARNAME = "persistent_value";
+		
 }

@@ -8,6 +8,7 @@ import org.andengine.engine.Engine;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.sprite.Sprite;
 import org.xml.sax.Attributes;
 
 import android.util.Log;
@@ -16,6 +17,8 @@ import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.scenes.components.ClickableSprite;
 import com.welmo.andengine.scenes.components.ComponentDefaultEventHandler;
 import com.welmo.andengine.scenes.components.CompoundSprite;
+import com.welmo.andengine.scenes.components.RectangleComponent;
+import com.welmo.andengine.scenes.components.StaticSprite;
 import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
@@ -29,7 +32,7 @@ import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescri
 public class SpriteObjectDescriptor extends BasicComponentDescriptor{
 	// enumerators to manage object types & object events
 	public enum SpritesTypes {
-	    NO_TYPE, STATIC, CLICKABLE, COMPOUND_SPRITE, ANIMATED, COLORING_SPRITE
+	    NO_TYPE, STATIC, CLICKABLE, COMPOUND_SPRITE, ANIMATED, COLORING_SPRITE,NULL_SPRITE
 	}
 	
 	public SpritesTypes 	type;
@@ -85,15 +88,17 @@ public class SpriteObjectDescriptor extends BasicComponentDescriptor{
 	@Override
 	public IComponent CreateComponentInstance(Engine theEng) {
 		// TODO Auto-generated method stub
-		
+		ResourcesManager pRM = ResourcesManager.getInstance();
 		switch(type){	
+			case  NULL_SPRITE:
+				RectangleComponent newRectange = new RectangleComponent(this, theEng);
+				return newRectange;
 			case  STATIC:
-				//FT newEntity = createSprite(pSprtDsc);
-				break;
+				StaticSprite newSprite = new StaticSprite(this, pRM, theEng);
+				return newSprite;
 			case CLICKABLE: // Create the clickable sprite elements
 				
 				IComponentClickable newClickableSprite = null;
-				ResourcesManager pRM = ResourcesManager.getInstance();
 				String className = this.getClassName();
 				try {
 					if(!className.equals("")){
@@ -149,14 +154,17 @@ public class SpriteObjectDescriptor extends BasicComponentDescriptor{
 		Log.i(TAG,"\t\t readXMLDescription");
 		super.readXMLDescription(attributes);
 		
-		// Read the sprite specific attributes
-		
-		this.textureName = new String(attributes.getValue(ScnTags.S_A_RESOURCE_NAME));
+		// Read the sprite specific attribute
 		if(attributes.getValue(ScnTags.S_A_TYPE)!= null)
 			this.type = SpriteObjectDescriptor.SpritesTypes.valueOf(attributes.getValue(ScnTags.S_A_TYPE));
 		else
-			this.type = SpriteObjectDescriptor.SpritesTypes.valueOf("STATIC");
+			this.type = SpriteObjectDescriptor.SpritesTypes.valueOf("NULL_SPRITE");
 
+		if(this.type != SpriteObjectDescriptor.SpritesTypes.valueOf("NULL_SPRITE"))
+			this.textureName = new String(attributes.getValue(ScnTags.S_A_RESOURCE_NAME));
+		else
+			this.textureName="";
+		
 		if((attributes.getValue(ScnTags.S_A_SIDEA)!= null) && (attributes.getValue(ScnTags.S_A_SIDEB) != null)){
 			this.nSideATile = Integer.parseInt(attributes.getValue(ScnTags.S_A_SIDEA));
 			this.nSideBTile = Integer.parseInt(attributes.getValue(ScnTags.S_A_SIDEB));

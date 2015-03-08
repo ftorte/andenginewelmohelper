@@ -9,10 +9,12 @@ import org.andengine.ui.activity.BaseGameActivity;
 
 import com.welmo.andengine.scenes.IConfigurableScene;
 import com.welmo.andengine.scenes.IManageableScene;
+import com.welmo.andengine.scenes.ManageableCameraScene;
 import com.welmo.andengine.scenes.ManageableScene;
 import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.descriptors.ConfiguredSceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
+import com.welmo.andengine.ui.SimpleWelmoActivity;
 
 
 
@@ -45,7 +47,7 @@ public class SceneManager {
 	HashMap<String, IManageableScene> 		mapScenes =null;		// Map of scenes
 	private SceneDescriptorsManager 		pSDM;					// private pointer to the Scene Descriptor Manager used while requesting a scene not yet created
 	boolean 								initialized = false;	// flag to see if is initialized correctly
-	BaseGameActivity						theApplication; 		// the activity
+	SimpleWelmoActivity						theApplication; 		// the activity
 	private SharedPreferenceManager			pSPM = null;
 	// ===========================================================
 	
@@ -58,7 +60,7 @@ public class SceneManager {
 	* @param Engine 		   	eng
 	* @param Context 			ctx
 	*/ 
-	public SceneManager(BaseGameActivity application, Engine eng, Context ctx) {  
+	public SceneManager(SimpleWelmoActivity application, Engine eng, Context ctx) {  
 		//check validity of variables an make exceptions
 		if(application == null)
 			throw new NullPointerException("Scene Manager cannot be instantiate => null application");
@@ -142,6 +144,12 @@ public class SceneManager {
 				iManageableScene = (IManageableScene) Class.forName(className).newInstance();
 			else
 				iManageableScene = new ManageableScene();
+			
+			//if scene is a camera scene setup the camera
+			if(iManageableScene instanceof ManageableCameraScene){
+				((ManageableCameraScene)iManageableScene).setCamera(theApplication.getCamera());
+				((ManageableCameraScene) iManageableScene).setBackgroundEnabled(false);
+			}
 		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

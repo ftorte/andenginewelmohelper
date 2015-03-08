@@ -9,4 +9,5 @@ import com.welmo.andengine.scenes.descriptors.ConfiguredSceneDescriptor;
 // *******************************************************************************************
 public interface IConfigurableScene {
 	public void configure(ConfiguredSceneDescriptor descriptor);
+	public String getNameOfInstantiatedScene();
 }

@@ -13,4 +13,5 @@ public interface IActionSceneListener {
 	public void lockTouch();
 	public void unLockTouch();
 	public void onResult(int result);
+	public void onResult(int result, int score, String string);			// sore tipe, score, string score
 }

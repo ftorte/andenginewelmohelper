@@ -14,6 +14,7 @@ import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.MemorySceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.BasicComponentDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
@@ -264,7 +265,7 @@ public class MemoryScene extends ManageableScene {
 					((SpriteObjectDescriptor) scObjDsc).getIDimension().setHeight(nCardHeight);
 					((SpriteObjectDescriptor) scObjDsc).getIDimension().setWidth(nCardWidth);
 				}
-				IEntity newEntity = loadComponent(scObjDsc, this);
+				IEntity newEntity = loadComponent2((BasicComponentDescriptor) scObjDsc, this);
 				if(newEntity instanceof CardSprite){
 					allCards.put(((CardSprite) newEntity).getID(),newEntity);
 					((CardSprite) newEntity).setSidesTiles(((SpriteObjectDescriptor) scObjDsc).getSidesA(),((SpriteObjectDescriptor) scObjDsc).getSidesB());	

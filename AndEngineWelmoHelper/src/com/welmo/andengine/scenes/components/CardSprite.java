@@ -3,6 +3,8 @@ package com.welmo.andengine.scenes.components;
 //import org.andengine.engine.Engine;
 
 
+import java.util.ArrayList;
+
 import org.andengine.engine.Engine;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.Sprite;
@@ -210,7 +212,7 @@ public class CardSprite extends TiledSprite implements IComponentClickable, IAct
 		mIClicakableImpmementation.onFireEventAction(event, type);
 	}
 	@Override
-	public IComponentEventHandler getEventsHandler(Events theEvent) {
+	public ArrayList<IComponentEventHandler>  getEventsHandler(Events theEvent) {
 		mIClicakableImpmementation.getEventsHandler(theEvent);
 		return null;
 	}
@@ -257,6 +259,11 @@ public class CardSprite extends TiledSprite implements IComponentClickable, IAct
 	}
 	@Override
 	public void setOperationsHandler(IOperationHandler messageHandler) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void onResult(int i, int j, String string) {
 		// TODO Auto-generated method stub
 		
 	}

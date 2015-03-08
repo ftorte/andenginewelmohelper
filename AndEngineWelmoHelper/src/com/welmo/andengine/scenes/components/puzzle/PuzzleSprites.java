@@ -57,6 +57,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	public static final int STATUS_END		= 3;
 	public static final int STATUS_PAUSED   = 4;
 	
+	
 	public static final int DEFAULT_ZINDEX 	= 100;
 	public static final int STACK_ZINDEX	= 10;
 	
@@ -69,6 +70,9 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	protected	int 							nbPieces			= 0;
 	protected	float 							mPieceWidth			= 0;
 	protected	float 							mPieceHeight 		= 0;
+	
+	public		long							fStartTimeIn_ms		= 0; 
+	
 	
 	protected	float 							mMaxPositionX		= 0;
 	protected	float 							mMaxPositionY		= 0;
@@ -224,6 +228,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		mPiecesList.clear();							//clear Piece list			
 		mContainersList.clear();
 	
+		fStartTimeIn_ms = 0;
 		mStatus=STATUS_START;
 		return;
 	}
@@ -279,11 +284,12 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		if(mLifeCycleListener != null)
 			mLifeCycleListener.onStart();
 		
+		fStartTimeIn_ms = System.currentTimeMillis();
+		
 		setUpHelperImage();
 		
 		mStatus					= STATUS_ONGOING;
 	}
-	
 	public void setUpHelperImage(){
 		if(!mHelperImage.isEmpty()){
 			ResourcesManager pRM = ResourcesManager.getInstance();
@@ -348,8 +354,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 			}
 		}
 
-	}
-			
+	}	
 	public void createNewContainer(int nearestType, PuzzleElement theElement, PuzzleElement theNeighbor){
 
 		PuzzleElementContainer newContainer = new PuzzleElementContainer(0,0,0,0,true,this.mRectangleVertexBufferObject,this);
@@ -391,10 +396,35 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 
 	public void deleteFromList(PuzzleElement thePuzzleElement) {
 		this.mPiecesList.remove(thePuzzleElement);
-		//if there are no pieces anumore the puzzle is finished
+		//if there are no pieces anymore so the puzzle is finished
 		if(mPiecesList.size()==0){
 			//Fire Result to scene
-			mActSceneListener.onResult(1);
+			long endTimeIn_ms = System.currentTimeMillis();
+			long executedTimeIn_ms = endTimeIn_ms - fStartTimeIn_ms;
+			
+			
+			long seconds 	= (executedTimeIn_ms / 1000) % 60;
+		    long minutes 	= (executedTimeIn_ms / 60000) % 60;
+		    long hours 		= executedTimeIn_ms / 3600000;
+		    
+		    StringBuilder b = new StringBuilder();
+		    b.append(hours == 0 ? "00" : hours < 10 ? String.valueOf("0" + hours) : String.valueOf(hours));
+		    b.append(":");
+		    b.append(minutes == 0 ? "00" : minutes < 10 ? String.valueOf("0" + minutes) : String.valueOf(minutes));
+		    b.append(":");
+		    b.append(seconds == 0 ? "00" : seconds < 10 ? String.valueOf("0" + seconds) : String.valueOf(seconds));
+		    
+			// Score TODO configurable
+			if(executedTimeIn_ms > 180000 )	//180000 ms = 3 mintes
+				mActSceneListener.onResult(0, 50,  b.toString());
+			else
+				if(executedTimeIn_ms > 140000 )	//140000 ms = 2.x mintes
+					mActSceneListener.onResult(1, 100,  b.toString());
+				else
+					if(executedTimeIn_ms > 120000 )	//140000 ms = 2.x mintes
+						mActSceneListener.onResult(2, 200,  b.toString());
+					else
+						mActSceneListener.onResult(3, 400,  b.toString());
 		}
 	}
 	public boolean isPieceListEmpty() {
@@ -414,13 +444,11 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		// TODO Auto-generated method stub
 		mStatus=STATUS_END;
 	}
-
 	@Override
 	public void pause() {
 		// TODO Auto-generated method stub
 		mStatus=STATUS_PAUSED;
 	}
-
 	@Override
 	public void reset() {
 		if(mStatus==STATUS_START){
@@ -450,11 +478,9 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		mContainersList.clear();
 		return;
 	}
-
 	public boolean hasActiveZone() {
 		return hasActiveZone;
 	}
-
 	public void setHasActiveZone(boolean hasActiveZone) {
 		this.hasActiveZone = hasActiveZone;
 	}
@@ -555,10 +581,15 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	public void onResult(int result) {
 		// TODO Auto-generated method stub
 	}
+	@Override
+	public void setOperationsHandler(IOperationHandler messageHandler) {
+		// TODO Auto-generated method stub
+		
+	}
 
 
 	@Override
-	public void setOperationsHandler(IOperationHandler messageHandler) {
+	public void onResult(int i, int j, String string) {
 		// TODO Auto-generated method stub
 		
 	}
