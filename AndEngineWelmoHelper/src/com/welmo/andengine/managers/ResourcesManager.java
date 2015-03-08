@@ -809,4 +809,13 @@ public class ResourcesManager {
 		//return the found or loaded texture region
 		return theSound;
 	}
+	public String getStringResourceByName(String aString) {
+	    String packageName = this.mCtx.getPackageName();
+	    int resId = mCtx.getResources().getIdentifier(aString, "string", packageName);
+	    if (resId == 0) {
+	        return aString;
+	    } else {
+	        return mCtx.getString(resId);
+	    }
+	}
 }

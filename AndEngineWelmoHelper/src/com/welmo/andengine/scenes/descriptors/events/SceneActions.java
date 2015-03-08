@@ -26,6 +26,11 @@ public class SceneActions extends BasicModifierDescriptor{
 	public float flipTime;
 	public boolean bChangeToFather				= false;
 	public boolean bChangeToChild 				= false;
+	public boolean bCloseChild					= false;
+	public boolean bRelosaScene					= false;
+	public boolean bGOtoMenu					= false;
+	public boolean bGOtoNextLevel				= false;
+	
 	
 	
 	public SceneActions() {
@@ -36,7 +41,7 @@ public class SceneActions extends BasicModifierDescriptor{
 	}
 	public enum ActionType {
 		NO_ACTION, CHANGE_SCENE,STICK,PLAY_SOUND,PLAY_MUSIC,CHANGE_Z_ORDER,FLIP,DISABLE_SCENE_TOUCH,
-		ENABLE_SCENE_TOUCH,ON_MOVE_FOLLOW, CHANGE_TO_FATHER_SCENE, CHANGE_TO_CHILD_SCENE
+		ENABLE_SCENE_TOUCH,ON_MOVE_FOLLOW, CHANGE_TO_FATHER_SCENE, CHANGE_TO_CHILD_SCENE, CLOSE_CHILD,RELOAD_SCENE,GO_TO_MENU,GO_TO_NEXTLEVEL
 	}
 	public enum ActionMode {
 		NO_MODE, STICK_MERGE, 
@@ -51,11 +56,25 @@ public class SceneActions extends BasicModifierDescriptor{
 		if((value = attributes.getValue(ScnTags.S_A_TYPE))!=null){
 			this.type = ActionType.valueOf(value);
 			switch(this.type){
+			case NO_ACTION:
+				break;
 			case PLAY_SOUND:
 				this.resourceName = new String(attributes.getValue(ScnTags.S_A_RESOURCE_NAME));
 				break;
 			case CHANGE_TO_FATHER_SCENE:
 				this.bChangeToFather = true;
+				break;
+			case CLOSE_CHILD:
+				this.bCloseChild=true;
+				break;
+			case GO_TO_MENU:
+				this.bGOtoMenu=true;
+				break;
+			case GO_TO_NEXTLEVEL:
+				this.bGOtoNextLevel=true;
+				break;
+			case RELOAD_SCENE:
+				this.bRelosaScene=true;
 				break;
 			case CHANGE_TO_CHILD_SCENE:
 				this.bChangeToChild = true;

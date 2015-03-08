@@ -173,8 +173,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 				if(newDescriptor.isTemplate)
 					addTemplateDescriptor(newDescriptor);
 				else
-					//check if and instance of an object 
-					if(newDescriptor.isInstanceOfID > 0 ){ //if instanceOfID return value > 0 it means it an instace of an object 
+					//check if is an  instance of an object 
+					if(newDescriptor.isInstanceOfID > 0 ){ //if instanceOfID return value > 0 it means it an instance of an object 
 						if(pCurrentDescriptorInProcessing instanceof SceneDescriptor) {
 							BasicDescriptor template = ((SceneDescriptor)pCurrentDescriptorInProcessing).pTemplates.get(newDescriptor.isInstanceOfID);
 							createFromTemplate(template, newDescriptor, localName, attributes);

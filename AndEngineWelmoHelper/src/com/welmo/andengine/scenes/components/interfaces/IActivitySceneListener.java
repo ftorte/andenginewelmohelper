@@ -6,4 +6,8 @@ public interface IActivitySceneListener {
 		public boolean onFatherScene();
 		public boolean onChangeScene(String nextSceneName); // Sprite call this interface to inform scene parent that has been clicked
 		public boolean onChangeChildScene(String nextScene);
+		public void onCloseChildScene();
+		public void onReloadScene();
+		public void onGoToMenu();
+		public void onGoToNextLevel();
 }

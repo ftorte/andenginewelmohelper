@@ -1,5 +1,6 @@
 package com.welmo.andengine.scenes.components;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.andengine.audio.music.Music;
@@ -123,17 +124,20 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		
 		//by default clone the handler without customizations
 		newHandler.modifierSet				= this.modifierSet; 
-		newHandler.iEntityModifiers 		= this.iEntityModifiers; 
-		newHandler.oPreModifierAction		= this.oPreModifierAction; 
-		newHandler.oPostModifierAction		= this.oPostModifierAction; 
-		newHandler.oOnModifierAction		= this.oOnModifierAction; 
-			
-		//Customize Pre/On/Post Modifier Action. 
-		// This version replace the cloned with the new one and don't change each single action;
-		//customize PostModifierAction
+		newHandler.iEntityModifiers			= this.iEntityModifiers; 
+		
+		newHandler.oPreModifierAction = new LinkedList<SceneActions>();
+		newHandler.oPreModifierAction.addAll(this.oPreModifierAction); 
+		
+		newHandler.oPostModifierAction = new LinkedList<SceneActions>();
+		newHandler.oPostModifierAction.addAll(this.oPostModifierAction); 
+		
+		newHandler.oOnModifierAction = new LinkedList<SceneActions>();
+		newHandler.oOnModifierAction.addAll(this.oOnModifierAction); 
+		
 		if(!entry.postModAction.isEmpty())
 			newHandler.oPostModifierAction = entry.postModAction;
-
+			
 		//customize PreModifierAction
 		if(!entry.preModAction.isEmpty())
 			newHandler.oPreModifierAction = entry.preModAction;
@@ -224,6 +228,18 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		case CHANGE_TO_CHILD_SCENE:
 			executeChangeChildScene(action, pItem);
 			break;
+		case CLOSE_CHILD:
+			executeCloseChild(pItem);
+			break;
+		case GO_TO_MENU:
+			executeGoToMenu(pItem);
+			break;
+		case GO_TO_NEXTLEVEL:
+			executeGoToNextLevel(pItem);
+			break;	
+		case RELOAD_SCENE:
+			executeReloadScene(pItem);
+			break;
 		case STICK:
 			break;
 		case PLAY_SOUND:
@@ -250,6 +266,8 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 			break;
 		}	
 	}
+
+
 	//------------------------------------------------------------
 	//protected methods
 	//------------------------------------------------------------
@@ -267,6 +285,26 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		Log.i(TAG,"\t Change Scene");
 		if(pItem instanceof IActivitySceneListener)
 			((IActivitySceneListener)pItem).onChangeChildScene(action.NextScene);
+	}
+	protected void executeCloseChild(IEntity pItem){
+		Log.i(TAG,"\t Change Scene");
+		if(pItem instanceof IActivitySceneListener)
+			((IActivitySceneListener)pItem).onCloseChildScene();
+	}
+	protected void executeReloadScene(IEntity pItem){
+		Log.i(TAG,"\t Change Scene");
+		if(pItem instanceof IActivitySceneListener)
+			((IActivitySceneListener)pItem).onReloadScene();
+	}
+	private void executeGoToNextLevel(IEntity pItem) {
+		Log.i(TAG,"\t Change Scene");
+		if(pItem instanceof IActivitySceneListener)
+			((IActivitySceneListener)pItem).onGoToNextLevel();
+	}
+	private void executeGoToMenu(IEntity pItem) {
+		Log.i(TAG,"\t Change Scene");
+		if(pItem instanceof IActivitySceneListener)
+			((IActivitySceneListener)pItem).onGoToMenu();
 	}
 	protected void executePlaySound(SceneActions action, IEntity pItem){
 		Log.i(TAG,"\t PLay Music");

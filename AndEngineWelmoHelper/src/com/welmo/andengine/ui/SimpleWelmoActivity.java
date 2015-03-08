@@ -8,6 +8,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.andengine.audio.music.Music;
+import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
@@ -166,6 +167,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
+	public Camera getCamera() {
+		return this.mSmoothCamera;
+	}
 	public int getCameraWidth() {
 		return nCameraWidth;
 	}
@@ -525,12 +529,17 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		Scene currentScene = this.mEngine.getScene();
 		try {
 			executeStartup.acquire();
-			if(currentScene instanceof IManageableScene){
-				String fatherSceneName = ((IManageableScene)currentScene).getFatherScene();
-				if(fatherSceneName.length() == 0)
-					super.onBackPressed();
-				else
-					this.mEngine.setScene((Scene)mSceneManager.getScene(fatherSceneName));
+			if(currentScene.hasChildScene()){
+				currentScene.clearChildScene();
+			}
+			else{
+				if(currentScene instanceof IManageableScene){
+					String fatherSceneName = ((IManageableScene)currentScene).getFatherScene();
+					if(fatherSceneName.length() == 0)
+						super.onBackPressed();
+					else
+						this.mEngine.setScene((Scene)mSceneManager.getScene(fatherSceneName));
+				}
 			}
 			executeStartup.release();
 		} catch (InterruptedException e) {
@@ -656,6 +665,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			psc.setFatherSceneMessageHandler(this);
 			//FTO to complete psc.fireEvent(SCENELOADED);
 			//add scene to the engine to be displayed
+			psc.sortChildren(false);
 			mEngine.setScene(psc);
 			return true;
 		}
@@ -668,7 +678,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		
 		ManageableScene psc = (ManageableScene) mSceneManager.getScene(nextScene);
 		if(psc != null){
-			currentScene.setChildScene(psc,true, true, true);
+			currentScene.setChildScene(psc,false, true, true);
 			return true;
 		}
 		else
@@ -735,5 +745,31 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			}
 		}
 		return false;
-	}	
+	}
+	@Override
+	public void onCloseChildScene() {
+		Scene currentScene = this.mEngine.getScene();
+		try {
+			executeStartup.acquire();
+			if(currentScene.hasChildScene()){
+				currentScene.clearChildScene();
+			}
+			executeStartup.release();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	@Override
+	public void onReloadScene() {
+		Scene currentScene = this.mEngine.getScene();
+		if(currentScene != null)
+			currentScene.reset();
+	}
+	@Override
+	public void onGoToMenu() {	
+	}
+	@Override
+	public void onGoToNextLevel() {
+	}
 }

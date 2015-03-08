@@ -1,5 +1,7 @@
 package com.welmo.andengine.scenes.components;
 
+import java.util.ArrayList;
+
 import org.andengine.engine.Engine;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.Sprite;
@@ -118,7 +120,7 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 			mIClicakableImpmementation.onFireEventAction(event, type);
 	}
 	@Override
-	public IComponentEventHandler getEventsHandler(Events theEvent) {
+	public ArrayList<IComponentEventHandler>  getEventsHandler(Events theEvent) {
 		return mIClicakableImpmementation.getEventsHandler(theEvent);
 	}
 	@Override
@@ -179,6 +181,18 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 	public boolean onChangeChildScene(String nextScene) {
 		return mIActivitySceneListener.onChangeChildScene(nextScene);
 	}
+	@Override
+	public void onReloadScene() {
+		mIActivitySceneListener.onReloadScene();
+	}
+	@Override
+	public void onGoToMenu() {
+		mIActivitySceneListener.onGoToMenu();
+	}
+	@Override
+	public void onGoToNextLevel() {
+		mIActivitySceneListener.onGoToNextLevel();
+	}
 	
 	@Override
 	public void setActionSceneListner(IActionSceneListener scenelistener) {
@@ -194,6 +208,17 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 
 	@Override
 	public void setOperationsHandler(IOperationHandler messageHandler) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onCloseChildScene() {
+		mIActivitySceneListener.onCloseChildScene();// TODO Auto-generated method stub	
+	}
+
+	@Override
+	public void onResult(int i, int j, String string) {
 		// TODO Auto-generated method stub
 		
 	}

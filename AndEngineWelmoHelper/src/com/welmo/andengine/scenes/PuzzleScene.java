@@ -108,53 +108,41 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 		strLaunchStatus = sp.getString("LaunchStatus", ButtonSceneLauncherDescriptor.Status.Locked.name());
 	}
 
-	/*public void doSave(SharedPreferences sp, String url_root) {
-		Editor ed = sp.edit();
-		ed.putInt("lastResult", nLastResult);
-		ed.putString("LaunchStatus", strLaunchStatus);
-		ed.commit();
-	}*/
-	
 	@Override
 	public void setSharedPreferenceManager(SharedPreferenceManager sp) {
 		pSPM = sp;
 	}
 	@Override
-	public void onResult(int result) {
+	public void onResult(int result, int score, String scoremessage) {
 		
-		//TODO
-		//Temporary value
+		ButtonSceneLauncherDescriptor.Status newStatus = Status.level0;
 		
-		ButtonSceneLauncherDescriptor.Status currStatus = ButtonSceneLauncherDescriptor.Status.valueOf(strLaunchStatus);
-		
-		switch(currStatus){
-			case Locked: currStatus = Status.level0; break;
-			case NotActive: currStatus = Status.level0; break;
-			case level0: currStatus = Status.level1; break;
-			case level1: currStatus = Status.level2; break;
-			case level2: currStatus = Status.level3; break;
+		switch(result){
+			case 0: newStatus = Status.level0; break;
+			case 1: newStatus = Status.level1; break;
+			case 2: newStatus = Status.level2; break;
+			case 3: newStatus = Status.level3; break;
 			default: break;	
 		};
 		
-		strLaunchStatus = currStatus.name();
+		nLastResult = result;
+		strLaunchStatus = newStatus.name();
+
+		// save the new status and result
+		SharedPreferences sp = null;
+
+		if(bIsAnInstance)
+			sp = pSPM.getSharedPreferences(strInstantiatedSceneName);
+		else
+			sp = pSPM.getSharedPreferences(this.pSCDescriptor.sceneName);
+
+		Editor ed = sp.edit();
+		ed.putInt("lastResult", result);
+		ed.putString("LaunchStatus", strLaunchStatus);
+		ed.commit();
 		
-		result = nLastResult+1;
-		if(nLastResult < result){
-			nLastResult = result;
-			
-			SharedPreferences sp = null;
-			
-			if(bIsAnInstance)
-				sp = pSPM.getSharedPreferences(strInstantiatedSceneName);
-			else
-				sp = pSPM.getSharedPreferences(this.pSCDescriptor.sceneName);
-				
-			Editor ed = sp.edit();
-			ed.putInt("lastResult", nLastResult);
-			ed.putString("LaunchStatus", strLaunchStatus);
-			ed.commit();
-		}
-		// Create Massage to signal to the father schen the scene endded with status success and value equal to result
+		
+		// Create Massage to signal to the father scene that the scene ended with status success and value equal to result
 		Operation theOperation = new Operation();
 		theOperation.setType(IOperationHandler.OperationTypes.ACTIVATE_BTN_NEXT_SCENE_LAUNCER);
 		
@@ -164,6 +152,8 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 			theOperation.setParameterString(this.pSCDescriptor.sceneName);
 		
 		this.hdFatherSceneMessageHandler.doOperation(theOperation);
+		//TO DO use a parameter instead of hardcoding it
+		this.pIActivityScebeListener.onChangeChildScene("ScoreScreen");
 		
 	}
 
@@ -215,5 +205,10 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 	@Override
 	public boolean isPersitent() {
 		return bIsPersistent;
+	}
+
+	@Override
+	public String getNameOfInstantiatedScene() {
+		return strInstantiatedSceneName;
 	}
 }
