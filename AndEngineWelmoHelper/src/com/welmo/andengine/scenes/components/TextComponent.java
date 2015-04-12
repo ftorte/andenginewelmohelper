@@ -2,8 +2,10 @@ package com.welmo.andengine.scenes.components;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.andengine.engine.Engine;
+import org.andengine.entity.IEntity;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
@@ -147,5 +149,9 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 	public void setOperationsHandler(IOperationHandler messageHandler) {
 		// TODO Auto-generated method stub
 		
+	}
+	@Override
+	public boolean onFireEvent(Events event) {
+		return mIClicakableImpmementation.onFireEvent(event);
 	}
 }

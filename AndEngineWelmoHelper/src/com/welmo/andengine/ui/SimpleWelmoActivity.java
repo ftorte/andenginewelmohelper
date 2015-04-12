@@ -1,6 +1,9 @@
 package com.welmo.andengine.ui;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.concurrent.Semaphore;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -27,37 +30,50 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.progress.IProgressListener;
+import org.json.JSONException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.widget.Toast;
-
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SceneManager;
 import com.welmo.andengine.managers.SharedPreferenceManager;
 import com.welmo.andengine.resources.descriptors.ParserXMLResourcesDescriptor;
+import com.welmo.andengine.scenes.IConfigurableScene;
 import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.ManageableScene;
 import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.descriptors.ParserXMLSceneDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
-import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
 import com.welmo.andengine.scenes.operations.Operation;
 import com.welmo.andengine.utility.AsyncResourcesScenesLoader;
 import com.welmo.andengine.utility.IAsyncCallBack;
+import com.welmo.andengine.utility.inappbilling.IabHelper;
+import com.welmo.andengine.utility.inappbilling.IabResult;
+import com.welmo.andengine.utility.inappbilling.Inventory;
+import com.welmo.andengine.utility.inappbilling.Purchase;
+import com.welmo.andengine.utility.inappbilling.PurchasingManager;
+import com.welmo.andengine.utility.inappbilling.Security;
+import com.welmo.andengine.utility.inappbilling.PurchasingManager.IAPurchasing;
 
 
-public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActivitySceneListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener ,IOperationHandler{
+public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActivitySceneListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener ,IOperationHandler , IAPurchasing{
 	// ===========================================================
 	// Constants
 	// ===========================================================
 	private static final String 			TAG = "SimpleWelmoActivity";
+	private final boolean 					mDebugLog = true;		
 
 	//default values
 	final String 							FONTHBASEPATH 	= "font/";
@@ -72,7 +88,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	
 	final String							GAME_MUSIC		="Startup";
 	
-	
+		
 	private enum RESOURCETYPE{
 		TEXTURES, SOUNDS, MUSICS,TILEDTEXTURES,
 	}
@@ -135,6 +151,12 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	
 	//field for the main scene displayed after the thank scene
 	
+	//field for the in app purchasing
+	protected PurchasingManager				mPurchMgr 	= null;
+	protected Inventory						mInventory 	= null;
+    static final int 						RC_REQUEST 	= 10001;// (arbitrary) request code for the purchase flow
+	
+	protected String 						mTheBase64EncodedPublicKey = null;
 	
 	// ===========================================================
 	// Configures resources/scene file and lists
@@ -258,6 +280,14 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		else
 			engineOptions.getAudioOptions().setNeedsSound(false);
 		
+		
+		//Mange in ap billing
+		//get instance of purchasing manger
+		if (mTheBase64EncodedPublicKey != null){
+			mPurchMgr = new PurchasingManager(this,this);
+			mPurchMgr.connectService(this, this.mTheBase64EncodedPublicKey);
+		}
+				
 		//exist
 		return engineOptions;
 	}
@@ -345,12 +375,16 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 					
 					if(mThanksScene !=  null){
 						mEngine.setScene(mThanksScene);
+						if(mLoadingScene instanceof ManageableScene)
+							 ((ManageableScene)mLoadingScene).onFireEvent(Events.ON_SCENE_LAUNCH);
 						Thread.sleep(mThanksSceneDuration);
 					}
 					if(mLoadingScene != null){
 						mEngine.setScene(mLoadingScene);
 						if(mLoadingScene instanceof IProgressListener)
 							progressDialog = (IProgressListener)mLoadingScene;
+						if(mLoadingScene instanceof ManageableScene)
+							 ((ManageableScene)mLoadingScene).onFireEvent(Events.ON_SCENE_LAUNCH);
 
 					}
 					//release the semaphore to free execution of other tasks
@@ -366,6 +400,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		mHUD = new HUDisplay(this.mEngine, nCameraWidth,nCameraHeight);
 		mScrollListener = mHUD;
 		mPinchZoomlListener = mHUD;
+		
 		return mFirstScene;
 	}
 	private void lauchResourceSceneBackGroundLoading(){
@@ -665,24 +700,50 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			psc.setFatherSceneMessageHandler(this);
 			//FTO to complete psc.fireEvent(SCENELOADED);
 			//add scene to the engine to be displayed
-			psc.sortChildren(false);
+			psc.sortChildren(true);
+			
+			//Load the scene in the enging
 			mEngine.setScene(psc);
+			
+			// fire events to be exectures when the scene is launched;
+			psc.onFireEvent(Events.ON_SCENE_LAUNCH);
 			return true;
 		}
 		else
 			return false;
 	}
+	
 	@Override
 	public boolean onChangeChildScene(String nextScene) {
 		Scene currentScene = this.mEngine.getScene();
 		
 		ManageableScene psc = (ManageableScene) mSceneManager.getScene(nextScene);
 		if(psc != null){
+			psc.sortChildren(true);
 			currentScene.setChildScene(psc,false, true, true);
+			psc.onFireEvent(Events.ON_SCENE_LAUNCH);
 			return true;
 		}
 		else
 			return false;
+	}
+	@Override
+	public boolean onLaunchChildScene(String nextScene, ArrayList<String> parameters){
+		ManageableScene psc = (ManageableScene) mSceneManager.getScene(nextScene);
+		
+		if(psc == null) return false;
+		
+		if(!(psc instanceof IConfigurableScene))return false;
+		
+		((IConfigurableScene)psc).setParameter(parameters);
+		
+		psc.sortChildren(true);
+		
+		this.mEngine.getScene().setChildScene(psc,false, true, true);
+		psc.onFireEvent(Events.ON_SCENE_LAUNCH);
+		
+		return false;
+		
 	}
 	@Override
 	public void setIActivitySceneListener(IActivitySceneListener pListener) {
@@ -771,5 +832,120 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	}
 	@Override
 	public void onGoToNextLevel() {
+	}
+	@Override
+	public void onConsumeFinished(Purchase purchase, IabResult result) {
+		// TODO Auto-generated method stub
+		Log.d(TAG, "Consumabe finished Multi finished.");
+		//TO DO
+	}
+	@Override
+	public void onConsumeMultiFinished(List<Purchase> purchases,
+			List<IabResult> results) {
+		// TODO Auto-generated method stub
+		Log.d(TAG, "Consumable Multi finished.");
+		//TO DO
+		
+	}
+	@Override
+	public void onIabPurchaseFinished(IabResult result, Purchase info) {
+		Log.d(TAG, "Purchased finished.");
+		//TO DO
+		
+	}
+	@Override
+	public void onIabSetupFinished(IabResult result) {
+		Log.d(TAG, "Setup finished.");
+
+		if (!result.isSuccess()) {
+			// Oh noes, there was a problem.
+			// TODO complain("Problem setting up in-app billing: " + result);
+			return;
+		}
+		//Log.d(TAG, "Setup successful. Querying inventory.");
+		mPurchMgr.queryInventoryAsync(true,this);
+	}
+	
+	public void addDefaultProductOwned(Inventory inv){
+	}
+	
+	@Override
+	public void onQueryInventoryFinished(IabResult result, Inventory inv) {
+		Log.d(TAG, "Query inventory finished.");
+		Log.d(TAG, "Query inventory was successful.");
+
+		mInventory = inv;
+		
+		//add default product available in the game by defaults
+		this.addDefaultProductOwned(mInventory);
+		
+		//clear Catalog
+		this.mPurchMgr.clearStoredInventory(mPreferencesEditor);
+		
+		//store inventory in shared preference
+		List<String> allOwnedSkus = mInventory.getAllOwnedSkus();
+		ListIterator<String> it = allOwnedSkus.listIterator();
+		
+		
+		boolean hasproduct = false;
+		
+		if(it.hasNext()) hasproduct = true;
+		
+		while(it.hasNext()){
+			String sku = it.next();
+			mPreferencesEditor.putBoolean(sku, true);
+		}
+		if(hasproduct) mPreferencesEditor.commit();
+		
+		Log.d(TAG, "Initial inventory query finished; enabling main UI.");
+	}
+	
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		mPurchMgr.handleActivityResult(requestCode, resultCode, data);
+	}
+
+	void complain(String message) {
+        Log.e(TAG, "**** TrivialDrive Error: " + message);
+        alert("Error: " + message);
+    }
+
+    void alert(String message) {
+        AlertDialog.Builder bld = new AlertDialog.Builder(this);
+        bld.setMessage(message);
+        bld.setNeutralButton("OK", null);
+        Log.d(TAG, "Showing alert dialog: " + message);
+        bld.create().show();
+    }
+    void logDebug(String msg) {
+        if (mDebugLog) Log.d(TAG, msg);
+    }
+    void logError(String msg) {
+    	if (mDebugLog) Log.e(TAG, "In-app billing error: " + msg);
+    }
+
+    void logWarn(String msg) {
+    	if (mDebugLog)  Log.w(TAG, "In-app billing warning: " + msg);
+    }
+    int getResponseCodeFromIntent(Intent i) {
+        Object o = i.getExtras().get(IabHelper.RESPONSE_CODE);
+        if (o == null) {
+            logError("Intent with no response code, assuming OK (known issue)");
+            return IabHelper.BILLING_RESPONSE_RESULT_OK;
+        }
+        else if (o instanceof Integer) return ((Integer)o).intValue();
+        else if (o instanceof Long) return (int)((Long)o).longValue();
+        else {
+            logError("Unexpected type for intent response code.");
+            logError(o.getClass().getName());
+            throw new RuntimeException("Unexpected type for intent response code: " + o.getClass().getName());
+        }
+    }
+	@Override
+	public boolean checkLicence(String sLicence) {
+		return mPreferences.getBoolean(sLicence, false);
 	}
 }

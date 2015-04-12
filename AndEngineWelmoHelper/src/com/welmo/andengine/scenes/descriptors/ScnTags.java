@@ -18,6 +18,8 @@ public class ScnTags {
 	public final static String S_A_PERSISTENCE_FILE	= "persistenceFile";
 	public final static String S_A_PERSISTENCE_MODE	= "persistenceMode";
 	
+	public final static String S_A_END_SCENE		= "end_scene";
+	
 	//--------------------------------------------------------
 	//Scene Objects
 	public final static String S_O_SPRITE 			= "sprite";
@@ -178,5 +180,7 @@ public class ScnTags {
 	public static final String S_A_STATUS_DEFAUTL	= "status_default";
 	public static final String S_A_PERSISTENCE 		= "persistent";
 	public static final String S_A_PERSISTENCE_VARNAME = "persistent_value";
+	public static final String S_A_UNLOCK_CONDITION = "unlock_condition";
+	public static final String S_A_LICENCE 			= "licence";
 		
 }

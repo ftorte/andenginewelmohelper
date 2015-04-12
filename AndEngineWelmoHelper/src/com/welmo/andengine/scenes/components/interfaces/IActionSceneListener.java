@@ -14,4 +14,5 @@ public interface IActionSceneListener {
 	public void unLockTouch();
 	public void onResult(int result);
 	public void onResult(int result, int score, String string);			// sore tipe, score, string score
+	public boolean checkLicence(String sLicence);
 }

@@ -39,6 +39,7 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 	protected boolean							bIsAnInstance		= false;
 	protected String							strInstantiatedSceneName = "";
 	protected String							strLaunchStatus		= ButtonSceneLauncherDescriptor.Status.Locked.name();
+	protected String							strEndScene		= null;
 
 	// ===========================================================
 	// Fields
@@ -62,6 +63,9 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 	    }
 	    
 	    doLoad(pSPM.getSharedPreferences(this.pSCDescriptor.sceneName),null);
+	    
+	    if(sceneDescriptor.getEndScene() != null)
+	    	strEndScene = new String(sceneDescriptor.getEndScene());
 	    
 	}
 		
@@ -99,7 +103,6 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 		thePuzzle.createPuzzle();
 		
 		doLoad(pSPM.getSharedPreferences(strInstantiatedSceneName),null);
-	    
 	}
 
 	
@@ -153,7 +156,14 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 		
 		this.hdFatherSceneMessageHandler.doOperation(theOperation);
 		//TO DO use a parameter instead of hardcoding it
-		this.pIActivityScebeListener.onChangeChildScene("ScoreScreen");
+		if(this.strEndScene != null){
+			ArrayList<String> parameters = new ArrayList<String>();
+			parameters.add(String.valueOf(result));
+			parameters.add(String.valueOf(score));
+			parameters.add(new String(scoremessage));
+			
+			this.pIActivityScebeListener.onLaunchChildScene(strEndScene, parameters);
+		}
 		
 	}
 
@@ -210,5 +220,11 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 	@Override
 	public String getNameOfInstantiatedScene() {
 		return strInstantiatedSceneName;
+	}
+
+	@Override
+	public void setParameter(ArrayList<String> parameterList) {
+		// TODO Auto-generated method stub
+		
 	}
 }

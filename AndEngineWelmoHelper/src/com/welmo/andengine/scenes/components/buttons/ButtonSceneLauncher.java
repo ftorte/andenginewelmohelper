@@ -2,6 +2,7 @@ package com.welmo.andengine.scenes.components.buttons;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.Iterator;
 
 import org.andengine.entity.IEntity;
 import org.andengine.entity.primitive.Rectangle;
@@ -12,6 +13,7 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SharedPreferenceManager;
@@ -30,19 +32,60 @@ import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDesc
 import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDescriptor.ImgType;
 import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDescriptor.Status;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 
 public class ButtonSceneLauncher extends Rectangle implements IComponentClickable, IActivitySceneListener, IActionSceneListener, IPersistent{
 
+	static final String 		TAG = "ButtonSceneLauncher";
+	
 	public class ButtonSceneLauncherClickableImplementation extends IComponentClickableDfltImp{
 		@Override
 		public boolean onTouched(TouchEvent pSceneTouchEvent,float pTouchAreaLocalX, float pTouchAreaLocalY){
 			switch(theStatus){
 			case NotActive:
+				switch (pSceneTouchEvent.getAction()) {
+				case TouchEvent.ACTION_UP:
+					if(hmEventHandlers != null){
+						Log.i(TAG,"\t launch event handler trough object control");
+						ArrayList<IComponentEventHandler> lstHandlerEvent = hmEventHandlers.get(ComponentEventHandlerDescriptor.Events.CLICK_ON_NOTACTIVE);
+						if(lstHandlerEvent != null){
+
+							Iterator<IComponentEventHandler> it = lstHandlerEvent.iterator();
+							lastTouchEvent.set(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
+							while(it.hasNext()){
+								IComponentEventHandler handlerEvent = (IComponentEventHandler) it.next();
+								handlerEvent.handleEvent(mParent,pSceneTouchEvent,lastTouchEvent);
+							}
+
+						}
+					}
+					return true;
+				default:
+					return true;
+				}
 			case Locked:
-				return true;
+				switch (pSceneTouchEvent.getAction()) {
+				case TouchEvent.ACTION_UP:
+					if(hmEventHandlers != null){
+						Log.i(TAG,"\t launch event handler trough object control");
+						ArrayList<IComponentEventHandler> lstHandlerEvent = hmEventHandlers.get(ComponentEventHandlerDescriptor.Events.CLICK_ON_LOCKED);
+						if(lstHandlerEvent != null){
+
+							Iterator<IComponentEventHandler> it = lstHandlerEvent.iterator();
+							lastTouchEvent.set(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
+							while(it.hasNext()){
+								IComponentEventHandler handlerEvent = (IComponentEventHandler) it.next();
+								handlerEvent.handleEvent(mParent,pSceneTouchEvent,lastTouchEvent);
+							}
+						}
+					}
+					return true;
+				default:
+					return true;
+				}
 			default:
 				return super.onTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
 			}
@@ -72,6 +115,8 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	protected Sprite						spIco_star_inactive_2 	= null;
 	protected Sprite						spIco_star_inactive_3 	= null;
 	protected String						sFatherName				= "";
+	protected String						sLicence				= null;
+	
 	
 	//Object Status values handler
 	SharedPreferenceManager					pSPM					= null;
@@ -123,14 +168,22 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 		if(!(null == mIClicakableImpmementation))
 			mIClicakableImpmementation.onFireEventAction(event, type);
 	}
+	@Override
 	public int getID() {
 		if(!(null == mIClicakableImpmementation))
 			return mIClicakableImpmementation.getID();
 		return 0;
 	}
+	@Override
 	public void setID(int ID) {
 		if(!(null == mIClicakableImpmementation))
 		 mIClicakableImpmementation.setID(ID);
+	}
+	@Override
+	public boolean onFireEvent(Events event) {
+		if(!(null == mIClicakableImpmementation))
+			return mIClicakableImpmementation.onFireEvent(event);
+		return false;
 	}
 	@Override
 	public String getPersistenceURL() {
@@ -252,6 +305,9 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 		if((theImage=imagesList.get(ImgType.ico_star_inactive_3))!= null)
 			spIco_star_inactive_3 = createSprite(theImage,pRM);	
 		
+		//read licence ID
+		sLicence = theDescriptor.getLicence();
+		
 		//get default status from descriptor and init the button
 		theDefaultStatus = theDescriptor.getDefaultStatus();
 		setStatus(theDescriptor.getDefaultStatus());
@@ -267,7 +323,16 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 		return theSprite;
 	}
 	private void setStatus(ButtonSceneLauncherDescriptor.Status theStatus){
+		
+		//by default set the status = to the requested status
 		this.theStatus = theStatus;
+		
+		//if license is required and not obtained force status to NotActive
+		if(sLicence != null)
+			if(!mIActivitySceneListener.checkLicence(sLicence)) 
+				this.theStatus = ButtonSceneLauncherDescriptor.Status.NotActive;
+			// pSPM.getSharedPreferences(sLicence).getBoolean(sLicence, false);
+		 
 		desactiveAllSprites();
 		//public enum Status {NotActive, Locked, level0, level1, level2, level3}
 		switch(this.theStatus){
@@ -331,14 +396,10 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	@Override
 	public void doLoad() {
 		if(pSPM == null)
-			throw new NullPointerException("In doSave the Shared Preferences Manager is null");
-		
+			throw new NullPointerException("In doLoad the Shared Preferences Manager is null");
 		SharedPreferences	sp = pSPM.getSharedPreferences(sFatherName);
-		
 		String strLaunchStatus = sp.getString("LaunchStatus", theDefaultStatus.name());
-		
 		this.setStatus(ButtonSceneLauncherDescriptor.Status.valueOf(strLaunchStatus));
-		
 	}
 
 	@Override
@@ -401,5 +462,16 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	public void onResult(int i, int j, String string) {
 		// TODO Auto-generated method stub
 		
+	}
+	@Override
+	public boolean onLaunchChildScene(String nextScene,
+			ArrayList<String> parameters) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	@Override
+	public boolean checkLicence(String sLicence) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
