@@ -29,6 +29,7 @@ import com.welmo.andengine.scenes.components.interfaces.IPersistent;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
@@ -415,13 +416,13 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		    b.append(seconds == 0 ? "00" : seconds < 10 ? String.valueOf("0" + seconds) : String.valueOf(seconds));
 		    
 			// Score TODO configurable
-			if(executedTimeIn_ms > 180000 )	//180000 ms = 3 mintes
+			if(executedTimeIn_ms > 120000 )	//180000 ms = 3 mintes
 				mActSceneListener.onResult(0, 50,  b.toString());
 			else
-				if(executedTimeIn_ms > 140000 )	//140000 ms = 2.x mintes
+				if(executedTimeIn_ms > 60000 )	//140000 ms = 2.x mintes
 					mActSceneListener.onResult(1, 100,  b.toString());
 				else
-					if(executedTimeIn_ms > 120000 )	//140000 ms = 2.x mintes
+					if(executedTimeIn_ms > 30000 )	//140000 ms = 2.x mintes
 						mActSceneListener.onResult(2, 200,  b.toString());
 					else
 						mActSceneListener.onResult(3, 400,  b.toString());
@@ -592,5 +593,19 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	public void onResult(int i, int j, String string) {
 		// TODO Auto-generated method stub
 		
+	}
+
+
+	@Override
+	public void handleEvent(IEntity pItem, Events theEvent) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public boolean checkLicence(String sLicence) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

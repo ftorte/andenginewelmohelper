@@ -1,6 +1,8 @@
 package com.welmo.andengine.scenes;
 
 
+import java.util.ArrayList;
+
 import com.welmo.andengine.scenes.descriptors.ConfiguredSceneDescriptor;
 // *******************************************************************************************
 // A scene that implement i configurable must implement a configure method that get a list of 
@@ -10,4 +12,5 @@ import com.welmo.andengine.scenes.descriptors.ConfiguredSceneDescriptor;
 public interface IConfigurableScene {
 	public void configure(ConfiguredSceneDescriptor descriptor);
 	public String getNameOfInstantiatedScene();
+	public void setParameter(ArrayList<String> parameterList);
 }

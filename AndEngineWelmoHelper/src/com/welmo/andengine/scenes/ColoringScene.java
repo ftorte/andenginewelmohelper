@@ -108,5 +108,13 @@ public class ColoringScene extends ManageableScene implements IConfigurableScene
 	@Override
 	public String getNameOfInstantiatedScene() {
 		return null;
+	}
+
+
+
+	@Override
+	public void setParameter(ArrayList<String> parameterList) {
+		// TODO Auto-generated method stub
+		
 	}	
 }

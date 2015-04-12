@@ -1,6 +1,5 @@
 package com.welmo.andengine.scenes;
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -10,27 +9,18 @@ import org.andengine.engine.Engine;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.background.Background;
-import org.andengine.entity.scene.background.IBackground;
-import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.AnimatedSprite;
-import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.ui.activity.BaseGameActivity;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.ResourcesManager.SoundType;
 import com.welmo.andengine.managers.SceneManager;
 import com.welmo.andengine.managers.SharedPreferenceManager;
-import com.welmo.andengine.scenes.components.ClickableSprite;
 import com.welmo.andengine.scenes.components.ComponentDefaultEventHandler;
-import com.welmo.andengine.scenes.components.CompoundSprite;
 import com.welmo.andengine.scenes.components.PositionHelper;
 import com.welmo.andengine.scenes.components.Stick;
-import com.welmo.andengine.scenes.components.TextComponent;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
-import com.welmo.andengine.scenes.components.buttons.ButtonSceneLauncher;
 import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponentClickable;
@@ -38,17 +28,12 @@ import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
 import com.welmo.andengine.scenes.components.interfaces.IComponentLifeCycle;
 import com.welmo.andengine.scenes.components.interfaces.IPersistent;
-import com.welmo.andengine.scenes.components.puzzle.PuzzleSprites;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.SceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BackGroundObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.BasicComponentDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.ButtonDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.ButtonSceneLauncherDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
-import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
@@ -56,7 +41,6 @@ import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.scenes.operations.Operation;
 import com.welmo.andengine.utility.SoundSequence;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 
@@ -89,6 +73,8 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 		this.pSCDescriptor = pSCDescriptor;
 	}
 	protected HashMap<Integer, IComponentEventHandler> 		hmEventHandlers;
+	protected HashMap<Integer, IComponentEventHandler> 		hmOnStartEventHandlers;
+	
 	protected IOperationHandler 							hdFatherSceneMessageHandler = null;
 	protected int											nLockTouch=0;
 	
@@ -100,6 +86,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 		pRM = ResourcesManager.getInstance();
 		mapOfObjects = new HashMap<Integer, IAreaShape>();
 		hmEventHandlers = new HashMap<Integer, IComponentEventHandler>();
+		hmOnStartEventHandlers =  new HashMap<Integer, IComponentEventHandler>();
 		mapOfSoundSequences = new HashMap<String, SoundSequence>(); 
 		bImplementPinchAndZoom = false;
 	}
@@ -126,10 +113,11 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 		bHasHUD					= sceneDescriptor.hasHUD();
 		pHUDDsc					= sceneDescriptor.getHUDDsc();
 		
+		//load each event handrel for the scene
 		for (ComponentEventHandlerDescriptor ehDsc:pSCDescriptor.pGlobalEventHandlerList){
-			ComponentDefaultEventHandler newEventHandler= new ComponentDefaultEventHandler();
-			newEventHandler.setUpEventsHandler(ehDsc);
-			this.hmEventHandlers.put(ehDsc.getID(), newEventHandler);
+					ComponentDefaultEventHandler newEventHandler= new ComponentDefaultEventHandler();
+					newEventHandler.setUpEventsHandler(ehDsc);
+					this.hmEventHandlers.put(ehDsc.getID(), newEventHandler);
 		}
 
 		//load each components constituting the scene id descriptor is instance of basiccomponentdescriptor
@@ -199,6 +187,14 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 			
 			newSceneComponent.setOperationsHandler(this);
 
+			//Set-up listners MUST be done just after the creation to ensure that if listners are used in the cofiguration listners are available
+			if(newSceneComponent instanceof IActionSceneListener)
+				((IActionSceneListener)newSceneComponent).setIActionOnSceneListener(this);
+
+			if(newSceneComponent instanceof IActivitySceneListener)
+				((IActivitySceneListener)newSceneComponent).setIActivitySceneListener(pSM.getIActivitySceneListener());
+			
+			
 			//Configured the new component and attach it to the father
 			newSceneComponent.configure(scObjDsc);
 			pEntityFather.attachChild((IEntity)newSceneComponent);
@@ -219,12 +215,6 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 				PositionHelper.align(scObjDsc.getIPosition(), (IAreaShape) newSceneComponent, (IAreaShape) pEntityFather);
 			}
 
-				
-			if(newSceneComponent instanceof IActionSceneListener)
-				((IActionSceneListener)newSceneComponent).setIActionOnSceneListener(this);
-
-			if(newSceneComponent instanceof IActivitySceneListener)
-				((IActivitySceneListener)newSceneComponent).setIActivitySceneListener(pSM.getIActivitySceneListener());
 			
 			//Create events handler
 			if(!scObjDsc.pEventHandlerList.isEmpty()){
@@ -322,7 +312,25 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 		else
 			return super.onSceneTouchEvent(pSceneTouchEvent);
 	}
-	
+	@Override
+	public boolean onFireEvent(Events pEvent){
+		switch(pEvent){
+		case NO_EVENT:
+		case ON_MOVE:
+		case ON_CLICK:
+			break;
+		case ON_SCENE_LAUNCH:
+			IAreaShape theComponent = null;
+			Iterator<IAreaShape> itEvent = this.mapOfObjects.values().iterator();
+			while (itEvent.hasNext()){
+				if((theComponent = itEvent.next()) instanceof IComponentClickable)
+					((IComponentClickable)theComponent).onFireEvent(pEvent);
+			}
+			break;
+		}
+
+		return false;
+	}
 	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void onStick(IAreaShape currentShapeToStick,
@@ -410,5 +418,9 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 		// TODO Auto-generated method stub
 		
 	}
-	
+	@Override
+	public boolean checkLicence(String sLicence) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

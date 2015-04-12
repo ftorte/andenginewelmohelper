@@ -28,6 +28,7 @@ import com.welmo.andengine.scenes.descriptors.events.ComponentModifierDescriptor
 import com.welmo.andengine.scenes.descriptors.events.ComponentModifierListDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ExecutionOrder;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions;
+import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 import com.welmo.andengine.scenes.descriptors.events.SceneActions.ActionType;
 
 public class ComponentDefaultEventHandler implements IEntityModifierListener, IComponentEventHandler{
@@ -118,6 +119,10 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 				ExecuteAction(action,pItem,pTouchEvent,lastTouchEvent);
 
 		}
+	}
+	@Override
+	public void handleEvent(IEntity pItem, Events theEvent) {
+		handleEvent(pItem,null,null); 
 	}
 	public IComponentEventHandler cloneEvent(ComponentEventHandlerDescriptor entry){
 		ComponentDefaultEventHandler newHandler= new ComponentDefaultEventHandler();
@@ -211,6 +216,7 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 				ExecuteAction(theAction,pItem,null,null);
 		}
 	}
+	
 		
 		
 	public void ExecuteAction(SceneActions action, IEntity pItem, TouchEvent pTouchEvent,TouchEvent lastTouchEvent){

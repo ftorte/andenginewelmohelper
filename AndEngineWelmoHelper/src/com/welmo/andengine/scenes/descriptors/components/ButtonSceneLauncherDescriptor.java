@@ -29,9 +29,22 @@ public class ButtonSceneLauncherDescriptor extends BasicComponentDescriptor{
 		defaultstatus = objectCopy.defaultstatus;
 		imagesList.clear();
 		imagesList.putAll(objectCopy.imagesList);
+		strNextScene = objectCopy.strNextScene;
+		strUnlockCondition = objectCopy.strUnlockCondition;
+		strLicence = objectCopy.strLicence;
+		
 	}
 	protected Status 				defaultstatus 			= Status.NotActive;
 	protected String				strNextScene			= "";
+	protected String				strUnlockCondition		= "";
+	protected String				strLicence				= null;
+	
+	public String getLicence() {
+		return strLicence;
+	}
+	public void setLicence(String strLicence) {
+		this.strLicence = strLicence;
+	}
 	EnumMap<ImgType, ImgData> 		imagesList 				= new EnumMap<ImgType, ImgData>(ImgType.class);
 	
 	
@@ -113,6 +126,13 @@ public class ButtonSceneLauncherDescriptor extends BasicComponentDescriptor{
 		//read the next scene is launched while button is pressed
 		value = attributes.getValue(ScnTags.S_A_NEXT_SCENE);
 		if(value!= null) strNextScene = new String(value);
+		
+		value = attributes.getValue(ScnTags.S_A_UNLOCK_CONDITION);
+		if(value!= null) strUnlockCondition = new String(value);
+		
+		value = attributes.getValue(ScnTags.S_A_LICENCE);
+		if(value!= null) 
+			strLicence =  new String(value);
 	}
 
 	private ImgData readImageDataFromString(String imgData){

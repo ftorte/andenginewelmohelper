@@ -127,6 +127,10 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 	public String getPersistenceURL() {
 		return mIClicakableImpmementation.getPersistenceURL();
 	}
+	@Override
+	public boolean onFireEvent(Events event) {
+		return mIClicakableImpmementation.onFireEvent(event);
+	}
 	// ===========================================================		
 	// ====== IActionOnSceneListener ==== 	
 	@Override
@@ -221,5 +225,18 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 	public void onResult(int i, int j, String string) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public boolean onLaunchChildScene(String nextScene,
+			ArrayList<String> parameters) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean checkLicence(String sLicence) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

@@ -26,7 +26,7 @@ public class SceneDescriptor extends BasicDescriptor {
 	public String 										sceneName="";
 	public String 										sceneFather="";
 	public LinkedList<ComponentEventHandlerDescriptor>  pGlobalEventHandlerList;
-	public Map<Integer,BasicDescriptor> 				pTemplates;		//contains all templated for instantiations in the scene			
+	public Map<Integer,BasicDescriptor> 				pTemplates;		//contains all templates for instantiations in the scene			
 	
 	protected GameLevel									gameLevel		=GameLevel.EASY;
 	protected HashMap<String,String[]> 					phrasesMap;
@@ -36,6 +36,8 @@ public class SceneDescriptor extends BasicDescriptor {
 	private boolean 									bHasHUD 		= false;
 	@SuppressWarnings("unused")
 	private HUDDescriptor								pHUDDsc 		= null;
+
+	private	String										sEndScene		= null;
 	
 	//Persistence variable
 	private String 										sPersistenceFileName	= "DefaulsPreferences";
@@ -126,6 +128,16 @@ public class SceneDescriptor extends BasicDescriptor {
 			this.sPersistenceFileName = new String(attributes.getValue(ScnTags.S_A_PERSISTENCE_FILE));
 		if(attributes.getValue(ScnTags.S_A_PERSISTENCE_MODE)!= null)
 			this.setnPersistenceMode(Integer.parseInt(attributes.getValue(ScnTags.S_A_PERSISTENCE_MODE)));	
+		if(attributes.getValue(ScnTags.S_A_END_SCENE)!= null)
+			this.sEndScene = new String(attributes.getValue(ScnTags.S_A_END_SCENE));
+	}
+
+	public String getEndScene() {
+		return sEndScene;
+	}
+
+	public void setEndScene(String sEndScene) {
+		this.sEndScene = sEndScene;
 	}
 
 }

@@ -146,6 +146,43 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 		}
 		return false;
 	}
+	
+	@Override
+	public boolean onFireEvent(Events event) {
+		boolean eventHandled = false;
+		switch (event) {
+		case NO_EVENT:
+		case ON_MOVE:
+		case ON_CLICK:
+			break;
+		case ON_SCENE_LAUNCH:
+			if(hmEventHandlers != null){
+				Log.i(TAG,"\t launch event handler trough object control");
+				ArrayList<IComponentEventHandler> lstHandlerEvent = hmEventHandlers.get(ComponentEventHandlerDescriptor.Events.ON_SCENE_LAUNCH);
+				if(lstHandlerEvent != null){
+					Iterator<IComponentEventHandler> it = lstHandlerEvent.iterator();
+					while(it.hasNext()){
+						IComponentEventHandler eventHandler = (IComponentEventHandler) it.next();
+						eventHandler.handleEvent(mParent, event);
+						eventHandled = true;
+					}
+				}
+				else{
+					for (int idxChild = 1; idxChild <= mParent.getChildCount(); idxChild++){
+						IEntity value = mParent.getChildByIndex(idxChild-1);
+						if(value instanceof IComponentClickable)
+							if(((IComponentClickable)value).onFireEvent(event) == true)
+								eventHandled = true;
+					}
+				}
+			}
+			break;
+		default:
+			break;
+		}
+		return eventHandled;
+	}
+	
 	@Override
 	public void configure(BasicDescriptor pDsc) {
 		// TODO Auto-generated method stub

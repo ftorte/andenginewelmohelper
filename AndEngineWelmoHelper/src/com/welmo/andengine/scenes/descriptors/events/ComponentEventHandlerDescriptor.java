@@ -8,7 +8,7 @@ import com.welmo.andengine.scenes.descriptors.ScnTags;
 
 public class ComponentEventHandlerDescriptor extends BasicModifierDescriptor{
 	public static enum Events {
-		NO_EVENT, ON_MOVE, ON_CLICK
+		NO_EVENT, ON_MOVE, ON_CLICK, ON_SCENE_LAUNCH, CLICK_ON_NOTACTIVE, CLICK_ON_LOCKED
 	}
 	public Events 								event;
 	public ComponentModifierListDescriptor		modifierSet=null;

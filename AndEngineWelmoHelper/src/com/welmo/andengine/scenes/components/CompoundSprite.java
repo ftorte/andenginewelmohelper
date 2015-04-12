@@ -164,6 +164,10 @@ public class CompoundSprite extends Rectangle implements IComponent, IComponentC
 		
 	}
 	@Override
+	public boolean onFireEvent(Events event) {
+		return mIClicakableImpmementation.onFireEvent(event);
+	}
+	@Override
 	public ArrayList<IComponentEventHandler>  getEventsHandler(Events theEvent) {
 		mIClicakableImpmementation.getEventsHandler(theEvent);
 		return null;

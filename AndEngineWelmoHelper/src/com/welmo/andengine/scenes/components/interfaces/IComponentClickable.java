@@ -14,4 +14,5 @@ public interface IComponentClickable extends IComponent{
 	public IActionSceneListener getActionOnSceneListener();
 	public boolean onTouched(TouchEvent pSceneTouchEvent,float pTouchAreaLocalX, float pTouchAreaLocalY);
 	public void onFireEventAction(Events event, ActionType type);
+	public boolean onFireEvent(Events event);
 }
