@@ -12,8 +12,8 @@ import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.ScnTags;
 
 public class ButtonSceneLauncherDescriptor extends BasicComponentDescriptor{
-	public enum Status {NotActive, Locked, level0, level1, level2, level3}
-	public enum ImgType{bg_inactive, bg_fina, ico_locked, ico_free, ico_star_1, ico_star_2, ico_star_3, 
+	public enum Status {NotActive, Locked, Unlocked, level0, level1, level2, level3}
+	public enum ImgType{bg_inactive, ico_inactive, bg_final, ico_locked, ico_unlocked, ico_free, ico_star_1, ico_star_2, ico_star_3, 
 		ico_star_inactive_1, ico_star_inactive_2, ico_star_inactive_3}
 	
 	public class ImgData{
@@ -45,18 +45,20 @@ public class ButtonSceneLauncherDescriptor extends BasicComponentDescriptor{
 	public void setLicence(String strLicence) {
 		this.strLicence = strLicence;
 	}
+	
 	EnumMap<ImgType, ImgData> 		imagesList 				= new EnumMap<ImgType, ImgData>(ImgType.class);
 	
 	
 	/* maps active image in function of the buttons status
-	
-	//				IMG_BG_INACTIVE		IMG_BG_FINAL	IMG_ICON_LOKED	IMG_ICON_FREE	strStarInacive	strStar		
-	// 	0				yes					no				no				no			no				no
-	//	1				no					yes				yes				no			no				no
-	//	2				no					yes				no				yes			yes (3)			no
-	//	3				no					yes				no				yes			yes (3)			yes (1)			
-	//	4				no					yes				no				yes			yes (3)			yes (2)
-	//	5				no					yes				no				yes			no				yes (3)
+	/NotActive, Locked, Unlocked, level0, level1, level2, level3
+	//					BG_INACTIVE		ICO_INACTIVE	BG_FINAL	ICO_LOCKED 	ICO_UNLOCKED	IMG_ICON_FREE	strStarInacive	strStar		
+	// 	NotActive			yes				yes				no			no			no				no				no				no
+	//	Locked				no				no				yes			yes			no				no				no				no
+	//	Unlocked			no				no				yes			no			yes				no				no 				no
+	//	level0				no				no				yes			no			no				yes				yes (1,2,3)		no			
+	//	level1				no				no				yes			no			no				yes				yes (2,3)		yes (1)
+	//	level2				no				no				yes			no			no				yes				yes	(3)			yes (1,2)
+	//	level3				no				no				yes			no			no				yes				no				yes (1,2,3)
 	*/
 	public ButtonSceneLauncherDescriptor(){
 		super();
@@ -88,13 +90,21 @@ public class ButtonSceneLauncherDescriptor extends BasicComponentDescriptor{
 		value = attributes.getValue(ScnTags.S_A_BG_INACTIVE);
 		if(value!= null) imagesList.put(ImgType.bg_inactive,readImageDataFromString(value));
 		
+		//read Background
+		value = attributes.getValue(ScnTags.S_A_ICO_INACTIVE);
+		if(value!= null) imagesList.put(ImgType.ico_inactive,readImageDataFromString(value));
+
 		//read bg_fina
 		value = attributes.getValue(ScnTags.S_A_BG_FINAL);
-		if(value!= null) imagesList.put(ImgType.bg_fina,readImageDataFromString(value));
+		if(value!= null) imagesList.put(ImgType.bg_final,readImageDataFromString(value));
 		
 		//read ico_locked
 		value = attributes.getValue(ScnTags.S_A_ICO_LOCKED);
 		if(value!= null) imagesList.put(ImgType.ico_locked,readImageDataFromString(value));
+		
+		//read ico_locked
+		value = attributes.getValue(ScnTags.S_A_ICO_UNLOCKED);
+		if(value!= null) imagesList.put(ImgType.ico_unlocked,readImageDataFromString(value));
 		
 		//read ico_free
 		value = attributes.getValue(ScnTags.S_A_ICO_FREE);

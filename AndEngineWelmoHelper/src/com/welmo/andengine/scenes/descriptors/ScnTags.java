@@ -35,6 +35,7 @@ public class ScnTags {
 	public static final String S_BUTTON 			= "button";
 	public static final String S_SCENELAUNCHER 		= "scene_launcher_btn";
 	public static final String S_IS_TEMPLATE		= "isTemplate";
+	public static final String S_PARTICULESYSTEM 	= "particule_system";
 	
 
 	
@@ -95,9 +96,11 @@ public class ScnTags {
 	public final static String S_A_SIDEA			= "sideA";
 	public final static String S_A_SIDEB			= "sideB";
 	
-	//Font
+	//Font and text
 	public final static String S_A_MESSAGE 			= "message";
 	public final static String S_A_COLOR			= "color";
+	public final static String S_A_TEXTMAXLENGHT	= "textmaxlenght";
+	public final static String S_A_TEXTMAXWIDTH		= "textmaxwidth";
 	
 	//Alignement
 	public final static String S_A_H_ALIGNEMENT 	= "h_alignment";
@@ -166,13 +169,14 @@ public class ScnTags {
 	
 	//Button Scene Launcher
 	public static final String S_A_BG_INACTIVE		= "back_ground_inactive";
+	public static final String S_A_ICO_INACTIVE 	= "ico_inactive";
 	public static final String S_A_BG_FINAL 		= "back_ground_final";
 	public static final String S_A_ICO_LOCKED 		= "ico_locked";
+	public static final String S_A_ICO_UNLOCKED 	= "ico_unlocked";
 	public static final String S_A_ICO_FREE 		= "ico_free";
 	public static final String S_A_ICO_STAR_1 		= "ico_star_1";
 	public static final String S_A_ICO_STAR_2 		= "ico_star_2";
-	public static final String S_A_ICO_STAR_3		= "ico_star_3";
-	
+	public static final String S_A_ICO_STAR_3		= "ico_star_3";	
 	public static final String S_A_ICO_STAR_INACTIVE_1= "ico_star_inactive_1";
 	public static final String S_A_ICO_STAR_INACTIVE_2= "ico_star_inactive_2";
 	public static final String S_A_ICO_STAR_INACTIVE_3= "ico_star_inactive_3";
@@ -182,5 +186,13 @@ public class ScnTags {
 	public static final String S_A_PERSISTENCE_VARNAME = "persistent_value";
 	public static final String S_A_UNLOCK_CONDITION = "unlock_condition";
 	public static final String S_A_LICENCE 			= "licence";
-		
+	public static final String S_A_PRODUCTID 		= "productID";
+	
+	//Particels specific
+	public static final String S_A_RADIUS_X 		= "radiusX";
+	public static final String S_A_RADIUS_Y 		= "radiusY";
+	public static final String S_A_RATEMIN 			= "rateMin";
+	public static final String S_A_RATEMAX 			= "rateMax";
+	public static final String S_A_PARTICELMAX 		= "particelsMax";
+	
 }

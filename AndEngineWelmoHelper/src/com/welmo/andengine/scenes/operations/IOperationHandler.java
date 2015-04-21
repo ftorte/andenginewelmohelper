@@ -10,7 +10,8 @@ public interface IOperationHandler {
 		UNDO,								// Undo last operation
 		ACTIVATE_BTN_NEXT_SCENE_LAUNCER,	// Set the button launcher status
 		SET_MUSIC_ONOFF,					// Set Music On or OFF
-		RESET_PERSITENCE					// Clear all persistence status
+		RESET_PERSITENCE,					// Clear all persistence status
+		FIRE_PARTICULE						// Fire the event Particule (Paramter: Particule Name, duration in ms
 	}
 	public void doOperation(Operation msg);
 	public void undoOperation(Operation msg);

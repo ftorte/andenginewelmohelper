@@ -10,26 +10,26 @@ import com.welmo.andengine.scenes.descriptors.ScnTags;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
 
 public class SceneActions extends BasicModifierDescriptor{
-	public static final int				DEFAULT_FLIP_TIME = 1000;
-	public static final String			TAG="SceneActions";
+	public static final int			DEFAULT_FLIP_TIME 	= 1000;
+	public static final String		TAG					="SceneActions";
 	
-	//[FT] public SpritesEvents event = SpritesEvents.NO_EVENTS; 
-	public ActionType type =ActionType.NO_ACTION;
-	public String resourceName="";
-	public String NextScene="";
-	public int stick_with=0;
-	public StickMode stickMode = Stick.StickMode.NO_STICK;
-	public Events event;
-	public int ZIndex;
-	public int sideA;
-	public int sideB;
-	public float flipTime;
-	public boolean bChangeToFather				= false;
-	public boolean bChangeToChild 				= false;
-	public boolean bCloseChild					= false;
-	public boolean bRelosaScene					= false;
-	public boolean bGOtoMenu					= false;
-	public boolean bGOtoNextLevel				= false;
+	public ActionType 				type 						=ActionType.NO_ACTION;
+	public String 					resourceName				="";
+	public String 					NextScene					="";
+	public int 						stick_with					=0;
+	public StickMode 				stickMode 					= Stick.StickMode.NO_STICK;
+	public Events 					event;
+	public int 						ZIndex;
+	public int 						sideA;
+	public int 						sideB;
+	public float 					flipTime;
+	public boolean 					bChangeToFather				= false;
+	public boolean 					bChangeToChild 				= false;
+	public boolean 					bCloseChild					= false;
+	public boolean 					bRelosaScene				= false;
+	public boolean 					bGOtoMenu					= false;
+	public boolean 					bGOtoNextLevel				= false;
+	public String  					sProductID 					= null;
 	
 	
 	
@@ -41,7 +41,8 @@ public class SceneActions extends BasicModifierDescriptor{
 	}
 	public enum ActionType {
 		NO_ACTION, CHANGE_SCENE,STICK,PLAY_SOUND,PLAY_MUSIC,CHANGE_Z_ORDER,FLIP,DISABLE_SCENE_TOUCH,
-		ENABLE_SCENE_TOUCH,ON_MOVE_FOLLOW, CHANGE_TO_FATHER_SCENE, CHANGE_TO_CHILD_SCENE, CLOSE_CHILD,RELOAD_SCENE,GO_TO_MENU,GO_TO_NEXTLEVEL
+		ENABLE_SCENE_TOUCH,ON_MOVE_FOLLOW, CHANGE_TO_FATHER_SCENE, CHANGE_TO_CHILD_SCENE, CLOSE_CHILD,RELOAD_SCENE,GO_TO_MENU,GO_TO_NEXTLEVEL,
+		INAPP_PURCHASE
 	}
 	public enum ActionMode {
 		NO_MODE, STICK_MERGE, 
@@ -91,6 +92,9 @@ public class SceneActions extends BasicModifierDescriptor{
 					this.flipTime = Integer.parseInt(attributes.getValue(ScnTags.S_A_FLIP_TIME));
 				break;
 			case ON_MOVE_FOLLOW:
+				break;
+			case INAPP_PURCHASE:
+				this.sProductID = new String(attributes.getValue(ScnTags.S_A_PRODUCTID)); 
 				break;
 			case STICK:	
 				this.stick_with=Integer.parseInt(attributes.getValue(ScnTags.S_A_STICK_WITH));

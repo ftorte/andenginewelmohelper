@@ -14,4 +14,5 @@ public interface IActivitySceneListener {
 		public void onGoToMenu();
 		public void onGoToNextLevel();
 		public boolean checkLicence(String sLicence);
+		public void onInAppPurchasing(String sProductID);
 }
