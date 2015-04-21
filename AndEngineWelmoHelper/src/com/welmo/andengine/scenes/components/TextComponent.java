@@ -7,6 +7,7 @@ import java.util.Iterator;
 import org.andengine.engine.Engine;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.shape.IAreaShape;
+import org.andengine.entity.text.AutoWrap;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
 import org.andengine.input.touch.TouchEvent;
@@ -14,7 +15,6 @@ import org.andengine.opengl.font.IFont;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
 
-import android.R;
 import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager;
@@ -36,6 +36,7 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 	//Log & Debug
 	private static final String 	TAG = "TextComponent";
 	private float					scale = 1.0f;
+	private int						nTextMaxLenght;
 
 	// ===========================================================
 	// Fields
@@ -55,8 +56,11 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 	}
 	public TextComponent(TextObjectDescriptor pTXTDscf, ResourcesManager pRM, Engine theEngine){
 		super(0, 0, pRM.getFont(pTXTDscf.getFontName()), 
-				pTXTDscf.getMessage(), new TextOptions(HorizontalAlign.CENTER), 
+				pTXTDscf.getMessage(), pTXTDscf.textmaxlenght , (pTXTDscf.textmaxwidth != 0 ? new TextOptions(AutoWrap.WORDS, pTXTDscf.textmaxwidth, HorizontalAlign.CENTER): new TextOptions(HorizontalAlign.CENTER)), 
 				theEngine.getVertexBufferObjectManager());
+		//TO DO set atowrap width are parameter for the descriptot
+		nTextMaxLenght = pTXTDscf.textmaxlenght;
+		
 		init();
 		configure(pTXTDscf);
 		
@@ -68,6 +72,9 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 		
 		if(pTXTDscf.type == TextObjectDescriptor.TextTypes.RESOURCE){
 			CharSequence message = pRM.getStringResourceByName(pTXTDscf.message);
+			if (message.length() > this.nTextMaxLenght)
+				message = new String(message.subSequence(0, nTextMaxLenght).toString());
+			
 			this.setText(message);
 		}
 		
@@ -85,6 +92,7 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 	protected void init(){
 		mIClicakableImpmementation =  new IComponentClickableDfltImp();
 		mIClicakableImpmementation.setParent(this);
+		
 	}
 		
 	public void configure(TextObjectDescriptor spDsc){
@@ -96,6 +104,7 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 		setX(spDsc.getIPosition().getX());
 		setY(spDsc.getIPosition().getY());
 	}
+	
 	@Override
 	public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 			float pTouchAreaLocalX, float pTouchAreaLocalY) {

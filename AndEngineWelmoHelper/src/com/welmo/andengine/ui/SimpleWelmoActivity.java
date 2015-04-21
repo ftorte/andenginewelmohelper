@@ -16,6 +16,8 @@ import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
+import org.andengine.entity.particle.SpriteParticleSystem;
+import org.andengine.entity.particle.emitter.BaseParticleEmitter;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.util.FPSLogger;
@@ -45,6 +47,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.widget.Toast;
+
+import com.welmo.andengine.managers.ParticuleSystemManager;
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SceneManager;
 import com.welmo.andengine.managers.SharedPreferenceManager;
@@ -140,6 +144,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	protected String						mMainSceneName="";
 	protected String[]						mStartResourceDscFile=null;
 	protected String[]						mStartSceneDscFile=null;
+	protected String[]						mParticuleSystemsDscFile=null;
 	
 	static protected Music					mMusic;
 	
@@ -157,6 +162,10 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
     static final int 						RC_REQUEST 	= 10001;// (arbitrary) request code for the purchase flow
 	
 	protected String 						mTheBase64EncodedPublicKey = null;
+	
+	//field for particul system management
+	protected ParticuleSystemManager pPartSystemMgr = ParticuleSystemManager.getInstance();
+	
 	
 	// ===========================================================
 	// Configures resources/scene file and lists
@@ -287,7 +296,10 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			mPurchMgr = new PurchasingManager(this,this);
 			mPurchMgr.connectService(this, this.mTheBase64EncodedPublicKey);
 		}
-				
+			
+		//manage particule system call particule class
+		pPartSystemMgr = ParticuleSystemManager.getInstance();
+		
 		//exist
 		return engineOptions;
 	}
@@ -310,6 +322,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		readResourceDescriptions(mStartResourceDscFile);
 		//read descriptors for the first scene and the thanks scene  
 		readScenesDescriptions(mStartSceneDscFile);		
+		//read particule Systems
+		readParticuleSystemDescriptions(mParticuleSystemsDscFile);
+		
 	}
 
 	public void gameToast(final String msg) {
@@ -503,6 +518,12 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		} catch(IOException ioe) { 
 			Log.e("SAX XML", "sax parse io error", ioe); 
 		} 
+	}
+	protected final void readParticuleSystemDescriptions(String[] filesNames){
+			if(pPartSystemMgr == null)
+				pPartSystemMgr = ParticuleSystemManager.getInstance();
+			else
+					pPartSystemMgr.readParticuleSystemDescriptions(this , filesNames);
 	}
 	protected final void loadScenes(String[] Scenes,int pctWorkLoad) {
 		for (String sceneName:Scenes ){
@@ -702,7 +723,8 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			//add scene to the engine to be displayed
 			psc.sortChildren(true);
 			
-			//Load the scene in the enging
+
+			//Load the scene in the engine
 			mEngine.setScene(psc);
 			
 			// fire events to be exectures when the scene is launched;
@@ -780,12 +802,29 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 					if(msc.isPlaying())
 						msc.pause();
 				}
-				
 				break;
 			case RESET_PERSITENCE:
 				this.mPreferences.edit().clear();
 				this.mPreferences.edit().commit();
 				break;
+			case FIRE_PARTICULE:
+				String particuleEffectName = msg.getParameterString(0);
+				float particuleEffectDuration = msg.getParametersNumber(1);
+				//check that a particule system manager exist
+				if(pPartSystemMgr == null)
+					throw new NullPointerException("ParticuleSystem Not Initialized");
+				
+				final SpriteParticleSystem particuleSystem = pPartSystemMgr.getParticuleSytem(particuleEffectName);
+				
+				if(particuleSystem == null)
+					throw new NullPointerException("Called a Particule system that donesen't exists [" + particuleEffectName + "]" );
+				
+				BaseParticleEmitter theEmitter = ((BaseParticleEmitter)particuleSystem.getParticleEmitter());
+				theEmitter.setCenter(0,0);
+			
+				particuleSystem.setParticlesSpawnEnabled(true);	//enable the particule systems
+				
+				
 			default:
 				break;
 		}
@@ -850,8 +889,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	@Override
 	public void onIabPurchaseFinished(IabResult result, Purchase info) {
 		Log.d(TAG, "Purchased finished.");
-		//TO DO
-		
+		mPreferencesEditor.putBoolean(info.getSku(), true);
+		mPreferencesEditor.commit();
+		onReloadScene();
 	}
 	@Override
 	public void onIabSetupFinished(IabResult result) {
@@ -896,6 +936,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			mPreferencesEditor.putBoolean(sku, true);
 		}
 		if(hasproduct) mPreferencesEditor.commit();
+		
+		//reload scene to ensure status are updated following purchased component 
+		onReloadScene();
 		
 		Log.d(TAG, "Initial inventory query finished; enabling main UI.");
 	}
@@ -947,5 +990,10 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	@Override
 	public boolean checkLicence(String sLicence) {
 		return mPreferences.getBoolean(sLicence, false);
+	}
+	@Override
+	public void onInAppPurchasing(String sProductID) {
+		String payload = "";
+		mPurchMgr.launchPurchaseFlow(this, sProductID, IabHelper.ITEM_TYPE_INAPP, 1001, this, payload);		
 	}
 }

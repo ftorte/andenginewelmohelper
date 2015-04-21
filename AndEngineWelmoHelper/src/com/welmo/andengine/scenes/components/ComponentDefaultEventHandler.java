@@ -1,6 +1,5 @@
 package com.welmo.andengine.scenes.components;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.andengine.audio.music.Music;
@@ -55,8 +54,6 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 	public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 		Log.i(TAG,"\t onModifierStarted");
 	}
-
-
 	@Override
 	public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
 		Log.i(TAG,"\t onModifierFinished");
@@ -77,8 +74,6 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 	public int getID() {
 		return nID;
 	}
-
-
 	public void setnID(int nID) {
 		this.nID = nID;
 	}
@@ -153,11 +148,9 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		
 		return newHandler;
 	}
-	
 	// ----------------------------------------------------------------------------
 	// Protected methods
 	// ----------------------------------------------------------------------------
-	
 	protected void setUpModifier(ComponentModifierListDescriptor modifiersList){
 		int index = 0;
 		iEntityModifiers = new IEntityModifier[modifiersList.getIModifierList().getModifiers().size()];
@@ -196,7 +189,6 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		else
 			modifierSet = new ParallelEntityModifier(this,iEntityModifiers);
 	}
-	
 	protected void ExecuteAction(SceneActions action, IEntity pItem){
 		if(ActionType.ON_MOVE_FOLLOW != action.type){
 			ExecuteAction(action, pItem, null,null);
@@ -216,9 +208,6 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 				ExecuteAction(theAction,pItem,null,null);
 		}
 	}
-	
-		
-		
 	public void ExecuteAction(SceneActions action, IEntity pItem, TouchEvent pTouchEvent,TouchEvent lastTouchEvent){
 		Log.i(TAG,"\t ExecuteAction");
 		switch(action.type){
@@ -266,14 +255,15 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		case ENABLE_SCENE_TOUCH:
 			enableTouch(pItem);
 			break;
+		case INAPP_PURCHASE:
+			executeInAppPurchase(action,pItem);
+			break;
 		case ON_MOVE_FOLLOW:
 			executeOnMoveFollow(pItem,pTouchEvent,lastTouchEvent);
 		default:
 			break;
 		}	
 	}
-
-
 	//------------------------------------------------------------
 	//protected methods
 	//------------------------------------------------------------
@@ -360,5 +350,10 @@ public class ComponentDefaultEventHandler implements IEntityModifierListener, IC
 		float deltaX = pTouchEvent.getX() - lastTouchEvent.getX();
 		float deltaY = pTouchEvent.getY() - lastTouchEvent.getY();
 		pItem.setPosition(pItem.getX() + deltaX, pItem.getY() + deltaY);
+	}
+	protected void executeInAppPurchase(SceneActions action, IEntity pItem){
+		Log.i(TAG,"\t InApp Purchasing");
+		if(pItem instanceof IActivitySceneListener)
+			((IActivitySceneListener)pItem).onInAppPurchasing(action.sProductID);
 	}
 }

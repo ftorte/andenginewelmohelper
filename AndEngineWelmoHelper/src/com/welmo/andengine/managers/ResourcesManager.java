@@ -77,6 +77,7 @@ public class ResourcesManager {
 	// ===========================================================
 	Context mCtx;
 	Engine 	mEngine;
+	
 	boolean initialized 			= false;
 
 	private HashMap<String, Font> 							mapFonts;
@@ -326,6 +327,13 @@ public class ResourcesManager {
 		}	
 	}
 	
+	// ===========================================================
+	// GETTERS & SETTERS
+	// ===========================================================
+	
+	public Engine getEngine() { return mEngine;}
+	public void setEngine(Engine mEngine) {this.mEngine = mEngine;}
+
 	// ===========================================================
 	// PAUSE & RESUME
 	// ===========================================================

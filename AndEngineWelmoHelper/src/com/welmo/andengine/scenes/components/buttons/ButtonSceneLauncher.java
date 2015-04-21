@@ -13,6 +13,7 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
 import com.welmo.andengine.managers.ResourcesManager;
@@ -105,8 +106,10 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	
 	protected VertexBufferObjectManager		pVBO 					= null;
 	protected Sprite 						spBG_Inactive			= null;
+	protected Sprite						spIco_inactive 			= null;
 	protected Sprite 						spBG_final				= null;
 	protected Sprite						spIco_locked 			= null;
+	protected Sprite						spIco_unlocked 			= null;
 	protected Sprite						spIco_free 				= null;
 	protected Sprite						spIco_star_1 			= null;
 	protected Sprite						spIco_star_2 			= null;
@@ -276,15 +279,21 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 		
 		sFatherName = new String(theDescriptor.getNextScene());
 		
-		//create background
+		//create background inactive
 		if((theImage=imagesList.get(ImgType.bg_inactive))!= null)
 			spBG_Inactive = createSprite(theImage,pRM);
+		//create ico for inactive
+		if((theImage=imagesList.get(ImgType.ico_inactive))!= null)
+			this.spIco_inactive = createSprite(theImage,pRM);
 		//create bg_final
-		if((theImage=imagesList.get(ImgType.bg_fina))!= null)
+		if((theImage=imagesList.get(ImgType.bg_final))!= null)
 			spBG_final = createSprite(theImage,pRM);
 		//create ico_locked
 		if((theImage=imagesList.get(ImgType.ico_locked))!= null)
 			spIco_locked = createSprite(theImage,pRM);
+		//create ico_unlocked
+		if((theImage=imagesList.get(ImgType.ico_unlocked))!= null)
+			spIco_unlocked = createSprite(theImage,pRM);
 		//read ico_free
 		if((theImage=imagesList.get(ImgType.ico_free))!= null)
 			spIco_free = createSprite(theImage,pRM);
@@ -331,58 +340,65 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 		if(sLicence != null)
 			if(!mIActivitySceneListener.checkLicence(sLicence)) 
 				this.theStatus = ButtonSceneLauncherDescriptor.Status.NotActive;
-			// pSPM.getSharedPreferences(sLicence).getBoolean(sLicence, false);
-		 
+		
 		desactiveAllSprites();
 		//public enum Status {NotActive, Locked, level0, level1, level2, level3}
 		switch(this.theStatus){
 			case NotActive:
-				spBG_Inactive.setVisible(true);
+				if(spBG_Inactive!= null) spBG_Inactive.setVisible(true);
+				if(spIco_inactive!= null) spIco_inactive.setVisible(true);
 				break;
 			case Locked:
-				spIco_locked.setVisible(true);
+				if(spBG_final!= null) spBG_final.setVisible(true);
+				if(spIco_locked!= null) spIco_locked.setVisible(true);
+				break;
+			case Unlocked:
+				if(spBG_final!= null) spBG_final.setVisible(true);
+				if(spIco_unlocked!= null) spIco_unlocked.setVisible(true);
 				break;
 			case level0:
-				spBG_final.setVisible(true);
-				spIco_free.setVisible(true);
-				spIco_star_inactive_1.setVisible(true);
-				spIco_star_inactive_2.setVisible(true);
-				spIco_star_inactive_3.setVisible(true);
+				if(spBG_final!= null) spBG_final.setVisible(true);
+				if(spIco_free!= null) spIco_free.setVisible(true);
+				if(spIco_star_inactive_1!= null) spIco_star_inactive_1.setVisible(true);
+				if(spIco_star_inactive_2!= null) spIco_star_inactive_2.setVisible(true);
+				if(spIco_star_inactive_3!= null) spIco_star_inactive_3.setVisible(true);
 				break;
 			case level1:
-				spBG_final.setVisible(true);
-				spIco_free.setVisible(true);
-				spIco_star_1.setVisible(true);
-				spIco_star_inactive_2.setVisible(true);
-				spIco_star_inactive_3.setVisible(true);
+				if(spBG_final!= null) spBG_final.setVisible(true);
+				if(spIco_free!= null) spIco_free.setVisible(true);
+				if(spIco_star_1!= null) spIco_star_1.setVisible(true);
+				if(spIco_star_inactive_2!= null) spIco_star_inactive_2.setVisible(true);
+				if(spIco_star_inactive_3!= null) spIco_star_inactive_3.setVisible(true);
 				break;
 			case level2:
-				spBG_final.setVisible(true);
-				spIco_free.setVisible(true);
-				spIco_star_1.setVisible(true);
-				spIco_star_2.setVisible(true);
-				spIco_star_inactive_3.setVisible(true);
+				if(spBG_final!= null) spBG_final.setVisible(true);
+				if(spIco_free!= null) spIco_free.setVisible(true);
+				if(spIco_star_1!= null) spIco_star_1.setVisible(true);
+				if(spIco_star_2!= null) spIco_star_2.setVisible(true);
+				if(spIco_star_inactive_3!= null) spIco_star_inactive_3.setVisible(true);
 				break;
 			case level3:
-				spBG_final.setVisible(true);
-				spIco_free.setVisible(true);
-				spIco_star_1.setVisible(true);
-				spIco_star_2.setVisible(true);
-				spIco_star_3.setVisible(true);
+				if(spBG_final!= null) spBG_final.setVisible(true);
+				if(spIco_free!= null) spIco_free.setVisible(true);
+				if(spIco_star_1!= null) spIco_star_1.setVisible(true);
+				if(spIco_star_2!= null) spIco_star_2.setVisible(true);
+				if(spIco_star_3!= null) spIco_star_3.setVisible(true);
 				break;
 		}
 	}
 	private void desactiveAllSprites(){
-		spBG_Inactive.setVisible(false);
-		spBG_final.setVisible(false);
-		spIco_locked.setVisible(false);
-		spIco_free.setVisible(false);
-		spIco_star_1.setVisible(false);
-		spIco_star_2.setVisible(false);
-		spIco_star_3.setVisible(false);
-		spIco_star_inactive_1.setVisible(false);
-		spIco_star_inactive_2.setVisible(false);
-		spIco_star_inactive_3.setVisible(false);
+		if(spBG_Inactive!= null) 			spBG_Inactive.setVisible(false);
+		if(spIco_inactive!= null) 			spIco_inactive.setVisible(false);
+		if(spBG_final!= null) 				spBG_final.setVisible(false);
+		if(spIco_locked!= null) 			spIco_locked.setVisible(false);
+		if(spIco_unlocked!= null)			spIco_unlocked.setVisible(false);
+		if(spIco_free!= null) 				spIco_free.setVisible(false);
+		if(spIco_star_1!= null) 			spIco_star_1.setVisible(false);
+		if(spIco_star_2!= null) 			spIco_star_2.setVisible(false);
+		if(spIco_star_3!= null) 			spIco_star_3.setVisible(false);
+		if(spIco_star_inactive_1!= null) 	spIco_star_inactive_1.setVisible(false);
+		if(spIco_star_inactive_2!= null) 	spIco_star_inactive_2.setVisible(false);
+		if(spIco_star_inactive_3!= null) 	spIco_star_inactive_3.setVisible(false);
 	}
 	
 	@Override
@@ -404,6 +420,12 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 
 	@Override
 	public void doSave() {
+		if(pSPM == null)
+			throw new NullPointerException("In doLoad the Shared Preferences Manager is null");
+		SharedPreferences	sp = pSPM.getSharedPreferences(sFatherName);
+		Editor edt = sp.edit();
+		edt.putString("LaunchStatus", this.theStatus.name());
+		edt.commit();
 	}
 	@Override
 	public void doLoad(SharedPreferenceManager sp) {
@@ -473,5 +495,10 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	public boolean checkLicence(String sLicence) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	@Override
+	public void onInAppPurchasing(String sProductID) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -22,6 +22,10 @@ import android.util.Log;
 public class TextObjectDescriptor extends BasicComponentDescriptor{
 	// enumerators to manage object types & object events
 	// RESOURCE => The message is in a staa=ndard =android resource and the massage value is the string_name. To access if use the R.string.<string_name>
+	
+	public final static int TEXT_MAX_LENGHT_CHR = 1000;
+	public final static int TEXT_MAX_WIDTH_PIX 	= 0;
+	
 	public enum TextTypes {
 		NO_TYPE, SIMPLE,RESOURCE
 	}
@@ -29,6 +33,8 @@ public class TextObjectDescriptor extends BasicComponentDescriptor{
 	public String message;
 	public String FontName;
 	public float  scale = 1.0f;
+	public int textmaxlenght = TEXT_MAX_LENGHT_CHR;
+	public int textmaxwidth	=  TEXT_MAX_WIDTH_PIX;
 	
 	public float getScale() {
 		return scale;
@@ -86,6 +92,13 @@ public class TextObjectDescriptor extends BasicComponentDescriptor{
 		
 		value = attributes.getValue(ScnTags.S_A_TYPE);
 		if(value!= null)  this.type=TextObjectDescriptor.TextTypes.valueOf(value);
+		
+		value = attributes.getValue(ScnTags.S_A_TEXTMAXLENGHT);
+		if(value!= null)  this.textmaxlenght=Integer.parseInt(value);
+		
+		value = attributes.getValue(ScnTags.S_A_TEXTMAXWIDTH);
+		if(value!= null)  this.textmaxwidth=Integer.parseInt(value);
+		
 	}
 	@Override
 	public IComponent CreateComponentInstance(Engine theEng) {

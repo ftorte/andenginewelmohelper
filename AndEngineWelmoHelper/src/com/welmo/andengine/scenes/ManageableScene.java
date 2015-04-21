@@ -187,7 +187,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 			
 			newSceneComponent.setOperationsHandler(this);
 
-			//Set-up listners MUST be done just after the creation to ensure that if listners are used in the cofiguration listners are available
+			//Set-up listeners MUST be done just after the creation to ensure that if listners are used in the cofiguration listners are available
 			if(newSceneComponent instanceof IActionSceneListener)
 				((IActionSceneListener)newSceneComponent).setIActionOnSceneListener(this);
 

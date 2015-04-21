@@ -239,4 +239,9 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public void onInAppPurchasing(String sProductID) {
+		mIActivitySceneListener.onInAppPurchasing(sProductID);
+	}
 }

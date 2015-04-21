@@ -23,6 +23,7 @@ import com.welmo.andengine.scenes.descriptors.components.ColoringSpriteDescripto
 import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.MultiViewSceneDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ParticuleSystemDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
@@ -290,8 +291,6 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			newDescriptor = (BasicDescriptor)(new SpriteObjectDescriptor()); 
 		else if (localName.equalsIgnoreCase(ScnTags.S_COLORING_SPRITE))
 			newDescriptor = (BasicDescriptor)(new ColoringSpriteDescriptor());	
-		/*else if (localName.equalsIgnoreCase(ScnTags.S_COMPOUND_SPRITE))
-			newDescriptor = readCupondSprite(attributes);*/
 		else if (localName.equalsIgnoreCase(ScnTags.S_TEXT))
 			newDescriptor = (BasicDescriptor)(new TextObjectDescriptor());
 		else if (localName.equalsIgnoreCase(ScnTags.S_BACKGROUND))
@@ -306,7 +305,9 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			newDescriptor = (BasicDescriptor)(new ButtonDescriptor());	
 		else if(localName.equalsIgnoreCase(ScnTags.S_SCENELAUNCHER))
 			newDescriptor = (BasicDescriptor)(new ButtonSceneLauncherDescriptor());	
-		else
+		else if (localName.equalsIgnoreCase(ScnTags.S_PARTICULESYSTEM))
+			newDescriptor = (BasicDescriptor)(new ParticuleSystemDescriptor());
+		else	
 			return null;
 
 		newDescriptor.readXMLDescription(attributes);
@@ -569,6 +570,11 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			}
 			else if(localName.equalsIgnoreCase(ScnTags.S_SCENELAUNCHER)){
 				Log.i(TAG,"\t\t end Element S_BN_SCENELAUNCHER");
+				removeLastComponentDescriptor();
+				nComponents--;
+			}
+			else if(localName.equalsIgnoreCase(ScnTags.S_PARTICULESYSTEM)){
+				Log.i(TAG,"\t\t end Element S_PARTICULESYSTEMDESCRIPTOR");
 				removeLastComponentDescriptor();
 				nComponents--;
 			}
