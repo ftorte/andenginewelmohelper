@@ -137,7 +137,7 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 		mIClicakableImpmementation 	=   new ButtonSceneLauncherClickableImplementation();
 		mIActionOnSceneListener		= 	null;
 		mIActivitySceneListener 	=	null;
-		mIClicakableImpmementation.setParent(this);
+		mIClicakableImpmementation.setTheComponentParent(this);
 		
 		//setup vertex bufferhandler
 		pVBO 						= pRectangleVertexBufferObject;
@@ -153,6 +153,15 @@ public class ButtonSceneLauncher extends Rectangle implements IComponentClickabl
 	// Interfaces & Superclass
 	// ===========================================================	
 	// ====== IClickableSprite ==== 	
+	@Override
+	public IEntity getTheComponentParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void setTheComponentParent(IEntity parent) {
+		// TODO Auto-generated method stub
+	}
 	public void addEventsHandler(Events theEvent, IComponentEventHandler oCmpDefEventHandler){
 		if(!(null == mIClicakableImpmementation))
 			mIClicakableImpmementation.addEventsHandler(theEvent, oCmpDefEventHandler);

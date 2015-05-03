@@ -1,6 +1,7 @@
 package com.welmo.andengine.scenes.components;
 
 import org.andengine.engine.Engine;
+import org.andengine.entity.IEntity;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.sprite.vbo.ISpriteVertexBufferObject;
@@ -58,6 +59,15 @@ public class StaticSprite extends Sprite implements IComponent{
 	@Override
 	public void setID(int ID) {
 		nID = ID;
+	}
+	@Override
+	public IEntity getTheComponentParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void setTheComponentParent(IEntity parent) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override

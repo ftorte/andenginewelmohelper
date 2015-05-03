@@ -24,6 +24,7 @@ import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.HUDDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.MultiViewSceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ParticuleSystemDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ProgressBarDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.SpriteObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.TextObjectDescriptor;
@@ -307,6 +308,8 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			newDescriptor = (BasicDescriptor)(new ButtonSceneLauncherDescriptor());	
 		else if (localName.equalsIgnoreCase(ScnTags.S_PARTICULESYSTEM))
 			newDescriptor = (BasicDescriptor)(new ParticuleSystemDescriptor());
+		else if (localName.equalsIgnoreCase(ScnTags.S_PROGRESSBAR))
+			newDescriptor = (BasicDescriptor)(new ProgressBarDescriptor());
 		else	
 			return null;
 
@@ -575,6 +578,11 @@ public class ParserXMLSceneDescriptor extends DefaultHandler {
 			}
 			else if(localName.equalsIgnoreCase(ScnTags.S_PARTICULESYSTEM)){
 				Log.i(TAG,"\t\t end Element S_PARTICULESYSTEMDESCRIPTOR");
+				removeLastComponentDescriptor();
+				nComponents--;
+			}
+			else if(localName.equalsIgnoreCase(ScnTags.S_PROGRESSBAR)){
+				Log.i(TAG,"\t\t end Element S_PROGRESSBAR");
 				removeLastComponentDescriptor();
 				nComponents--;
 			}

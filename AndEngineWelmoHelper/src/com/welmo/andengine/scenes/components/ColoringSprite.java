@@ -148,6 +148,15 @@ public class ColoringSprite  extends Sprite implements IComponent, IOperationHan
 		this.ID=ID;
 	}
 	@Override
+	public IEntity getTheComponentParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void setTheComponentParent(IEntity parent) {
+		// TODO Auto-generated method stub
+	}
+	@Override
 	public String getPersistenceURL() {
 		String sPersistenceURL = null;
 

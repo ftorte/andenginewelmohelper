@@ -52,7 +52,7 @@ public class CompoundSprite extends Rectangle implements IComponent, IComponentC
 	// ===========================================================	
 	protected void init(){
 		mIClicakableImpmementation =  new IComponentClickableDfltImp();
-		mIClicakableImpmementation.setParent(this);
+		mIClicakableImpmementation.setTheComponentParent(this);
 	}
 	public void attachComponentChild(IAreaShape pNewShape) throws IllegalStateException {
 
@@ -145,6 +145,15 @@ public class CompoundSprite extends Rectangle implements IComponent, IComponentC
 	}
 	public void setID(int ID) {
 		mIClicakableImpmementation.setID(ID);
+	}
+	@Override
+	public IEntity getTheComponentParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void setTheComponentParent(IEntity parent) {
+		// TODO Auto-generated method stub
 	}
 	public boolean onTouched(TouchEvent pSceneTouchEvent,
 			float pTouchAreaLocalX, float pTouchAreaLocalY) {

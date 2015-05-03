@@ -6,6 +6,7 @@ package com.welmo.andengine.scenes.components;
 import java.util.ArrayList;
 
 import org.andengine.engine.Engine;
+import org.andengine.entity.IEntity;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.sprite.TiledSprite;
@@ -73,7 +74,7 @@ public class CardSprite extends TiledSprite implements IComponentClickable, IAct
 						true, Sprite.VERTEXBUFFEROBJECTATTRIBUTES_DEFAULT)); 
 		this.setCurrentTileIndex(0);
 		mIClicakableImpmementation =  new IComponentClickableDfltImp();
-		mIClicakableImpmementation.setParent(this);
+		mIClicakableImpmementation.setTheComponentParent(this);
 		configure(pSPRDscf);
 	}
 	protected CardSprite(final float pX, final float pY, final float pWidth, final float pHeight, final ITiledTextureRegion pTiledTextureRegion, final ITiledSpriteVertexBufferObject pTiledSpriteVertexBufferObject) {
@@ -202,6 +203,15 @@ public class CardSprite extends TiledSprite implements IComponentClickable, IAct
 	}
 	public void setID(int ID) {
 		mIClicakableImpmementation.setID(ID);
+	}
+	@Override
+	public IEntity getTheComponentParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void setTheComponentParent(IEntity parent) {
+		// TODO Auto-generated method stub
 	}
 	public boolean onTouched(TouchEvent pSceneTouchEvent,
 			float pTouchAreaLocalX, float pTouchAreaLocalY) {

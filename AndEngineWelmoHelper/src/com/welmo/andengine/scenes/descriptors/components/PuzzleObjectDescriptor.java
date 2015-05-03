@@ -16,18 +16,30 @@ public class PuzzleObjectDescriptor extends BasicComponentDescriptor {
 	
 	protected int 			nbColumns			= 0;
 	protected int			nbRows				= 0;
-	public String 			tiledTextureName	="";
-	public String 			textureResourceName	="";
+	public String 			tiledTextureName	= "";
+	public String 			textureResourceName	= "";
 	protected float[]		mPiecesBox			= {0,0,0,0};
 	protected float[]		mPuzzleZone			= {0,0,0,0};
 	protected boolean		hasActiveBorder		= false;		//if true the pieces and container have borders
 	protected boolean		hasActiveZone		= false;		//if true the puzzle zone is active and pieces are stick to the zone
+	protected boolean		hasActiveZoneBorders= false;		//if true the zone has border to trace the contur of each piece
 	protected boolean		hasWhiteBG			= false;		//if true the puzzle zone is active and pieces are stick to the zone
+	protected boolean		hasHelperImg		= false;
 	protected String		mHelperImage		= "";			//if different from "" the puzzle zone have as background the final figures in color on withe background with low alpah
-	protected float			mHelperImageAlpha	= 0.1f;	
-	public static int 		INVALIDDIM = -1;
+	protected float			mHelperImageAlpha	= 0.1f;
+	protected boolean 		hasFireworks		= false;
+	protected String 		fireworksName		= "";	
+	protected long			fireworksDuration	= 1000;			//Default value for firework is 1s
+	public static int 		INVALIDDIM 			= -1;
+	
+	//Has multiple levels
+	protected String 		strStingGameLevelsMap = null;
+	protected boolean		hasDnamicGameLevel	= false;
+
 	
 	public boolean  hasActiveBorder() {return hasActiveBorder;}
+	public boolean  hasDynamicGameLevel() {return hasDnamicGameLevel;}
+	public void  hasDynamicGameLevel(boolean val) {hasDnamicGameLevel = val;}
 	public boolean 	hasWhiteBackground() {return hasWhiteBG;}
 	public void 	hasWhiteBackground(boolean value) {hasWhiteBG = value;}
 	public void 	setHasActiveBorder(boolean hasActiveBorder) {this.hasActiveBorder = hasActiveBorder;}
@@ -83,6 +95,9 @@ public class PuzzleObjectDescriptor extends BasicComponentDescriptor {
 	public void setNbRows(int nbRows) {
 		this.nbRows = nbRows;
 	}
+	public String getGameLevelMap() {
+		return this.strStingGameLevelsMap;
+	}
 	
 	
 	@Override
@@ -91,14 +106,15 @@ public class PuzzleObjectDescriptor extends BasicComponentDescriptor {
 	
 		super.readXMLDescription(attr);
 	
+		String value;
 		// Read the puzzle 
 		this.ID=Integer.parseInt(attr.getValue(ScnTags.S_A_ID));
 
 		this.tiledTextureName = new String(attr.getValue(ScnTags.S_A_RESOURCE_NAME));
 		
 		// Read specific puzzle parameters Nb cols & Nb Rows
-		if(attr.getValue(ScnTags.S_A_NBCOLS)!= null)
-			this.setNbColumns(Integer.parseInt(attr.getValue(ScnTags.S_A_NBCOLS)));
+		if((value = attr.getValue(ScnTags.S_A_NBCOLS))!= null)
+			this.setNbColumns(Integer.parseInt(value));
 		else
 			this.setNbColumns(1);
 		if(attr.getValue(ScnTags.S_A_NBROWS)!= null)
@@ -137,6 +153,24 @@ public class PuzzleObjectDescriptor extends BasicComponentDescriptor {
 			this.setHasActiveZone(Boolean.parseBoolean(attr.getValue(ScnTags.S_A_ACTIVE_ZONE)));
 		else
 			this.setHasActiveZone(false);
+		
+		// Read if active zone
+		if((value = attr.getValue(ScnTags.S_A_ACTIVE_ZONE_BORDERS))!= null)
+			this.hasActiveZoneBorders(Boolean.parseBoolean(value));
+		else
+			this.hasActiveZoneBorders(false);
+		
+		// Read if active zone
+		if((value = attr.getValue(ScnTags.S_A_GAME_LEVEL_MAP))!= null){
+			this.hasDynamicGameLevel(true);
+			this.strStingGameLevelsMap = new String(value);
+		}
+	
+		
+		// Read if has helper image
+		if((value = attr.getValue(ScnTags.S_A_HAS_HELPER_IMG))!= null)
+			this.hasHelperImage(Boolean.parseBoolean(value));
+			
 		// Read if helper image on
 		if(attr.getValue(ScnTags.S_A_HELPER_IMAGE)!= null)
 			this.setHelperImage(attr.getValue(ScnTags.S_A_HELPER_IMAGE));
@@ -150,7 +184,28 @@ public class PuzzleObjectDescriptor extends BasicComponentDescriptor {
 			this.setHelperImageAlpha(Float.parseFloat(attr.getValue(ScnTags.S_A_HELPER_IMG_ALPHA)));
 		else
 			this.setHelperImageAlpha(1.0f);
+		// Read if firework to used while pieces are linked
+		if((value=attr.getValue(ScnTags.S_A_FIREWORKS))!= null){
+			this.hasFireworks=true;
+			this.fireworksName = new String(value);
+		}
+		else
+			this.hasFireworks=false;
 		
+		// Read if firework to used while pieces are linked
+		if((value=attr.getValue(ScnTags.S_A_FIREWORKS_DURATION))!= null) this.fireworksDuration=Long.parseLong(value);
+	}
+	public void hasHelperImage(boolean hasHelperImg) {
+		this.hasHelperImg = hasHelperImg;
+	}
+	public void hasActiveZoneBorders(boolean value){
+		this.hasActiveZoneBorders = value;
+	}
+	public boolean hasActiveZoneBorders(){
+		return this.hasActiveZoneBorders;
+	}
+	public boolean hasHelperImage() {
+		return hasHelperImg;
 	}
 	@Override
 	public IComponent CreateComponentInstance(Engine mEngine) {
@@ -158,4 +213,14 @@ public class PuzzleObjectDescriptor extends BasicComponentDescriptor {
 		PuzzleSprites puzzle= new PuzzleSprites(this, mEngine);
 		return puzzle;
 	}
+	public boolean hasFireworsk() {
+		return this.hasFireworks;
+	}
+	public String getFireworksName() {
+		return this.fireworksName;
+	}
+	public long getFireworkDuration() {
+		return this.fireworksDuration;// TODO Auto-generated method stub
+	}
+	
 }

@@ -14,10 +14,10 @@ import com.welmo.andengine.scenes.operations.IOperationHandler;
 public interface IComponent{
 	//getters
 	public int 	getID();
-	public IEntity getParent();
+	public IEntity getTheComponentParent();
 	//setters
 	public void 	setID(int ID);	
-	public void 	setParent(IEntity parent);
+	public void 	setTheComponentParent(IEntity parent);
 	//method
 	public void	configure(BasicDescriptor pDSC);
 	public void	setActionSceneListner(IActionSceneListener scenelistener);

@@ -36,9 +36,9 @@ public class ScnTags {
 	public static final String S_SCENELAUNCHER 		= "scene_launcher_btn";
 	public static final String S_IS_TEMPLATE		= "isTemplate";
 	public static final String S_PARTICULESYSTEM 	= "particule_system";
-	
-
-	
+	public static final String S_INITIALIZER 		= "initializer";
+	public static final String S_PROGRESSBAR 		= "progress_bar";
+		
 	//Event handler
 	public final static String S_ACTION 			= "action";
 	public final static String S_EVENT_HANDLER 		= "event_handler";
@@ -144,11 +144,15 @@ public class ScnTags {
 	public final static String S_A_PUZZLE_ZONE		="puzzleZone";
 	
 	public final static String S_A_ACTIVE_BORDER	="ActiveBorder";
+	public static final String S_A_ACTIVE_ZONE_BORDERS ="ActiveZoneBorders";
 	public final static String S_A_ACTIVE_ZONE		="ActiveZone";
+	public final static String S_A_HAS_HELPER_IMG	="HasHelperImg";
 	public final static String S_A_HELPER_IMAGE		="HelperImage";
 	public final static String S_A_HELPER_IMG_ALPHA	="HIAlpha";
 	public static final String S_A_HAS_WHITE_BACKGROUND = "hasWhiteBackground";
-	
+	public static final String S_A_FIREWORKS 		= "fireworks";
+	public static final String S_A_GAME_LEVEL_MAP 	= "GameLevelsMap";
+
 	//Head UP Display
 	public final static String S_A_HUD				="HUD";
 	public final static String S_A_HASCOLORPICKER	="hasColorPicker";
@@ -188,11 +192,58 @@ public class ScnTags {
 	public static final String S_A_LICENCE 			= "licence";
 	public static final String S_A_PRODUCTID 		= "productID";
 	
-	//Particels specific
+	//Particles specific
 	public static final String S_A_RADIUS_X 		= "radiusX";
 	public static final String S_A_RADIUS_Y 		= "radiusY";
 	public static final String S_A_RATEMIN 			= "rateMin";
 	public static final String S_A_RATEMAX 			= "rateMax";
 	public static final String S_A_PARTICELMAX 		= "particelsMax";
+	public static final String S_A_CENTER_X			= "centerX";
+	public static final String S_A_CENTER_Y			= "centerY";
+	public static final String S_A_FIREWORKS_DURATION = "fireworks_duration";
+	
+	//Particles specific for Modifier
+	public static final String S_A_FROM_TYME 		= "from_time";
+	public static final String S_A_TO_TYME 			= "to_time";
+	public static final String S_A_FROM_SCALE		= "from_scale";
+	public static final String S_A_TO_SCALE			= "to_scale";
+	public static final String S_A_FROM_RED			= "from_red";
+	public static final String S_A_TO_RED			= "ro_red";
+	public static final String S_A_FROM_GREEN		= "from_green";
+	public static final String S_A_TO_GREEN			= "to_green";
+	public static final String S_A_FROM_BLUE		= "from_blue";
+	public static final String S_A_TO_BLUE 			= "to_blue";
+	public static final String S_A_FROM_ALPHA		= "from_alpha";
+	public static final String S_A_TO_ALPHA			= "to_alpha";
+	
+	//Particles specific for Initializer
+	public static final String S_A_RED				= "red";
+	public static final String S_A_GREEN			= "green";
+	public static final String S_A_BLUE				= "blue";
+	public static final String S_A_MIN_RED			= "min_red";
+	public static final String S_A_MIN_GREEN		= "min_green";
+	public static final String S_A_MIN_BLUE			= "min_blue";
+	public static final String S_A_MAX_RED			= "max_red";
+	public static final String S_A_MAX_GREEN		= "max_green";
+	public static final String S_A_MAX_BLUE			= "max_blue";
+	public static final String S_A_ALPHA			= "alpha";
+	public static final String S_A_MIN_VELX			= "min_velX";
+	public static final String S_A_MAX_VELX			= "max_velX";
+	public static final String S_A_MIN_VELY			= "min_velY";
+	public static final String S_A_MAX_VELY			= "max_velY";
+	public static final String S_A_MIN_ROTATION		= "min_rotation";
+	public static final String S_A_MAX_ROTATION		= "max_rotation";
+	public static final String S_A_LIFE_TIME		= "life_time";
+	public static final String S_A_ACCEL_X 			= "accX";
+	public static final String S_A_ACCEL_Y 			= "accY";
+	
+	//Progress Bar
+	public static final String S_A_INCREMENT_BUTTON = "increment_button";
+	public static final String S_A_DECREMENT_RUTTON = "decrement_button";
+	public static final String S_A_BAR_BACKGROUND 	= "bar_background";
+	public static final String S_A_BAR_PROGRESS_NOTCH = "bar_progress_notch";
+	public static final String S_A_MIN_VAL 			= "min_value";
+	public static final String S_A_MAX_VAL 			= "max_value";
+	public static final String S_A_INTERNALl_HEIGHT = "internal_height";
 	
 }

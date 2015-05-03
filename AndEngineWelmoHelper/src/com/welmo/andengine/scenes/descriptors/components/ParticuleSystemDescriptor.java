@@ -18,6 +18,8 @@ import org.xml.sax.Attributes;
 
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
 import com.welmo.andengine.scenes.descriptors.ScnTags;
+import com.welmo.andengine.scenes.descriptors.components.ParticuleSystemDescriptor.ParticleInitializerDescriptor;
+import com.welmo.andengine.scenes.descriptors.components.ParticuleSystemDescriptor.ParticleModifiersDescriptor;
 
 public class ParticuleSystemDescriptor extends BasicDescriptor{
 
@@ -25,50 +27,145 @@ public class ParticuleSystemDescriptor extends BasicDescriptor{
 	// ===========================================================
 	// Inner Classes
 	// ===========================================================	
-	public class ParticleInitializerDescriptor{
-		public InitializerType type;
-		public float pRed;
-		public float pGreen;
-		public float pBlue;
-		public float pAlfa;
-		public float pMinVelX;
-		public float pMaxVelX;
-		public float pMinVelY;
-		public float pMaxVelY;
-		public float pMinRotation;
-		public float pMaxRotation;
-		public float pLifeTime;
-	};
-	public class ParticleModifiersDescriptor{
-		public ModifierType	type;
+	public static class ParticleInitializerDescriptor{
 		
-		public float pFromTime;
-		public float pToTime;
-		public float pFromScale;
-		public float pToScale;
-		public float pFromRed;
-		public float pToRed;
-		public float pFromGreen;
-		public float pToGreen;
-		public float pFromBlue;
-		public float pToBlue;
-		public float pFromAlfa;
-		public float pToAlfa;		
+		public static enum InitializerType{NULL,COLOR_FIXED, COLOR_RANGE, ALPHA, VELOCITY, ROTATION, ACCELERATION, EXPIRE};	
+			
+		public InitializerType type = InitializerType.NULL;
+		
+	
+		public float pMinRed		=0.0f;
+		public float pMinGreen		=0.0f;
+		public float pMinBlue		=0.0f;
+		public float pMaxRed		=0.0f;
+		public float pMaxGreen		=0.0f;
+		public float pMaxBlue		=0.0f;
+		public float pAlfa			=0.0f;
+		public float pMinVelX		=0.0f;
+		public float pMaxVelX		=0.0f;
+		public float pMinVelY		=0.0f;
+		public float pMaxVelY		=0.0f;
+		public float pMinRotation	=0.0f;
+		public float pMaxRotation	=0.0f;
+		public float pLifeTime		=0.0f;
+		public float pAccX			=1.0f;
+		public float pAccY			=1.0f;
+		
+		
+		public ParticleInitializerDescriptor(){};
+		
+		public void readXMLDescription(Attributes attributes) {
+			String value;
+			//TYPE
+			if((value = attributes.getValue(ScnTags.S_A_TYPE))!=null) 				this.type = InitializerType.valueOf(value);
+
+			switch(this.type){
+			case COLOR_FIXED: 
+				if((value = attributes.getValue(ScnTags.S_A_RED))!=null) 			this.pMinRed 	= Float.parseFloat(value);
+				if((value = attributes.getValue(ScnTags.S_A_GREEN))!=null) 			this.pMinGreen 	= Float.parseFloat(value);
+				if((value = attributes.getValue(ScnTags.S_A_BLUE))!=null) 			this.pMinBlue 	= Float.parseFloat(value);
+				break;
+			case COLOR_RANGE: 
+				if((value = attributes.getValue(ScnTags.S_A_MIN_RED))!=null) 			this.pMinRed 	= Float.parseFloat(value);
+				if((value = attributes.getValue(ScnTags.S_A_MIN_GREEN))!=null) 			this.pMinGreen 	= Float.parseFloat(value);
+				if((value = attributes.getValue(ScnTags.S_A_MIN_BLUE))!=null) 			this.pMinBlue 	= Float.parseFloat(value);
+				if((value = attributes.getValue(ScnTags.S_A_MAX_RED))!=null) 			this.pMaxRed 	= Float.parseFloat(value);
+				if((value = attributes.getValue(ScnTags.S_A_MAX_GREEN))!=null) 			this.pMaxGreen 	= Float.parseFloat(value);
+				if((value = attributes.getValue(ScnTags.S_A_MAX_BLUE))!=null) 			this.pMaxBlue 	= Float.parseFloat(value);
+				break;
+			case ALPHA: 
+				if((value = attributes.getValue(ScnTags.S_A_ALPHA))!=null) 			this.pAlfa 		= Float.parseFloat(value);
+				break;
+			case VELOCITY: 
+				if((value = attributes.getValue(ScnTags.S_A_MIN_VELX))!=null) 		this.pMinVelX	= Float.parseFloat(value);	
+				if((value = attributes.getValue(ScnTags.S_A_MAX_VELX))!=null) 		this.pMaxVelX	= Float.parseFloat(value);	
+				if((value = attributes.getValue(ScnTags.S_A_MIN_VELY))!=null) 		this.pMinVelY	= Float.parseFloat(value);	
+				if((value = attributes.getValue(ScnTags.S_A_MAX_VELY))!=null) 		this.pMaxVelY	= Float.parseFloat(value);	
+				break;
+			case ROTATION: 
+				if((value = attributes.getValue(ScnTags.S_A_MIN_ROTATION))!=null) 	this.pMinRotation=Float.parseFloat(value);	
+				if((value = attributes.getValue(ScnTags.S_A_MAX_ROTATION))!=null) 	this.pMaxRotation=Float.parseFloat(value);	
+				break;
+			case EXPIRE: 
+				if((value = attributes.getValue(ScnTags.S_A_LIFE_TIME))!=null) 		this.pLifeTime	= Float.parseFloat(value);	
+				break;
+			case ACCELERATION:
+				if((value = attributes.getValue(ScnTags.S_A_ACCEL_X))!=null) 		this.pAccX		= Float.parseFloat(value);	
+				if((value = attributes.getValue(ScnTags.S_A_ACCEL_Y))!=null) 		this.pAccY		= Float.parseFloat(value);	
+				break;
+			default:
+				break;
+			}
+		}
+	};
+	public static class ParticleModifiersDescriptor{
+
+		public ModifierType	type = ModifierType.NULL;
+		
+		public float pFromTime		=0.0f;
+		public float pToTime		=0.0f;
+		public float pFromScale		=0.0f;
+		public float pToScale		=0.0f;
+		public float pFromRed		=0.0f;
+		public float pToRed			=0.0f;
+		public float pFromGreen		=0.0f;
+		public float pToGreen		=0.0f;
+		public float pFromBlue		=0.0f;
+		public float pToBlue		=0.0f;
+		public float pFromAlfa		=0.0f;
+		public float pToAlfa		=0.0f;
+		
+		public ParticleModifiersDescriptor(){};
+		
+		
+		public void readXMLDescription(Attributes attributes) {
+			String value;
+			//TYPE
+			if((value = attributes.getValue(ScnTags.S_A_TYPE))!=null) 				this.type = ModifierType.valueOf(value);
+
+			if((value = attributes.getValue(ScnTags.S_A_FROM_TYME))!=null) 			this.pFromTime 	= Float.parseFloat(value);
+			if((value = attributes.getValue(ScnTags.S_A_TO_TYME))!=null) 			this.pToTime 	= Float.parseFloat(value);
+
+			switch(this.type){
+			case SCALE: 
+				if((value = attributes.getValue(ScnTags.S_A_FROM_SCALE))!=null) 	this.pFromScale = Float.parseFloat(value);
+				if((value = attributes.getValue(ScnTags.S_A_TO_SCALE))!=null) 		this.pToScale 	= Float.parseFloat(value);
+				break;
+			case COLOR: 
+				//Color
+				if((value = attributes.getValue(ScnTags.S_A_FROM_RED))!=null) 		this.pFromRed 	= Float.parseFloat(value);
+				if((value = attributes.getValue(ScnTags.S_A_TO_RED))!=null) 		this.pToRed 	= Float.parseFloat(value);
+				if((value = attributes.getValue(ScnTags.S_A_FROM_GREEN))!=null) 	this.pFromGreen = Float.parseFloat(value);
+				if((value = attributes.getValue(ScnTags.S_A_TO_GREEN))!=null) 		this.pToGreen 	= Float.parseFloat(value);
+				if((value = attributes.getValue(ScnTags.S_A_FROM_BLUE))!=null) 		this.pFromBlue 	= Float.parseFloat(value);
+				if((value = attributes.getValue(ScnTags.S_A_TO_BLUE))!=null) 		this.pToBlue 	= Float.parseFloat(value);	
+				break;
+			case ALPHA: 
+
+				if((value = attributes.getValue(ScnTags.S_A_FROM_ALPHA))!=null) 	this.pFromAlfa	= Float.parseFloat(value);	
+				if((value = attributes.getValue(ScnTags.S_A_TO_ALPHA))!=null) 		this.pToAlfa	= Float.parseFloat(value);	
+				break;
+			default:
+				break;
+			}
+		}
 	};
 
-	public static enum EmitterType{CIRCULAR};
-	public static enum InitializerType{COLOR, ALPHA, VELOCITY, ROTATION, EXPIRE};	
-	public static enum ModifierType{SCALE, COLOR, ALPHA};
+	public static enum EmitterType{CIRCULAR, CIRCULAR_OUTLINE, POINT, RECTANGULAR, RECTANGULAR_OUTLINE};
+	public static enum ModifierType{NULL, SCALE, COLOR, ALPHA};
 	
 	// ===========================================================
 	// Variables
 	// ===========================================================
 	protected EmitterType	theEmitterType = EmitterType.CIRCULAR;  
 
-	protected float 		fCenterX = 0;
-	protected float 		fCenterY = 0;
-	protected float 		fRadiusX = 0;
-	protected float 		fRadiusY = 0;
+	protected float 		fCenterX 	= 0;
+	protected float 		fCenterY 	= 0;
+	protected float 		fRadiusX 	= 0;
+	protected float 		fRadiusY	= 0;
+	protected float 		fWidth 		= 0;
+	protected float 		fHeight 	= 0;
+	
 
 
 	protected float 		fRateMin = 0;
@@ -115,6 +212,20 @@ public class ParticuleSystemDescriptor extends BasicDescriptor{
 	}
 	public void setRadiusY(float fRadiusY) {
 		this.fRadiusY = fRadiusY;
+	}
+	
+	public float getWidth() {
+		return fRadiusY;
+	}
+	public void setWidth(float fWidth) {
+		this.fWidth = fWidth;
+	}
+	
+	public float getHeight() {
+		return fHeight;
+	}
+	public void setHeight(float fHeight) {
+		this.fHeight = fHeight;
 	}
 	
 	
@@ -175,19 +286,29 @@ public class ParticuleSystemDescriptor extends BasicDescriptor{
 		super.readXMLDescription(attributes);
 		//variable containing attributes value
 		String value;
-		if((value = attributes.getValue(ScnTags.S_A_POSITION_X))!=null) 		this.setCenterX(Float.parseFloat(value));
-		if((value = attributes.getValue(ScnTags.S_A_POSITION_Y))!=null) 		this.setCenterY(Float.parseFloat(value));
-		if((value = attributes.getValue(ScnTags.S_A_RADIUS_X))!=null) 			this.setRadiusX(Float.parseFloat(value));
-		if((value = attributes.getValue(ScnTags.S_A_RADIUS_Y))!=null) 			this.setRadiusY(Float.parseFloat(value));
+		
+		if((value = attributes.getValue(ScnTags.S_A_TYPE))!=null) 			this.theEmitterType = EmitterType.valueOf(value);
+		
+		if((value = attributes.getValue(ScnTags.S_A_CENTER_X))!=null) 		this.setCenterX(Float.parseFloat(value));
+		if((value = attributes.getValue(ScnTags.S_A_CENTER_Y))!=null) 		this.setCenterY(Float.parseFloat(value));
+		if((value = attributes.getValue(ScnTags.S_A_RADIUS_X))!=null) 		this.setRadiusX(Float.parseFloat(value));
+		if((value = attributes.getValue(ScnTags.S_A_RADIUS_Y))!=null) 		this.setRadiusY(Float.parseFloat(value));
+		if((value = attributes.getValue(ScnTags.S_A_WIDTH))!=null) 			this.setWidth(Float.parseFloat(value));
+		if((value = attributes.getValue(ScnTags.S_A_HEIGHT))!=null) 		this.setHeight(Float.parseFloat(value));
 		
 		
 		if((value = attributes.getValue(ScnTags.S_A_RATEMIN))!=null) 			this.setRateMin(Float.parseFloat(value));
 		if((value = attributes.getValue(ScnTags.S_A_RATEMAX))!=null) 			this.setRateMax(Float.parseFloat(value));
-		if((value = attributes.getValue(ScnTags.S_A_PARTICELMAX))!=null) 		this.setParticelsMax(Integer.parseInt(value));
-		
+		if((value = attributes.getValue(ScnTags.S_A_PARTICELMAX))!=null) 		this.setParticelsMax(Integer.parseInt(value));	
 		if((value = attributes.getValue(ScnTags.S_A_RESOURCE_NAME))!=null) 		this.setTextureRegionName(new String(value));
-		
+	
 		if((value = attributes.getValue(ScnTags.S_A_NAME))!=null) 				this.setName(new String(value));
 		
+	}
+	public void addInitalizerDescriptor(ParticleInitializerDescriptor pDescriptorInitiliers) {
+		lstInitializers.add(pDescriptorInitiliers);
+	}
+	public void addModifierDescriptor(ParticleModifiersDescriptor pDescriptorModifier) {
+		lstModifiers.add(pDescriptorModifier);
 	}
 }

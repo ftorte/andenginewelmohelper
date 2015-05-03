@@ -91,7 +91,7 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 	// ===========================================================	
 	protected void init(){
 		mIClicakableImpmementation =  new IComponentClickableDfltImp();
-		mIClicakableImpmementation.setParent(this);
+		mIClicakableImpmementation.setTheComponentParent(this);
 		
 	}
 		
@@ -162,5 +162,14 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 	@Override
 	public boolean onFireEvent(Events event) {
 		return mIClicakableImpmementation.onFireEvent(event);
+	}
+	@Override
+	public IEntity getTheComponentParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void setTheComponentParent(IEntity parent) {
+		// TODO Auto-generated method stub
 	}
 }
