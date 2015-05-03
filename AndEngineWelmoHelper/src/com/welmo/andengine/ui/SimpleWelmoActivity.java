@@ -266,7 +266,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		executeStartup		= new Semaphore(1, true);
 
 		//Check if first installation and configure default option
-		mPreferences = getSharedPreferences(SharedPreferenceManager.STDPreferences.GLOBA_VARIABLES.name(),MODE_PRIVATE);
+		mPreferences = getSharedPreferences(SharedPreferenceManager.STDPreferences.GLOBAL_VARIABLES.name(),MODE_PRIVATE);
 		mPreferencesEditor = mPreferences.edit();
 		
 		//if is new installation load preferences from the XML file
@@ -741,6 +741,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		
 		ManageableScene psc = (ManageableScene) mSceneManager.getScene(nextScene);
 		if(psc != null){
+			//set father message handler for messages that the scene don't handle
+			psc.setFatherSceneMessageHandler(this);
+			
 			psc.sortChildren(true);
 			currentScene.setChildScene(psc,false, true, true);
 			psc.onFireEvent(Events.ON_SCENE_LAUNCH);
@@ -808,22 +811,24 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 				this.mPreferences.edit().commit();
 				break;
 			case FIRE_PARTICULE:
-				String particuleEffectName = msg.getParameterString(0);
+				//TODO
+				/*String particuleEffectName = msg.getParameterString(0);
 				float particuleEffectDuration = msg.getParametersNumber(1);
 				//check that a particule system manager exist
 				if(pPartSystemMgr == null)
 					throw new NullPointerException("ParticuleSystem Not Initialized");
 				
-				final SpriteParticleSystem particuleSystem = pPartSystemMgr.getParticuleSytem(particuleEffectName);
+				final SpriteParticleSystem particuleSystem = pPartSystemMgr.getParticuleSystem(particuleEffectName);
 				
 				if(particuleSystem == null)
-					throw new NullPointerException("Called a Particule system that donesen't exists [" + particuleEffectName + "]" );
+					throw new NullPointerException("Called a Particule system that doesen't exists [" + particuleEffectName + "]" );
 				
 				BaseParticleEmitter theEmitter = ((BaseParticleEmitter)particuleSystem.getParticleEmitter());
-				theEmitter.setCenter(0,0);
+				theEmitter.setCenter(600,400);
 			
 				particuleSystem.setParticlesSpawnEnabled(true);	//enable the particule systems
 				
+				this.mEngine.getScene().attachChild(particuleSystem);*/
 				
 			default:
 				break;

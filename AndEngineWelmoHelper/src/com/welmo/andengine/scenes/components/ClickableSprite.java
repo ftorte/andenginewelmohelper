@@ -3,6 +3,7 @@ package com.welmo.andengine.scenes.components;
 import java.util.ArrayList;
 
 import org.andengine.engine.Engine;
+import org.andengine.entity.IEntity;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
@@ -49,7 +50,7 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 		mIClicakableImpmementation 	=   new IComponentClickableDfltImp();
 		mIActionOnSceneListener		= 	null;
 		mIActivitySceneListener 	=	null;
-		mIClicakableImpmementation.setParent(this);
+		mIClicakableImpmementation.setTheComponentParent(this);
 		
 		configure(pSPRDscf); 
 	}
@@ -107,6 +108,15 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 	public void setID(int ID) {
 		if(!(null == mIClicakableImpmementation))
 		 mIClicakableImpmementation.setID(ID);
+	}
+	@Override
+	public IEntity getTheComponentParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void setTheComponentParent(IEntity parent) {
+		// TODO Auto-generated method stub
 	}
 	public boolean onTouched(TouchEvent pSceneTouchEvent,
 			float pTouchAreaLocalX, float pTouchAreaLocalY) {

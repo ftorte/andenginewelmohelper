@@ -67,7 +67,7 @@ public class ManageableCameraScene extends ManageableScene {
 		}
 	}
 
-	@Override
+	/* @Override
 	protected boolean onChildSceneTouchEvent(final TouchEvent pSceneTouchEvent) {
 		final boolean childIsCameraScene = this.mChildScene instanceof CameraScene;
 		if(childIsCameraScene) {
@@ -78,7 +78,7 @@ public class ManageableCameraScene extends ManageableScene {
 		} else {
 			return super.onChildSceneTouchEvent(pSceneTouchEvent);
 		}
-	}
+	}*/
 	
 	@Override
 	protected void onApplyMatrix(final GLState pGLState, final Camera pCamera) {

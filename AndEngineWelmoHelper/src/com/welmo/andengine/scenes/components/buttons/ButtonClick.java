@@ -51,14 +51,12 @@ public class ButtonClick extends ButtonBasic{
 	}
 
 	@Override
-	public IEntity getParent() {
+	public IEntity getTheComponentParent() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 	@Override
-	public void setParent(IEntity parent) {
+	public void setTheComponentParent(IEntity parent) {
 		// TODO Auto-generated method stub
-		
 	}
 }

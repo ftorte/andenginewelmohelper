@@ -129,7 +129,9 @@ public class PuzzleElementContainer extends Rectangle{
 
 		
 		if(mPuzzleElements.isEmpty()){
-			this.setPosition(pNewPuzzleElement.getX(),pNewPuzzleElement.getY());
+			float pos1[] = pNewPuzzleElement.convertLocalToSceneCoordinates(0,0);
+			float pos[] = getParent().convertSceneToLocalCoordinates(pNewPuzzleElement.convertLocalToSceneCoordinates(0,0));
+			this.setPosition(pos[0],pos[1]);
 			this.setSize(pNewPuzzleElement.getWidth(),pNewPuzzleElement.getHeight());
 			pNewPuzzleElement.setPosition(0, 0);
 			mPuzzleElements.add(pNewPuzzleElement);
@@ -145,7 +147,7 @@ public class PuzzleElementContainer extends Rectangle{
 
 			//Calculate coordinate new object in current container parent's coord system
 			float[] pOriginalXY = pNewPuzzleElement.convertLocalToSceneCoordinates(0, 0).clone();
-			float[] pConvertedXY = this.convertSceneToLocalCoordinates(pOriginalXY).clone();
+			//float[] pConvertedXY = this.convertSceneToLocalCoordinates(pOriginalXY).clone();
 
 			float newObjXmin = pOriginalXY[X];
 			float newObjXmax = newObjXmin + pNewPuzzleElement.getWidth();
@@ -168,7 +170,7 @@ public class PuzzleElementContainer extends Rectangle{
 			this.setPosition(this.getX()+deltaPX, this.getY()+deltaPY);
 
 			//5th add new entity to relative position in the Compound space
-			pConvertedXY = this.convertSceneToLocalCoordinates(pOriginalXY).clone();
+			float[] pConvertedXY = this.convertSceneToLocalCoordinates(pOriginalXY).clone();
 			pNewPuzzleElement.setPosition(pConvertedXY[X], pConvertedXY[Y]);
 			mPuzzleElements.add(pNewPuzzleElement);
 		}
@@ -280,6 +282,7 @@ public class PuzzleElementContainer extends Rectangle{
 		}
 		//get the coordinate to attach to in element local(local is the parent of element) reference system
 		newXY=this.convertSceneToLocalCoordinates(newX,newY);
+		
 		newX=newXY[X];
 		newY=newXY[Y];
 		

@@ -4,17 +4,23 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.SpriteParticleSystem;
 import org.andengine.entity.particle.emitter.CircleOutlineParticleEmitter;
+import org.andengine.entity.particle.emitter.CircleParticleEmitter;
 import org.andengine.entity.particle.emitter.IParticleEmitter;
+import org.andengine.entity.particle.emitter.PointParticleEmitter;
+import org.andengine.entity.particle.initializer.AccelerationParticleInitializer;
 import org.andengine.entity.particle.initializer.AlphaParticleInitializer;
 import org.andengine.entity.particle.initializer.BlendFunctionParticleInitializer;
 import org.andengine.entity.particle.initializer.ColorParticleInitializer;
+import org.andengine.entity.particle.initializer.IParticleInitializer;
 import org.andengine.entity.particle.initializer.RotationParticleInitializer;
 import org.andengine.entity.particle.initializer.VelocityParticleInitializer;
 import org.andengine.entity.particle.modifier.AlphaParticleModifier;
@@ -22,31 +28,20 @@ import org.andengine.entity.particle.modifier.ColorParticleModifier;
 import org.andengine.entity.particle.modifier.ExpireParticleInitializer;
 import org.andengine.entity.particle.modifier.ScaleParticleModifier;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.welmo.andengine.resources.descriptors.BuildableTextureDescriptor;
-import com.welmo.andengine.resources.descriptors.ColorDescriptor;
-import com.welmo.andengine.resources.descriptors.DynamicTiledTextureRegionDescriptor;
-import com.welmo.andengine.resources.descriptors.FontDescriptor;
-import com.welmo.andengine.resources.descriptors.MusicDescriptor;
-import com.welmo.andengine.resources.descriptors.ResTags;
-import com.welmo.andengine.resources.descriptors.SoundDescriptor;
-import com.welmo.andengine.resources.descriptors.TextureDescriptor;
-import com.welmo.andengine.resources.descriptors.TextureRegionDescriptor;
-import com.welmo.andengine.resources.descriptors.TiledTextureRegionDescriptor;
-import com.welmo.andengine.scenes.descriptors.ParserXMLSceneDescriptor;
 import com.welmo.andengine.scenes.descriptors.ScnTags;
 import com.welmo.andengine.scenes.descriptors.components.ParticuleSystemDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ParticuleSystemDescriptor.ParticleInitializerDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ParticuleSystemDescriptor.ParticleModifiersDescriptor;
-import com.welmo.andengine.utility.ScreenDimensionHelper;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.opengl.GLES20;
 import android.util.Log;
 
@@ -59,16 +54,19 @@ public class ParticuleSystemManager {
 	// Variables
 	//--------------------------------------------------------
 	// Resources
-	protected HashMap<String,SpriteParticleSystem> 			hmParticuleSystem 		= null;;
-	Map<String, ParticuleSystemDescriptor>					mapParticuleSystemMap 	= null;
+	protected HashMap<String,SpriteParticleSystem> 			hmParticuleSystem 				= null;;
+	Map<String, ParticuleSystemDescriptor>					mapParticuleSystemDescriptors 	= null;
 
 	
 	//--------------------------------------------------------
 	// Inner Classes 
 	//--------------------------------------------------------
 	public class ParserXMLParticuleSystemDescriptor extends DefaultHandler {
-		ParticuleSystemManager 			pParticuleSystemMgr = null;
-		ParticuleSystemDescriptor 		pDescriptor = null;
+		ParticuleSystemManager 			pParticuleSystemMgr 	= null;
+		ParticuleSystemDescriptor 		pDescriptor 			= null;
+		ParticleInitializerDescriptor 	pDescriptorInitilizer  	= null;
+		ParticleModifiersDescriptor 	pDescriptorModifier 	= null;
+		
 		@Override
 		public void processingInstruction(String target, String data) throws SAXException {
 			super.processingInstruction(target, data);
@@ -87,13 +85,30 @@ public class ParticuleSystemManager {
 				pDescriptor = new ParticuleSystemDescriptor();
 				pDescriptor.readXMLDescription(attributes);
 				pParticuleSystemMgr.addDescrptor(pDescriptor);
-				return;			
 			}
+			if (localName.equalsIgnoreCase(ScnTags.S_INITIALIZER)){
+				pDescriptorInitilizer = new ParticuleSystemDescriptor.ParticleInitializerDescriptor();
+				pDescriptorInitilizer.readXMLDescription(attributes);
+				pDescriptor.addInitalizerDescriptor(pDescriptorInitilizer);
+			}
+			if (localName.equalsIgnoreCase(ScnTags.S_MODIFIER)){
+				pDescriptorModifier = new ParticleModifiersDescriptor();
+				pDescriptorModifier.readXMLDescription(attributes);
+				pDescriptor.addModifierDescriptor(pDescriptorModifier);
+				return;
+			}
+			return;
 		}
 		@Override
 		public void endElement(String uri, String localName, String name) throws SAXException {		
 			if (localName.equalsIgnoreCase(ScnTags.S_PARTICULESYSTEM)){
 				pDescriptor  = null;
+			}
+			if (localName.equalsIgnoreCase(ScnTags.S_INITIALIZER)){
+				pDescriptorInitilizer  = null;
+			}
+			if (localName.equalsIgnoreCase(ScnTags.S_MODIFIER)){
+				pDescriptorModifier  = null;
 			}
 		}
 		public void characters(char[] ch,int start, int length)	throws SAXException{
@@ -107,7 +122,7 @@ public class ParticuleSystemManager {
 	//--------------------------------------------------------
 	private ParticuleSystemManager(){
 		hmParticuleSystem =  new  HashMap<String,SpriteParticleSystem>();
-		mapParticuleSystemMap = new HashMap<String, ParticuleSystemDescriptor>();
+		mapParticuleSystemDescriptors = new HashMap<String, ParticuleSystemDescriptor>();
 	}
 	public synchronized  static ParticuleSystemManager getInstance(){
 		if(mInstance == null)
@@ -123,28 +138,39 @@ public class ParticuleSystemManager {
 		IParticleEmitter pIPEmiter = null;
 		switch(pPSD.getEmitterType()){
 		case CIRCULAR:
+			pIPEmiter = new CircleParticleEmitter(pPSD.getCenterX(), pPSD.getCenterY(), pPSD.getRadiusX(),pPSD.getRadiusY());
+			break;	
+		case CIRCULAR_OUTLINE: 
+			pIPEmiter = new CircleOutlineParticleEmitter(pPSD.getCenterX(), pPSD.getCenterY(), pPSD.getRadiusX(),pPSD.getRadiusY());
+			break;
+		case POINT: 
+			pIPEmiter = new PointParticleEmitter(pPSD.getCenterX(), pPSD.getCenterY());
+			break;
+		case RECTANGULAR: 
+			pIPEmiter = new CircleOutlineParticleEmitter(pPSD.getCenterX(), pPSD.getCenterY(), pPSD.getRadiusX(),pPSD.getRadiusY());
+			break;
+		case RECTANGULAR_OUTLINE:
 			pIPEmiter = new CircleOutlineParticleEmitter(pPSD.getCenterX(), pPSD.getCenterY(), pPSD.getRadiusX(),pPSD.getRadiusY());
 			break;
 		default:
+			pIPEmiter = new CircleOutlineParticleEmitter(pPSD.getCenterX(), pPSD.getCenterY(), pPSD.getRadiusX(),pPSD.getRadiusY());
 			break;
 			
 		}
-
-		SpriteParticleSystem particleSystem = new SpriteParticleSystem(pIPEmiter, pPSD.getRateMin(), pPSD.getRateMax(),pPSD.getParticelsMax(), 
-				pRM.getTextureRegion(pPSD.getTextureRegionName()),pRM.getEngine().getVertexBufferObjectManager());
-
-
+		SpriteParticleSystem particleSystem = new SpriteParticleSystem(pIPEmiter, pPSD.getRateMin(), pPSD.getRateMax(),pPSD.getParticelsMax(), pRM.getTextureRegion(pPSD.getTextureRegionName()),pRM.getEngine().getVertexBufferObjectManager());
+				
 		//Default Initialized
 		particleSystem.addParticleInitializer(new BlendFunctionParticleInitializer<Sprite>(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE));
 		
-		//Readt Initializers Descriptors
+		//Read Initializers Descriptors
+		
 		Iterator<ParticleInitializerDescriptor> itPartInitilizer=pPSD.getInitializers().iterator();
 		
 		while (itPartInitilizer.hasNext()){
 			ParticleInitializerDescriptor pInitializer = itPartInitilizer.next();
 			switch (pInitializer.type){
-			case COLOR:
-				particleSystem.addParticleInitializer(new ColorParticleInitializer<Sprite>(pInitializer.pRed, pInitializer.pGreen, pInitializer.pBlue));
+			case COLOR_FIXED:
+				particleSystem.addParticleInitializer(new ColorParticleInitializer<Sprite>(pInitializer.pMinRed, pInitializer.pMinGreen, pInitializer.pMinBlue));
 				break;
 			case ALPHA:
 				particleSystem.addParticleInitializer(new AlphaParticleInitializer<Sprite>(pInitializer.pAlfa));
@@ -158,14 +184,16 @@ public class ParticuleSystemManager {
 			case EXPIRE:
 				particleSystem.addParticleInitializer(new ExpireParticleInitializer<Sprite>(pInitializer.pLifeTime));
 				break;
-
+			case ACCELERATION:
+				particleSystem.addParticleInitializer(new AccelerationParticleInitializer<Sprite>(pInitializer.pAccX, pInitializer.pAccY));
+				break;
 			}
 		}
 		
-		//Readt Initializers Modifiers
+		//Read Initializers Modifiers
 		Iterator<ParticleModifiersDescriptor> itPartModifiers=pPSD.getModifiers().iterator();
 
-		while (itPartInitilizer.hasNext()){
+		while (itPartModifiers.hasNext()){
 			ParticleModifiersDescriptor pModifier = itPartModifiers.next();
 			switch (pModifier.type){
 			case SCALE:
@@ -178,14 +206,14 @@ public class ParticuleSystemManager {
 				break;
 			}
 		}	
-		//by default the partucule system is disabled and is addedd to the availables PS map
+		//by default the particle system is disabled and is added to the available PS map
 		particleSystem.setParticlesSpawnEnabled(false);
 		hmParticuleSystem.put(particuleName, particleSystem);
 		
 		return particleSystem;
 	}
 
-	public SpriteParticleSystem getParticuleSytem(String particuleSystemName){
+	public SpriteParticleSystem getParticuleSystem(String particuleSystemName){
 		if(hmParticuleSystem.containsKey(particuleSystemName))
 			return hmParticuleSystem.get(particuleSystemName);
 		return null;
@@ -205,6 +233,11 @@ public class ParticuleSystemManager {
 					xr.parse(new InputSource(theCtx.getAssets().open(filename))); 
 				}
 			}
+			Iterator<String> iKeys = this.mapParticuleSystemDescriptors.keySet().iterator();
+			while(iKeys.hasNext()){
+				String key = iKeys.next();
+				this.addParticuleSystem(key, this.mapParticuleSystemDescriptors.get(key));
+			}
 		} catch(ParserConfigurationException pce) { 
 			Log.e("SAX XML", "sax parse error", pce); 
 		} catch(SAXException se) { 
@@ -214,6 +247,6 @@ public class ParticuleSystemManager {
 		} 
 	}
 	public void addDescrptor(ParticuleSystemDescriptor pDescriptor){
-		mapParticuleSystemMap.put(pDescriptor.getName(), pDescriptor);
+		mapParticuleSystemDescriptors.put(pDescriptor.getName(), pDescriptor);
 	}
 }

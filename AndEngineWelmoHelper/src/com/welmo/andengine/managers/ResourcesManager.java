@@ -166,14 +166,13 @@ public class ResourcesManager {
 		}
 		
 		public void updateFromAsset(String newAssetName, int nbCol, int nbRow, Context ctx) {
-            if( newAssetName.compareToIgnoreCase(assetFileName) != 0){
-            	mBitmapTextureAtlas.clearTextureAtlasSources();
-            	mTiledTexture = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, 
-            			ctx, newAssetName, 0,0,nbCol, nbRow);
-            	assetFileName = new String(newAssetName);
-            	this.nNbCol = nbCol;
-            	this.nNbRow = nbRow;
-            }
+            //if( newAssetName.compareToIgnoreCase(assetFileName) != 0){
+            mBitmapTextureAtlas.clearTextureAtlasSources();
+            mTiledTexture = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, ctx, newAssetName, 0,0,nbCol, nbRow);
+            assetFileName = new String(newAssetName);
+            this.nNbCol = nbCol;
+            this.nNbRow = nbRow;
+            //}
 		}
 		
 		public ITiledTextureRegion getITiledTextureRegion(){return  mTiledTexture;}
@@ -755,7 +754,8 @@ public class ResourcesManager {
 		
 		//check that the resourceName is the requested with the exact nb of tiles(col & row) and if no reload it
 		if(!theDinamicTiledTextureRegion.isSameAs(resourceName, nbCol, nbRow)) 
-			theDinamicTiledTextureRegion.updateFromAsset(resourceName, nbCol, nbRow, this.mCtx);
+			theDinamicTiledTextureRegion.updateFromAsset(resourceName, nbCol, nbRow, this.mCtx); // => this action generate a crash
+			//theDinamicTiledTextureRegion = loadDynamicTiledTextureRegion(tiledTextureRegionName);
 	
 		//return the found or loaded texture region
 		return theDinamicTiledTextureRegion.getITiledTextureRegion();

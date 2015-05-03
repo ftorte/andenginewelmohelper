@@ -62,7 +62,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 	protected boolean										bImplementPinchAndZoom;
 	protected boolean										bHasHUD;
 	protected HUDDescriptor									pHUDDsc;
-	protected IActivitySceneListener						pIActivityScebeListener = null;
+	protected IActivitySceneListener						pIActivitySceneListener = null;
 	
 
 	protected SceneDescriptor 								pSCDescriptor;
@@ -271,7 +271,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 		mContext = ctx;
 		pSM = sceneManager;
 		pSPM = SharedPreferenceManager.getInstance(ctx);
-		pIActivityScebeListener = activity;
+		pIActivitySceneListener = activity;
 		
 		this.setTouchAreaBindingOnActionDownEnabled(true);
 		this.setTouchAreaBindingOnActionMoveEnabled(true);

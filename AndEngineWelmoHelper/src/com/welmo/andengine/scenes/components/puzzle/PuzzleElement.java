@@ -12,6 +12,10 @@ import org.andengine.opengl.vbo.DrawType;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.color.Color;
 
+import com.welmo.andengine.scenes.operations.IOperationHandler;
+import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
+import com.welmo.andengine.scenes.operations.Operation;
+
 import android.util.Log;
 
 public class PuzzleElement extends TiledSprite{
@@ -338,8 +342,6 @@ public class PuzzleElement extends TiledSprite{
 			else
 				stickToNeighbors();   
 			
-			//FT if(mThePuzzle.isPieceListEmpty())
-			//FT 	mThePuzzle.
 			break;
 			
 		case TouchEvent.ACTION_OUTSIDE:
@@ -362,6 +364,8 @@ public class PuzzleElement extends TiledSprite{
 				mThePuzzle.setZIndex(PuzzleSprites.STACK_ZINDEX+10);
 				this.setZIndex(PuzzleSprites.STACK_ZINDEX+20);
 				mThePuzzle.sortChildren();
+				mThePuzzle.launchFireworks(this.convertLocalToSceneCoordinates(0, 0));
+				mThePuzzle.playSoundTouch();
 			}
 	}
 	
@@ -389,40 +393,40 @@ public class PuzzleElement extends TiledSprite{
 	public void attachePieceToNearest(int nNearest){
 		
 		//get X/Y position in Scene ref system of Top/Left corner of neighbor to attache to
-		float[] newXY = neighbors[nNearest].convertLocalToSceneCoordinates(0,0);
+		float[] neighborXY = neighbors[nNearest].convertLocalToSceneCoordinates(0,0).clone();
+		//float[] currentPieceXY = this.convertLocalToSceneCoordinates(0,0).clone();
 		
-		float newX=newXY[X];
-		float newY=newXY[Y];
+		float neighborX=neighborXY[X];
+		float neighborY=neighborXY[Y];
+		
+		//position the current piece at same position than the neigbor
+		float newX = neighborX;
+		float newY = neighborY;
 		
 		//Calculate the new position of the piece depending on the type of neighbor to attach to
 		switch(nNearest){
-		case PuzzleElement.NEIGHTBOR_TOP:
-			newY=newY + neighbors[nNearest].getHeight();
+		case PuzzleElement.NEIGHTBOR_TOP:		//shift piece down
+			newY= newY + neighbors[nNearest].getHeight();
 			break;
-		case PuzzleElement.NEIGHTBOR_BOTTOM:
-			newY=newY - neighbors[nNearest].getHeight();;
+		case PuzzleElement.NEIGHTBOR_BOTTOM:	//shift piece up
+			newY= newY - neighbors[nNearest].getHeight();;
 			break;
-		case PuzzleElement.NEIGHTBOR_LEFT:
-			newX=newX + neighbors[nNearest].getWidth();
+		case PuzzleElement.NEIGHTBOR_LEFT:		//shift piece right
+			newX= newX + neighbors[nNearest].getWidth();
 			break;
-		case PuzzleElement.NEIGHTBOR_RIGHT:
+		case PuzzleElement.NEIGHTBOR_RIGHT:		//shift piece left
 			newX=newX - neighbors[nNearest].getWidth();
 			break;
 		}
 		//get the coordinate to attach to in element local(local is the parent of element) reference system
-		newXY=getParent().convertSceneToLocalCoordinates(newX,newY);
-		newX=newXY[X];
-		newY=newXY[Y];
+		float newXY[] = getParent().convertSceneToLocalCoordinates(newX,newY);
+		//float newXY[] =this.convertSceneToLocalCoordinates(newX,newY);
 		
-		//if(isMemeberOfContainer){
-			//if the element to attach belong to a container; calculate the delta move and move the container not the piece only
-			//float currXY[] = theElement.mContainer.convertSceneToLocalCoordinates(theElement.getX(),theElement.getY());//get current position
-		//	mContainer.setPosition(mContainer.getX() + newX - getX(), mContainer.getY()+ newY - getY());
-		//}
-		//else{
-			//if the element to attach doesn't belong to a container move it to the expected position
-			setPosition(newX, newY);
-		//}
+		setPosition(newXY[X], newXY[Y]);
+		//currentPieceXY = this.convertLocalToSceneCoordinates(0,0).clone();
+		
+		mThePuzzle.launchFireworks(this.convertLocalToSceneCoordinates(0, 0));
+		mThePuzzle.playSoundTouch();
 	}
 	private void detachNeighbors(int nearestType, PuzzleElement theElement, PuzzleElement theNeighbor){
 		theElement.neighbors[nearestType]=null;

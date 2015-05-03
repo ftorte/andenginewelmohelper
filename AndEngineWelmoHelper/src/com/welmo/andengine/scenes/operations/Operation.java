@@ -68,7 +68,7 @@ public class Operation {
 	// get/set parameter as numbers
 	// *************************************************************************************
 	public Float getParametersNumber(int id){
-		if(id >= parametersBoolean.size() || id < 0)
+		if(id >= parametersNumbers.size() || id < 0)
 			throw new NullPointerException("The message don't has the requested parameter");
 		return parametersNumbers.get(id);
 	}

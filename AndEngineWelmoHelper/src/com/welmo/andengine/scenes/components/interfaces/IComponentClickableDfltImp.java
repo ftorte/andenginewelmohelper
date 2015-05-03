@@ -40,10 +40,10 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 	// -----------------------------------------------------------------------------------------
 	// -----------------------------------------------------------------------------------------
 	// IBasicComponent
-	public IEntity getParent() {
+	public IEntity getTheComponentParent() {
 		return mParent;
 	}
-	public void setParent(IEntity mParent) {
+	public void setTheComponentParent(IEntity mParent) {
 		this.mParent = mParent;
 	}
 	public int getID() {
@@ -208,7 +208,7 @@ public class IComponentClickableDfltImp implements IComponentClickable {
 	public String getPersistenceURL() {
 		String sPersistenceURL = null;
 
-		IEntity pFather = this.getParent();
+		IEntity pFather = this.getTheComponentParent();
 		if(pFather instanceof IManageableScene){
 			sPersistenceURL = new String(((IManageableScene)pFather).getSceneName());
 		}

@@ -176,9 +176,9 @@ public abstract class ButtonBasic extends Rectangle implements IComponent, IPers
 	// Getter & Setters
 	// -----------------------------------------------------------------------------------------------------------------
 
-	public void registerTouchAreaToScene(Scene theScene){
-		theScene.registerTouchArea((ITouchArea) this);
-	}
+	/* public void registerTouchAreaToScene(Scene theScene){
+		theScene.registerTouchArea(this);
+	}*/ 
 	// -----------------------------------------------------------------------------------------------------------------
 	// Override functions 
 	// -----------------------------------------------------------------------------------------------------------------
@@ -287,8 +287,10 @@ public abstract class ButtonBasic extends Rectangle implements IComponent, IPers
 	// -----------------------------------------------------------------------------------------------------------------
 	// abstract methods
 	// -----------------------------------------------------------------------------------------------------------------
-	abstract public IEntity getParent();
-	abstract public void 	setParent(IEntity parent);
 	@Override
-	abstract public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y);
+	abstract public IEntity getTheComponentParent();
+	@Override
+	abstract public void setTheComponentParent(IEntity parent);
+	//@Override
+	//abstract public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y);
 }

@@ -22,7 +22,7 @@ import com.welmo.andengine.scenes.operations.IOperationHandler;
 import com.welmo.andengine.scenes.operations.Operation;
 import com.welmo.andengine.scenes.operations.IOperationHandler.OperationTypes;
 
-public class ButtonOnOff extends ButtonBasic implements IPersistent{
+public class ButtonOnOff extends ButtonBasic{
 	
 	public static boolean					ON 			= true;
 	public static boolean					OFF 		= false;
@@ -101,14 +101,13 @@ public class ButtonOnOff extends ButtonBasic implements IPersistent{
 		}
 	}
 	@Override
-	public IEntity getParent() {
+	public IEntity getTheComponentParent() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	@Override
-	public void setParent(IEntity parent) {
+	public void setTheComponentParent(IEntity parent) {
 		// TODO Auto-generated method stub
-		
 	}
 	@Override
 	public void setActionSceneListner(IActionSceneListener scenelistener) {
@@ -122,7 +121,7 @@ public class ButtonOnOff extends ButtonBasic implements IPersistent{
 	public void doLoad() {
 		super.doLoad();
 		if(mParameters.sGlobaVariable != null){
-			SharedPreferences sp = pSPM.getSharedPreferences(SharedPreferenceManager.STDPreferences.GLOBA_VARIABLES.name());
+			SharedPreferences sp = pSPM.getSharedPreferences(SharedPreferenceManager.STDPreferences.GLOBAL_VARIABLES.name());
 			if(sp.getBoolean(mParameters.sGlobaVariable, true))
 				this.setON();
 			else
@@ -133,7 +132,7 @@ public class ButtonOnOff extends ButtonBasic implements IPersistent{
 	@Override
 	public void doSave() {
 		if(mParameters.sGlobaVariable != null){
-			Editor ed = pSPM.getSharedPreferences(SharedPreferenceManager.STDPreferences.GLOBA_VARIABLES.name()).edit();
+			Editor ed = pSPM.getSharedPreferences(SharedPreferenceManager.STDPreferences.GLOBAL_VARIABLES.name()).edit();
 			ed.putBoolean(mParameters.sGlobaVariable, bON);
 			ed.commit();
 		}

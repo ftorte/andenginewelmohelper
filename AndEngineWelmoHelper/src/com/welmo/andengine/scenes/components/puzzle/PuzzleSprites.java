@@ -3,8 +3,13 @@ package com.welmo.andengine.scenes.components.puzzle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import org.andengine.audio.sound.Sound;
 import org.andengine.engine.Engine;
 import org.andengine.entity.IEntity;
+import org.andengine.entity.particle.SpriteParticleSystem;
+import org.andengine.entity.particle.emitter.BaseParticleEmitter;
+import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.Sprite;
@@ -12,21 +17,31 @@ import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.HandlerThread;
+import android.util.Log;
+import android.util.Pair;
 
+import com.welmo.andengine.managers.ParticuleSystemManager;
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SharedPreferenceManager;
 import com.welmo.andengine.scenes.IManageableScene;
 import com.welmo.andengine.scenes.components.CardSprite.CardSide;
 import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
-import com.welmo.andengine.scenes.components.interfaces.IActivitySceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.components.interfaces.IComponentEventHandler;
 import com.welmo.andengine.scenes.components.interfaces.IComponentLifeCycle;
 import com.welmo.andengine.scenes.components.interfaces.IComponentLifeCycleListener;
 import com.welmo.andengine.scenes.components.interfaces.IPersistent;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
+import com.welmo.andengine.scenes.descriptors.MemorySceneDescriptor;
+import com.welmo.andengine.scenes.descriptors.ScnTags;
+import com.welmo.andengine.scenes.descriptors.components.GameLevel;
 import com.welmo.andengine.scenes.descriptors.components.PuzzleObjectDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor;
 import com.welmo.andengine.scenes.descriptors.events.ComponentEventHandlerDescriptor.Events;
@@ -40,7 +55,7 @@ import com.welmo.andengine.scenes.operations.IOperationHandler;
  * 
  *
  */
-public class PuzzleSprites extends Rectangle implements IComponent, IComponentLifeCycle, IComponentEventHandler, IActionSceneListener{
+public class PuzzleSprites extends Rectangle implements IComponent, IComponentLifeCycle, IComponentEventHandler, IActionSceneListener,IPersistent{
 	// --------------------------------------------------------------------
 	// constants
 	// --------------------------------------------------------------------
@@ -59,8 +74,13 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	public static final int STATUS_PAUSED   = 4;
 	
 	
-	public static final int DEFAULT_ZINDEX 	= 100;
-	public static final int STACK_ZINDEX	= 10;
+	public static final int DEFAULT_ZINDEX 					= 20;
+	public static final int STACK_ZINDEX					= 20;
+	public static final int ACTIVE_ZONE_ZINDEX				= 10;
+	public static final int SELECTED_ZINDEX 				= 100;
+	public static final int SELECTED_NONE					= -1;
+	public static final float ACTIVE_ZONE_TRANSPARANCE		= 0.8f;
+
 	
 	
 	// --------------------------------------------------------------------
@@ -84,12 +104,20 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	
 	private 	boolean							hasActiveBorder		= false;		//if true the pieces and container have borders
 	private 	boolean							hasActiveZone		= false;		//if true the puzzle zone is active and pieces are stick to the zone
+	private 	boolean							hasActiveZoneBorders= false;		//if true there will be a border around each puzzle expected place (this is valid only if hasActiveZone = true
 	private 	boolean							hasWhiteBackground	= false;		//if true the puzzle pieces have a white background
+	private 	boolean							hasHelperImg		= false;		//if true the puzzle has the helper image as background of puzzle zone
 	private 	String							mHelperImage		= "";			//if <> "" the puzzle zone have as background the final figures in color on withe background with low alpah
 	private 	String 							mTiledTextureName	= "";	
 	private 	String 							mTiledTextureResource = "";	
+	private     Sprite 							sHelperImage		= null;	
+	private     Rectangle 						sActiveZone			= null;	
 	
-
+	//Has multiple levels
+	protected boolean 							hasDynamicGameLevel	=false;
+	protected List<Pair<Integer,Integer>> 		lGameLevelMap		= null;
+	protected int 								nGameLevel			= 0;
+	
 	private 	float							mHelperImageAlpha	= 0.4f;		    //if true the puzzle zone have as background the final figures in color on withe background with low alpah
 	
 	protected	int 							mZOrder				=0;
@@ -98,6 +126,12 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	protected	List<PuzzleElementContainer> 	mContainersList 	= null;
 	protected	List<PuzzleElement> 			mPiecesList 		= null;
 	
+	//fireworks effect
+	protected 	boolean							hasFireworks		= false;
+	protected 	SpriteParticleSystem			theFireworks		= null;
+	protected 	HandlerThread					pHandeler			= null;
+	protected 	long 							nFireworkDuration	= 1000;
+	
 	protected	Engine							mTheEngine 			= null;
 	
 	
@@ -105,6 +139,18 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	protected 	IComponentLifeCycleListener		mLifeCycleListener	= null;
 	protected 	int								mStatus				= STATUS_START;
 	protected 	IActionSceneListener			mActSceneListener 	= null;
+	protected   Sound 							sndTouch			= null;
+	protected   Sound 							sndEndLeveSuccess	= null;
+	protected   Sound 							sndEndLeveFail		= null;
+	
+	//handle slected Pieces & 
+	protected 	int								nSelectedPiece		= SELECTED_NONE;
+	protected 	int								nSelectedContainer	= SELECTED_NONE;
+	
+	//persistence
+	protected SharedPreferenceManager			pSPM				= null;
+	protected String							persistentValue		= "GameLevel";
+
 	// --------------------------------------------------------------------
 	// Constructors
 	// --------------------------------------------------------------------
@@ -135,9 +181,10 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		mPuzzleZone[HEIGHT]		= pDescriptor.getPuzzleZoneGeometry()[HEIGHT];
 		
 		hasActiveBorder			= pDescriptor.hasActiveBorder();
+		hasActiveZoneBorders	= pDescriptor.hasActiveZoneBorders();
 		hasActiveZone			= pDescriptor.hasActiveZone();
 		hasWhiteBackground		= pDescriptor.hasWhiteBackground();
-		
+		hasHelperImg			= pDescriptor.hasHelperImage();
 		
 		mHelperImage			= new String(pDescriptor.getHelperImage());
 		mTiledTextureName		= new String(pDescriptor.getTiledTextureName());
@@ -149,17 +196,56 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		mZOrder					= pDescriptor.getIPosition().getZorder();
 		
 		//get geometry 
-		nbRows 					= pDescriptor.getNbRows();
-		nbCols 					= pDescriptor.getNbRows();
-		nbPieces 				= nbRows*nbCols;
+		setGeometry(pDescriptor.getNbRows(),pDescriptor.getNbColumns());
+		
+		if(hasDynamicGameLevel= pDescriptor.hasDynamicGameLevel()){
+			lGameLevelMap = new ArrayList<Pair<Integer,Integer>>();
+			readGameLevelMap(pDescriptor.getGameLevelMap());
+		}
 				
 		//Init Array
 		mContainersList 		= new ArrayList<PuzzleElementContainer>();
 		mPiecesList 			= new ArrayList<PuzzleElement>();
 		
+		//fireworks
+		if(pDescriptor.hasFireworsk()){
+			hasFireworks			= true;
+			nFireworkDuration		= pDescriptor.getFireworkDuration();
+			this.theFireworks		= ParticuleSystemManager.getInstance().getParticuleSystem(pDescriptor.getFireworksName());	
+			if(this.theFireworks == null){
+				hasFireworks = false;
+			}	
+		}
+		
+		//Looper.prepare();
+		pHandeler 				= new HandlerThread("handle ParticleSystem"); 
 		mStatus					= STATUS_START;
+		
+		//effects
+		ResourcesManager rMgr = ResourcesManager.getInstance();
+		sndTouch			= rMgr.getSound("puzzlepieces_touch").getTheSound();;
+		sndEndLeveSuccess	= rMgr.getSound("level_win").getTheSound();;
+		sndEndLeveFail 		= rMgr.getSound("puzzlepieces_touch").getTheSound();;
 	}
 	
+
+	private void readGameLevelMap(String gameLevelMap) {
+		//Parse JSON strings
+		JSONObject jObject;
+		try {
+			jObject = new JSONObject(gameLevelMap);
+			JSONArray gamelevels = jObject.getJSONArray(ScnTags.S_A_GAME_LEVEL_MAP);
+			//parse the array
+			for (int i=0; i<gamelevels.length(); i++){
+				JSONArray currLine = (JSONArray)gamelevels.get(i);
+				lGameLevelMap.add(new Pair<Integer,Integer>(currLine.getInt(1),currLine.getInt(2)));
+			} 
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 
 	// --------------------------------------------------------------------
 	// members' getters & setters
@@ -214,6 +300,11 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	public void setLifeCycleListener(IComponentLifeCycleListener mLifeCycleLeastener) {
 		this.mLifeCycleListener = mLifeCycleLeastener;
 	}
+	public void setGeometry(int nRows, int nCols){
+		nbRows 					= nRows;
+		nbCols 					= nCols;
+		nbPieces 				= nbRows*nbCols;
+	}
 	// ------------------------------------------------------------------------------------
 	// public memebers
 	// ------------------------------------------------------------------------------------
@@ -222,14 +313,36 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		if(mStatus==STATUS_START)
 			return;
 
+		
+		//clear selection of pieces and container
+		unSelectPiece();
+		unSelectContainer();
+		
 		//detach all childres
 		this.detachChildren();
 
 		//change parent to all pieces to be attached to the Puzzle Sprite
-		mPiecesList.clear();							//clear Piece list			
-		mContainersList.clear();
+		mPiecesList.clear();							//clear Piece list		
 	
+		mContainersList.clear();
+		
+		
+		//clear Helper Image
+		this.detachChild(this.sHelperImage);
+		sHelperImage =  null;
+		
+		//clear Active Zone
+		this.sActiveZone.detachChildren();
+		this.detachChild(this.sActiveZone);
+		this.sActiveZone = null;
+		
+		//reset counter to 0
 		fStartTimeIn_ms = 0;
+		
+		
+		//force Zindex short
+		this.sortChildren(true);
+		
 		mStatus=STATUS_START;
 		return;
 	}
@@ -242,6 +355,15 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		
 		setAlpha(0);
 
+		//if dynamic level active configure geometry in function of the current game level 
+		if(this.hasDynamicGameLevel){
+			doLoad();
+			if(nGameLevel < 0 || nGameLevel >= lGameLevelMap.size())
+				nGameLevel = 0;
+			Pair<Integer,Integer> gameLevel = lGameLevelMap.get(nGameLevel);
+			setGeometry(gameLevel.first,gameLevel.second);
+		}
+		
 		//get the texture
 		ITiledTextureRegion theTiledTexture = pRM.getDinamicTiledTextureRegion(mTiledTextureName, 
 				mTiledTextureResource, nbCols, nbRows);
@@ -288,22 +410,53 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		fStartTimeIn_ms = System.currentTimeMillis();
 		
 		setUpHelperImage();
+
+		setUpActiveZone();
+
 		
-		mStatus					= STATUS_ONGOING;
+		//Activate foreworks
+		if(hasFireworks && 	this.theFireworks != null && !theFireworks.hasParent()){
+				this.attachChild(theFireworks);
+				this.theFireworks.setParticlesSpawnEnabled(false);
+		}		
+		mStatus	= STATUS_ONGOING;
 	}
 	public void setUpHelperImage(){
-		if(!mHelperImage.isEmpty()){
+		if(hasHelperImg && !mHelperImage.isEmpty()){
 			ResourcesManager pRM = ResourcesManager.getInstance();
-			// FT ITextureRegion theImage=pRM.getTextureRegion(mDescriptor.getHelperImage());
 			ITextureRegion theImage=pRM.getTextureRegion(mHelperImage);
 			
-			Sprite helperImage = new Sprite(mPuzzleZone[PX0],mPuzzleZone[PY0],
+			sHelperImage = new Sprite(mPuzzleZone[PX0],mPuzzleZone[PY0],
 					mPieceWidth * nbCols,mPieceHeight*nbRows,
 					theImage,mTheEngine.getVertexBufferObjectManager());
 			
-			this.attachChild(helperImage);
-			helperImage.setAlpha(mHelperImageAlpha);
-			helperImage.setZIndex(STACK_ZINDEX);
+			this.attachChild(sHelperImage);
+			sHelperImage.setAlpha(mHelperImageAlpha);
+			sHelperImage.setZIndex(STACK_ZINDEX);
+		}
+	}
+	public void setUpActiveZone(){
+		
+		if(this.hasActiveZone){
+			sActiveZone = new Rectangle(mPuzzleZone[PX0],mPuzzleZone[PY0],mPieceWidth * nbCols,mPieceHeight*nbRows,mTheEngine.getVertexBufferObjectManager());
+			sActiveZone.setAlpha(ACTIVE_ZONE_TRANSPARANCE);
+			sHelperImage.setZIndex(ACTIVE_ZONE_ZINDEX);
+			this.attachChild(sActiveZone);
+		}
+		Line  theLine = null;
+		if(this.hasActiveZone && this.hasActiveZoneBorders){
+			for(int i=0; i <= this.nbCols; i++){
+				theLine = new Line(i*mPieceWidth,0,i*mPieceWidth,mPieceHeight*nbRows, mTheEngine.getVertexBufferObjectManager());
+				theLine.setColor(1, 0, 0);
+				theLine.setZIndex(ACTIVE_ZONE_ZINDEX);
+				sActiveZone.attachChild(theLine);
+			}
+			for(int i=0; i <= this.nbRows; i++){
+				theLine = new Line(0,i*mPieceHeight,nbCols*mPieceWidth, i*mPieceHeight,mTheEngine.getVertexBufferObjectManager());
+				theLine.setColor(1, 0, 0);
+				theLine.setZIndex(ACTIVE_ZONE_ZINDEX);
+				sActiveZone.attachChild(theLine);
+			}
 		}
 	}
 	public void setUpNeighbor(){
@@ -370,10 +523,60 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		theNeighbor.resetBorder(false);
 		mPiecesList.remove(theElement);
 		mPiecesList.remove(theNeighbor);
+		
+		//since pieces are merged ensure that noone is selected;
+		unSelectPiece();
 	}
+	public void unSelectPiece(){
+		if(nSelectedPiece != SELECTED_NONE){
+			//chack that current index is still in the limit of the array and if yes set Z order to default
+			if(nSelectedPiece <  this.mPiecesList.size())
+				this.mPiecesList.get(nSelectedPiece).setZIndex(DEFAULT_ZINDEX);
+			nSelectedPiece = SELECTED_NONE;
+			this.sortChildren(true);
+		}
+	}
+	public void unSelectContainer(){
+		if(nSelectedContainer != SELECTED_NONE){
+			//chack that current index is still in the limit of the array and if yes set Z order to default
+			if(nSelectedContainer <  this.mContainersList.size())
+				this.mContainersList.get(nSelectedContainer).setZIndex(DEFAULT_ZINDEX);
+			nSelectedContainer = SELECTED_NONE;
+			this.sortChildren(true);
+		}
+	}
+	
 	public void destroyContainer(PuzzleElementContainer theContainer){
 		detachChild(theContainer);
 		mContainersList.remove(theContainer);
+		//TO DO ensure current container is not selected. Current version not optimal since de-select current selected container which is not always the destroyed containers
+		unSelectContainer();
+	}
+	public void launchFireworks(float parameter[]){
+		if( this.hasFireworks){
+			((BaseParticleEmitter)(theFireworks.getParticleEmitter())).setCenter(parameter[0],parameter[1]);
+			theFireworks.setParticlesSpawnEnabled(true);
+			/*pHandeler.postDelayed(new Runnable(){
+				public void run(){
+					theFireworks.setParticlesSpawnEnabled(false);
+				}},this.nFireworkDuration);*/
+		}
+	}
+	
+	public void playSoundTouch(){
+		if(sndTouch == null)
+			return;
+		sndTouch.play();
+	}
+	public void playSoundEndLeveSuccess(){
+		if(sndEndLeveSuccess == null)
+			return;
+		sndEndLeveSuccess.play();
+	}
+	public void playSoundEndLeveFail(){
+		if(sndEndLeveFail == null)
+			return;
+		sndEndLeveFail.play();
 	}
 	// ------------------------------------------------------------------------------------
 	// Override members
@@ -384,21 +587,44 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		sceneCoord = this.convertLocalToSceneCoordinates(pTouchAreaLocalX, pTouchAreaLocalY);
 		//dispatch touch to pieces
 		for(int i=0; i<mPiecesList.size(); i++){
-			if(mPiecesList.get(i).contains(sceneCoord[0],sceneCoord[1]))
+			PuzzleElement pElement = mPiecesList.get(i);
+			if(pElement.contains(sceneCoord[0],sceneCoord[1])){
+				//TO DO change the ZINDEX to selected and deselect previous pieces if one TO DO
+				if (nSelectedPiece != i){ 
+					pElement.setZIndex(SELECTED_ZINDEX);
+					unSelectPiece();
+					nSelectedPiece = i;
+					this.sortChildren(true);
+				}
 				return mPiecesList.get(i).onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+			}
 		}
 		//dispatch touch to container
 		for(int i=0; i<this.mContainersList.size(); i++){
-			if(mContainersList.get(i).contains(sceneCoord[0],sceneCoord[1]))
+			PuzzleElementContainer pElement = mContainersList.get(i);
+			if(mContainersList.get(i).contains(sceneCoord[0],sceneCoord[1])){
+				if (nSelectedContainer != i){ 
+					pElement.setZIndex(SELECTED_ZINDEX);
+					unSelectContainer();
+					nSelectedContainer = i;
+					this.sortChildren(true);
+				}
 				return mContainersList.get(i).onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+			}
 		}
 		return false;
 	}
 
 	public void deleteFromList(PuzzleElement thePuzzleElement) {
+		//flag current selected piece as not selected before to delete it
+		unSelectPiece();
+		
 		this.mPiecesList.remove(thePuzzleElement);
 		//if there are no pieces anymore so the puzzle is finished
 		if(mPiecesList.size()==0){
+			//play effecct succcees
+			playSoundEndLeveSuccess();
+			
 			//Fire Result to scene
 			long endTimeIn_ms = System.currentTimeMillis();
 			long executedTimeIn_ms = endTimeIn_ms - fStartTimeIn_ms;
@@ -477,6 +703,11 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 			this.detachChild(theContainer);
 		}
 		mContainersList.clear();
+		//ensure no containers are selcted
+		unSelectContainer();
+		
+		//Puzzle has been resettled so reset the time-stamp
+		fStartTimeIn_ms = System.currentTimeMillis();
 		return;
 	}
 	public boolean hasActiveZone() {
@@ -498,6 +729,15 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	@Override
 	public void setID(int ID) {
 		this.nID = ID;
+	}
+	@Override
+	public IEntity getTheComponentParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void setTheComponentParent(IEntity parent) {
+		// TODO Auto-generated method stub
 	}
 	@Override
 	public void configure(BasicDescriptor pDsc) {
@@ -587,25 +827,54 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		// TODO Auto-generated method stub
 		
 	}
-
-
 	@Override
 	public void onResult(int i, int j, String string) {
 		// TODO Auto-generated method stub
 		
 	}
-
-
 	@Override
 	public void handleEvent(IEntity pItem, Events theEvent) {
 		// TODO Auto-generated method stub
 		
 	}
-
-
 	@Override
 	public boolean checkLicence(String sLicence) {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	// ******************************************************************
+	// Implement Interface IPersist
+	// ******************************************************************
+	@Override
+	public void doLoad() {	
+		if(pSPM == null)
+			throw new NullPointerException("In doSave the Shared Preferences Manager is null");
+		
+		SharedPreferences sp = pSPM.getSharedPreferences(SharedPreferenceManager.STDPreferences.GLOBAL_VARIABLES.name());
+		this.nGameLevel=sp.getInt(persistentValue, 0);
+	}
+	@Override
+	public void doSave() {
+		
+	}		
+	@Override
+	public void doLoad(SharedPreferenceManager sp) {
+		pSPM = sp;
+		doLoad();
+	}
+
+	@Override
+	public void doSave(SharedPreferenceManager sp) {
+		pSPM = sp;
+		doSave();
+	}
+	@Override
+	public boolean isPersitent(){
+		return true;
+	}
+	@Override
+	public void setSharedPreferenceManager(SharedPreferenceManager sp) {
+		this.pSPM = sp;
+	}
+
 }

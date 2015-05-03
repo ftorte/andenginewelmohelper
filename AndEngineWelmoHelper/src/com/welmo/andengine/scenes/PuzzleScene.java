@@ -162,7 +162,7 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 			parameters.add(String.valueOf(score));
 			parameters.add(new String(scoremessage));
 			
-			this.pIActivityScebeListener.onLaunchChildScene(strEndScene, parameters);
+			this.pIActivitySceneListener.onLaunchChildScene(strEndScene, parameters);
 		}
 		
 	}
