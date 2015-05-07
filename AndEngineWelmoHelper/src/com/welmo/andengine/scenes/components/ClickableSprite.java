@@ -73,6 +73,9 @@ public class ClickableSprite extends Sprite implements IComponentClickable, IAct
 		//set Z_Order
 		this.setZIndex(spDsc.getIPosition().getZorder());	
 		
+		//set Scale
+		this.setScale(spDsc.getIDimension().getScale());
+				
 		//set alignement
 		if(this.getParent() instanceof IAreaShape){
 			PositionHelper.align(spDsc.getIPosition(), this, (IAreaShape)this.getParent() );

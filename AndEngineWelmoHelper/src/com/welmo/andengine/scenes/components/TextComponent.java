@@ -56,7 +56,7 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 	}
 	public TextComponent(TextObjectDescriptor pTXTDscf, ResourcesManager pRM, Engine theEngine){
 		super(0, 0, pRM.getFont(pTXTDscf.getFontName()), 
-				pTXTDscf.getMessage(), pTXTDscf.textmaxlenght , (pTXTDscf.textmaxwidth != 0 ? new TextOptions(AutoWrap.WORDS, pTXTDscf.textmaxwidth, HorizontalAlign.CENTER): new TextOptions(HorizontalAlign.CENTER)), 
+				pTXTDscf.getMessage(), pTXTDscf.textmaxlenght , (pTXTDscf.textmaxwidth != 0 ? new TextOptions(AutoWrap.WORDS, pTXTDscf.textmaxwidth, HorizontalAlign.LEFT): new TextOptions(HorizontalAlign.LEFT)), 
 				theEngine.getVertexBufferObjectManager());
 		//TO DO set atowrap width are parameter for the descriptot
 		nTextMaxLenght = pTXTDscf.textmaxlenght;
@@ -80,9 +80,14 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 		
 		//set scale 
 		if(pTXTDscf.scale != 1 ){
+			this.setScaleCenter(0, 0);
 			this.setScale(pTXTDscf.scale);
 			this.scale	= pTXTDscf.scale;
 		}
+		
+		//set position	after having loaded the text	
+		setX(pTXTDscf.getIPosition().getX());
+		setY(pTXTDscf.getIPosition().getY());
 		
 	}
 

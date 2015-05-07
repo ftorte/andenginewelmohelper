@@ -122,6 +122,9 @@ public class CompoundSprite extends Rectangle implements IComponent, IComponentC
 
 		//set Z_Order
 		this.setZIndex(spDsc.getIPosition().getZorder());	
+		
+		//scale
+		this.setScale(spDsc.getIDimension().getScale());	
 
 		//set color	
 		String theColor = spDsc.getICharacteristis().getColor();

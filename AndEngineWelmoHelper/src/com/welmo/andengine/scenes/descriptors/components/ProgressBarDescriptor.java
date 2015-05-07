@@ -38,12 +38,14 @@ public class ProgressBarDescriptor extends BasicComponentDescriptor {
 	protected String 						sDecrementButton			= null;					//Sprite for the button that when clicked increment the progress
 	protected String 						sBarBackground				= null;
 	protected String 						sBarProgressNotch			= null;					//The notch that is addedd at each increment 
+	protected String						sMapDisplayValues			= null;
 	
 	
 	//Values
 	protected int							nMinValue					= 0;
 	protected int 							nMaxValue					= 100;
 	protected int							nInternalHeight				= 0;
+	protected int							nDisplayID					= 0;
 		
 	
 	@SuppressWarnings("unused")
@@ -58,6 +60,7 @@ public class ProgressBarDescriptor extends BasicComponentDescriptor {
 			nMaxValue				= prt.nMaxValue;
 			bIsPersistent			= prt.bIsPersistent;
 			nInternalHeight			= prt.nInternalHeight;
+			nDisplayID				= prt.nDisplayID;
 			
 	}	
 	
@@ -113,6 +116,18 @@ public class ProgressBarDescriptor extends BasicComponentDescriptor {
 	public String getsBarProgressNotch(){
 		return sBarProgressNotch;
 	}
+	public int getDisplayID(){
+		return nDisplayID;
+	}
+	public void setDisplayID(int ID){
+		nDisplayID=ID;
+	}
+	public String getMapDisplayValues(){
+		return sMapDisplayValues;
+	}
+	public void setMapDisplayValues(String map){
+		sMapDisplayValues=new String(map);
+	}
 	
 	/***************************************************************
 	 * Overrided functions 
@@ -147,6 +162,10 @@ public class ProgressBarDescriptor extends BasicComponentDescriptor {
 			nMaxValue = Integer.parseInt(value);
 		if((value = attr.getValue(ScnTags.S_A_INTERNALl_HEIGHT))!=null)
 			nInternalHeight = Integer.parseInt(value);
+		if((value = attr.getValue(ScnTags.S_A_DISPLAYID))!=null)
+			nDisplayID = Integer.parseInt(value);
+		if((value = attr.getValue(ScnTags.S_A_MAPDISPLAYVALUES))!=null)
+			sMapDisplayValues = new String(value);
 	}
 	@Override
 	public IComponent CreateComponentInstance(Engine theEngine) {

@@ -73,6 +73,10 @@ public class CardSprite extends TiledSprite implements IComponentClickable, IAct
 						DrawType.STATIC,
 						true, Sprite.VERTEXBUFFEROBJECTATTRIBUTES_DEFAULT)); 
 		this.setCurrentTileIndex(0);
+		
+		//set sacale
+		this.setScale(pSPRDscf.getIDimension().getScale());
+		
 		mIClicakableImpmementation =  new IComponentClickableDfltImp();
 		mIClicakableImpmementation.setTheComponentParent(this);
 		configure(pSPRDscf);

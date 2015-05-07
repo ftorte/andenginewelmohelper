@@ -19,6 +19,7 @@ public class BasicComponentDescriptor extends BasicDescriptor{
 	//Protected members
 	// Dimension
 	protected int 			width, height;
+	protected float			scale;
 
 	// Position
 	protected int 			pX, pY;
@@ -44,6 +45,8 @@ public class BasicComponentDescriptor extends BasicDescriptor{
 		void setHeight(int h);
 		int getWidth();
 		int getHeight();
+		float getScale();
+		void setScale(float scale);
 	}
 	public interface IPosition{
 		void setX(int x);
@@ -84,6 +87,7 @@ public class BasicComponentDescriptor extends BasicDescriptor{
 		orientation=0;
 		rX = 0;
 		rY = 0;
+		scale = 1.0f;
 		horizzontalAlignment=Alignment.NO_ALIGNEMENT; 
 		verticalAlignment=Alignment.NO_ALIGNEMENT;
 		colorName = new String("");
@@ -95,6 +99,7 @@ public class BasicComponentDescriptor extends BasicDescriptor{
 		pZOrder 	= copyfrom.pZOrder;
 		width		= copyfrom.width;
 		height		= copyfrom.height;
+		scale		= copyfrom.scale;
 		rX			= copyfrom.rX;
 		rY			= copyfrom.rY;
 		orientation	= copyfrom.orientation;
@@ -111,6 +116,8 @@ public class BasicComponentDescriptor extends BasicDescriptor{
 			public void setHeight(int h){height=h;};
 			public int getWidth(){return width;}
 			public int getHeight(){return height;}
+			public float getScale(){return scale;};
+			public void setScale(float newscale){scale = newscale;}
 		};
 	}
 	public IPosition getIPosition(){
@@ -184,6 +191,8 @@ public class BasicComponentDescriptor extends BasicDescriptor{
 			pDimensions.setWidth(Integer.parseInt(attributes.getValue(ScnTags.S_A_WIDTH)));
 			pDimensions.setHeight(Integer.parseInt(attributes.getValue(ScnTags.S_A_HEIGHT)));
 		}
+		if((attributes.getValue(ScnTags.S_A_SCALE)) != null)
+			pDimensions.setScale(Float.parseFloat(attributes.getValue(ScnTags.S_A_SCALE)));
 	}
 	private void parseAttributesOrientation(IOrientation pDimensions,Attributes attributes){
 		Log.i(TAG,"\t\t\t parseAttributesOrientation");

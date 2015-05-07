@@ -1,7 +1,9 @@
 package com.welmo.andengine.scenes.components;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.andengine.engine.Engine;
 import org.andengine.entity.IEntity;
@@ -17,6 +19,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
+import android.util.Pair;
 
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SharedPreferenceManager;
@@ -24,11 +27,15 @@ import com.welmo.andengine.scenes.components.interfaces.IActionSceneListener;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.components.interfaces.IPersistent;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
+import com.welmo.andengine.scenes.descriptors.ScnTags;
 import com.welmo.andengine.scenes.descriptors.components.BasicComponentDescriptor.IDimension;
 import com.welmo.andengine.scenes.descriptors.components.ProgressBarDescriptor;
 import com.welmo.andengine.scenes.descriptors.components.ProgressBarDescriptor.Type;
 import com.welmo.andengine.scenes.operations.IOperationHandler;
 import org.andengine.audio.sound.Sound;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ProgressBar extends Rectangle implements IComponent, IPersistent{
 
@@ -79,8 +86,10 @@ public class ProgressBar extends Rectangle implements IComponent, IPersistent{
 	protected Type									eType					= Type.DISCRETE;
 	protected SharedPreferenceManager				pSPM					= null;
 	
-	protected Sound								sndTouch				= null;
-	
+	protected Sound									sndTouch				= null;
+	protected TextComponent							pValueDisplay			= null;
+	protected Map<Integer,Integer>					mapDisplayValue			= null;
+	protected int									nValueDisplayID			= 0;
 	
 	private class ClickSprite extends Sprite{
 
@@ -107,6 +116,7 @@ public class ProgressBar extends Rectangle implements IComponent, IPersistent{
 		this.setAlpha(0);		//set background transparent
 		pVBO = pVertexBufferObjectManager;
 		lNotchs = new ArrayList<Sprite>();
+		mapDisplayValue = new HashMap<Integer,Integer>();
 		configure(parameters);
 	}
 	
@@ -127,6 +137,13 @@ public class ProgressBar extends Rectangle implements IComponent, IPersistent{
 		nMaxValue				= parameters.getMaxValue();
 		//nMinValue				= parameters.getMinValue();
 		//nTheValue				= nMinValue;
+		
+		
+		nValueDisplayID = parameters.getDisplayID();
+		
+		String values = parameters.getMapDisplayValues();
+		if(values != null)
+			readMapDisplayValues(values);
 		
 		//create button plus and minus
 		if((sIncButton != null) && (sDecButton != null)){
@@ -173,6 +190,24 @@ public class ProgressBar extends Rectangle implements IComponent, IPersistent{
 		sndTouch = ResourcesManager.getInstance().getSound("puzzlepieces_touch").getTheSound();;
 		
 	}
+	private void readMapDisplayValues(String mapDspValues) {
+		//Parse JSON strings
+		JSONObject jObject;
+		try {
+			jObject = new JSONObject(mapDspValues);
+			JSONArray gamelevels = jObject.getJSONArray(ScnTags.S_A_MAPDISPLAYVALUES);
+			//parse the array
+			mapDisplayValue.clear();
+			for (int i=0; i<gamelevels.length(); i++){
+				
+				JSONArray currLine = (JSONArray)gamelevels.get(i);
+				mapDisplayValue.put(currLine.getInt(0),currLine.getInt(1));
+			} 
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	public void doIncrement(){
 		if(nTheValue < nMaxValue){
 			nTheValue ++;
@@ -213,15 +248,31 @@ public class ProgressBar extends Rectangle implements IComponent, IPersistent{
 			if(sButtonMinus.contains(sceneTouchEventXY[0],sceneTouchEventXY[1])) {
 				if(sndTouch != null) sndTouch.play();
 				doDecrement();
+				doUpdateDisplay();
 				return true;
 			}
 			if(sButtonPlus.contains(sceneTouchEventXY[0],sceneTouchEventXY[1])) {
 				if(sndTouch != null) sndTouch.play();
 				doIncrement();
+				doUpdateDisplay();
 				return true;
 			}
 		}
 		return false;
+	}
+	@Override
+	public void attachChild(IEntity pEntity) throws IllegalStateException {
+		super.attachChild(pEntity);
+		if(pEntity instanceof TextComponent && ((TextComponent)pEntity).getID() == this.nValueDisplayID){
+			this.pValueDisplay = (TextComponent)pEntity;
+		doUpdateDisplay();
+		}
+	}
+	@Override
+	public boolean detachChild(IEntity pEntity) {
+		if(pEntity instanceof TextComponent && ((TextComponent)pEntity).getID() == this.nValueDisplayID)
+			this.pValueDisplay = null;
+		return super.detachChild(pEntity);
 	}
 	
 	@Override
@@ -253,7 +304,13 @@ public class ProgressBar extends Rectangle implements IComponent, IPersistent{
 			ed.putInt(varaible, nTheValue);
 			ed.commit();
 		}
-	}		
+	}	
+	public void doUpdateDisplay() {
+		if(this.pValueDisplay != null){
+			String displayedvalue = Integer.toString(mapDisplayValue.get(nTheValue));
+			pValueDisplay.setText(displayedvalue);
+		}
+	}	
 	@Override
 	public void doLoad(SharedPreferenceManager sp) {
 		pSPM = sp;

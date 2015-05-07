@@ -767,7 +767,7 @@ public class ResourcesManager {
 		ResourceDescriptorsManager pResDscMng = ResourceDescriptorsManager.getInstance();
 		MusicDescriptor pMusicDsc = pResDscMng.getMusicDescriptor(musicName);
 		if(pMusicDsc == null)
-			throw new IllegalArgumentException("In LoadTiledTextureRegion: there is no description for the requested texture = " + musicName);
+			throw new IllegalArgumentException("In LoadMusic: there is no description for the requested music = " + musicName);
 
 		//To load a texture region the manager load the texture and all child regions
 		Music newMusic = null;
