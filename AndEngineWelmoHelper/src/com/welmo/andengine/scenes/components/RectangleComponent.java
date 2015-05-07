@@ -83,6 +83,9 @@ public class RectangleComponent extends Rectangle implements IComponent{
 		//set Z_Order
 		this.setZIndex(dsc.getIPosition().getZorder());	
 		
+		//set Scale
+		this.setScale(dsc.getIDimension().getScale());
+				
 		//set alignement
 		if(this.getParent() instanceof IAreaShape){
 			PositionHelper.align(dsc.getIPosition(), this, (IAreaShape)this.getParent() );

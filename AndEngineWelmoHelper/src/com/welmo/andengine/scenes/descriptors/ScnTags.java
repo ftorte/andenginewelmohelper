@@ -245,5 +245,7 @@ public class ScnTags {
 	public static final String S_A_MIN_VAL 			= "min_value";
 	public static final String S_A_MAX_VAL 			= "max_value";
 	public static final String S_A_INTERNALl_HEIGHT = "internal_height";
+	public static final String S_A_DISPLAYID 		= "displayID";
+	public static final String S_A_MAPDISPLAYVALUES = "MapDisplayValues";
 	
 }

@@ -77,7 +77,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	// Constants
 	// ===========================================================
 	private static final String 			TAG = "SimpleWelmoActivity";
-	private final boolean 					mDebugLog = true;		
+	private final boolean 					mDebug = false;		
 
 	//default values
 	final String 							FONTHBASEPATH 	= "font/";
@@ -229,14 +229,16 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 				new RatioResolutionPolicy(nCameraWidth, nCameraHeight), mSmoothCamera);
 
 		//enable multitouch
-		if(MultiTouch.isSupported(this)) {
-			if(MultiTouch.isSupportedDistinct(this)) {
-				gameToast("MultiTouch detected --> Both controls will work properly!");
+		if(mDebug){
+			if(MultiTouch.isSupported(this)) {
+				if(MultiTouch.isSupportedDistinct(this)) {
+					gameToast("MultiTouch detected --> Both controls will work properly!");
+				} else {
+					gameToast("MultiTouch detected, but your device has problems distinguishing between fingers.\n\nControls are placed at different vertical locations.");
+				}
 			} else {
-				gameToast("MultiTouch detected, but your device has problems distinguishing between fingers.\n\nControls are placed at different vertical locations.");
+				gameToast("Sorry your device does NOT support MultiTouch!\n\n(Falling back to SingleTouch.)\n\nControls are placed at different vertical locations.");
 			}
-		} else {
-			gameToast("Sorry your device does NOT support MultiTouch!\n\n(Falling back to SingleTouch.)\n\nControls are placed at different vertical locations.");
 		}
 
 		//Enable Z depth to +- 1000px
@@ -259,7 +261,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		
 		Log.v("onCreate", "maxMemory:" + Long.toString(maxMemory));
 		
-		gameToast("maxMemory:" + Long.toString(maxMemory));
+		if(mDebug)gameToast("maxMemory:" + Long.toString(maxMemory));
 		
 		//create the semaphore to block launch of main if startup scene is not shown
 		executeStartupSene 	= new Semaphore(1, true);
@@ -358,7 +360,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		
 		
 		if(this.mPreferences.getBoolean(MUSIC_ON, false)){
-			Music msc = mResourceManager.getMusic("Startup");
+			Music msc = mResourceManager.getMusic(GAME_MUSIC);
 			msc.setVolume(10000);
 			msc.setLooping(true);
 			msc.play();
@@ -438,7 +440,8 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
             	try {
             		executeStartupSene.acquire();
             		Log.i(TAG,"Activate 1st Scene");
-            		mEngine.setScene((Scene)mSceneManager.getScene(mMainSceneName));
+            		// FT mEngine.setScene((Scene)mSceneManager.getScene(mMainSceneName));
+            		onChangeScene(mMainSceneName);
             		executeStartupSene.release();
             		executeStartup.release();
             	}
@@ -525,12 +528,12 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			else
 					pPartSystemMgr.readParticuleSystemDescriptions(this , filesNames);
 	}
-	protected final void loadScenes(String[] Scenes,int pctWorkLoad) {
+	/*protected final void loadScenes(String[] Scenes,int pctWorkLoad) {
 		for (String sceneName:Scenes ){
 			mSceneManager.getScene(sceneName); 
 		}
 		Log.i(TAG,"Scenes Loaded");
-	}
+	}*/
 	protected final void loadResource(RESOURCETYPE type, String[] resources, int pctWorkLoad){
 		//if list is null make the progress = to pctWorkLoad
 		if(resources.length <= 0){
@@ -593,8 +596,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 					String fatherSceneName = ((IManageableScene)currentScene).getFatherScene();
 					if(fatherSceneName.length() == 0)
 						super.onBackPressed();
-					else
+					else{
 						this.mEngine.setScene((Scene)mSceneManager.getScene(fatherSceneName));
+					}
 				}
 			}
 			executeStartup.release();
@@ -712,7 +716,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			}
 			if(this.mPreferences.getBoolean(MUSIC_ON, false)){
 				
-				Music msc = mResourceManager.getMusic("Startup");
+				Music msc = mResourceManager.getMusic(GAME_MUSIC);
 				msc.setVolume(10000);
 				msc.setLooping(true);
 				msc.play();
@@ -793,7 +797,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 				Editor edt = this.mPreferences.edit();
 				edt.putBoolean(MUSIC_ON, bMusicON);
 				edt.commit();
-				Music msc = mResourceManager.getMusic("Startup");
+				Music msc = mResourceManager.getMusic(GAME_MUSIC);
 				if(bMusicON){
 					if(!msc.isPlaying()){
 						msc.setVolume(10000);
@@ -969,14 +973,14 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
         bld.create().show();
     }
     void logDebug(String msg) {
-        if (mDebugLog) Log.d(TAG, msg);
+        if (mDebug) Log.d(TAG, msg);
     }
     void logError(String msg) {
-    	if (mDebugLog) Log.e(TAG, "In-app billing error: " + msg);
+    	if (mDebug) Log.e(TAG, "In-app billing error: " + msg);
     }
 
     void logWarn(String msg) {
-    	if (mDebugLog)  Log.w(TAG, "In-app billing warning: " + msg);
+    	if (mDebug)  Log.w(TAG, "In-app billing warning: " + msg);
     }
     int getResponseCodeFromIntent(Intent i) {
         Object o = i.getExtras().get(IabHelper.RESPONSE_CODE);

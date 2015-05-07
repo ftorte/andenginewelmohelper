@@ -249,7 +249,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 			if(newSceneComponent != null)
 				for(BasicDescriptor theChild:scObjDsc.pChild.values())
 					loadComponent2((BasicComponentDescriptor) theChild, (IEntity)newSceneComponent);
-			this.sortChildren();
+			((IEntity)newSceneComponent).sortChildren(true);
 			return (IEntity)newSceneComponent;
 		}
 	}
