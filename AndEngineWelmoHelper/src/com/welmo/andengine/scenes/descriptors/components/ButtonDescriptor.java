@@ -47,10 +47,12 @@ public class ButtonDescriptor extends BasicComponentDescriptor{
 	public int							nExternaDimension			= 0;
 	public int							nInternalDimension			= 0;
 	
+	
+	
 	//messages
 	public List<String>				    lEventMessages				= null;
 
-	
+	public int 							nDisplayID					= 0;
 	
 	@SuppressWarnings("unused")
 	private void copy(ButtonDescriptor prt){
@@ -69,18 +71,6 @@ public class ButtonDescriptor extends BasicComponentDescriptor{
 		
 		lEventMessages				= prt.lEventMessages;
 	}	
-	//Constructor copy temporary disabled
-	/*
-	public ButtonDescriptor(ButtonDescriptor prt){
-		if(prt!=null)
-			this.copy(prt);
-		else{
-			bSpriteBased 				= true;
-			sBackGroundTextureName 		= new String("");
-			sButtonTextureON 			= new String("");
-			sButtonTextureOFF 			= new String("");
-		}
-	}*/
 	public ButtonDescriptor(){
 	}
 	/***************************************************************
@@ -118,6 +108,9 @@ public class ButtonDescriptor extends BasicComponentDescriptor{
 		
 		if((value = attr.getValue(ScnTags.S_A_PERSISTENCE_VARNAME))!=null)
 			sGlobaVariable = new String(value);
+		
+		if((value = attr.getValue(ScnTags.S_A_DISPLAYID))!=null)
+			nDisplayID = Integer.parseInt(value);
 		
 	}
 	@Override

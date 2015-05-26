@@ -86,9 +86,15 @@ public class PuzzleScene extends ManageableScene implements IConfigurableScene ,
 		//first clear the puzzle
 		thePuzzle.clearPuzzle();
 		
-		//setup new parameteres
+		//setup the puzzle image
 		thePuzzle.setmTiledTextureResource(tokens[0]);
-		thePuzzle.setmHelperImage(tokens[1]);
+		
+		//setup the helper image
+		if(tokens[1].equalsIgnoreCase("null"))
+			thePuzzle.setmHelperImage(tokens[0]);
+		else
+			thePuzzle.setmHelperImage(tokens[1]);
+		
 		
 		//setup nw numbers of puzzle's rows and columbns 
 		if(tokens.length > 2){

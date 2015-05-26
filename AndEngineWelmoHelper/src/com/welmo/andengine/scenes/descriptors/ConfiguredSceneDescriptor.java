@@ -13,7 +13,8 @@ public class ConfiguredSceneDescriptor extends BasicComponentDescriptor{
 	protected String 					sceneName		= new String("");
 	protected String 					masterSceneName = new String("");
 	protected ArrayList<String> 		parameterList 	= null;
-	
+	protected String                    sceneLicenceID  = "default";
+
 	// ===========================================================
 	// Constructor(s)
 	// ===========================================================
@@ -48,7 +49,10 @@ public class ConfiguredSceneDescriptor extends BasicComponentDescriptor{
 	public void setNameOfSceneMaster(String scene) {
 		this.masterSceneName=new String(scene);
 	}
-	
+
+	public String 			getSceneLicenceID(){return sceneLicenceID;}
+	public void 			setSceneLicenceID(String licenceID){this.sceneLicenceID = new String(licenceID);}
+
 	@Override
 	public void readXMLDescription(Attributes attributes) {
 		super.readXMLDescription(attributes);
@@ -71,6 +75,8 @@ public class ConfiguredSceneDescriptor extends BasicComponentDescriptor{
 				parameterList.add(new String(st.nextToken()));
 			}
 		}
+		if(attributes.getValue(ScnTags.S_A_LICENCE)!= null)
+			this.sceneLicenceID = new String(attributes.getValue(ScnTags.S_A_LICENCE));
 		
 	}
 }

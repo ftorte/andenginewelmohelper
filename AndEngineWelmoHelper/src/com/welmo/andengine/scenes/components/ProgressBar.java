@@ -245,14 +245,18 @@ public class ProgressBar extends Rectangle implements IComponent, IPersistent{
 			
 			final float[] sceneTouchEventXY = this.convertLocalToSceneCoordinates(X,Y);
 			
+			//check if has sound but has been release and re-aquire it
+			if(sndTouch != null){
+				if(sndTouch.isReleased()) sndTouch = ResourcesManager.getInstance().getSound("puzzlepieces_touch").getTheSound();
+				sndTouch.play();
+			}
+			
 			if(sButtonMinus.contains(sceneTouchEventXY[0],sceneTouchEventXY[1])) {
-				if(sndTouch != null) sndTouch.play();
 				doDecrement();
 				doUpdateDisplay();
 				return true;
 			}
 			if(sButtonPlus.contains(sceneTouchEventXY[0],sceneTouchEventXY[1])) {
-				if(sndTouch != null) sndTouch.play();
 				doIncrement();
 				doUpdateDisplay();
 				return true;

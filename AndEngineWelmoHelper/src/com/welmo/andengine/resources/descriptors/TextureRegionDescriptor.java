@@ -7,7 +7,7 @@ import android.content.Context;
 
 
 public class TextureRegionDescriptor extends ResourceDescriptor{
-	public enum TEXTURETYPE {SVG, PNG};
+	public enum TEXTURETYPE {SVG, PNG, JPG};
 	public String textureName;
 	public String filename;
 	public TEXTURETYPE type;

@@ -37,7 +37,10 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 	private static final String 	TAG = "TextComponent";
 	private float					scale = 1.0f;
 	private int						nTextMaxLenght;
-
+	private CharSequence[]			theMessages = null;
+	private float 					standarPx=0;
+	private float 					standarPy=0;
+	
 	// ===========================================================
 	// Fields
 	// ===========================================================
@@ -47,13 +50,13 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public TextComponent(float pX, float pY, IFont pFont, CharSequence pText,
+	/*public TextComponent(float pX, float pY, IFont pFont, CharSequence pText,
 			TextOptions pTextOptions,
 			VertexBufferObjectManager pTextVertexBufferObject) {
 		super(pX, pY, pFont, pText, pTextOptions,
 				pTextVertexBufferObject);
-		init();
-	}
+		init();		
+	}*/
 	public TextComponent(TextObjectDescriptor pTXTDscf, ResourcesManager pRM, Engine theEngine){
 		super(0, 0, pRM.getFont(pTXTDscf.getFontName()), 
 				pTXTDscf.getMessage(), pTXTDscf.textmaxlenght , (pTXTDscf.textmaxwidth != 0 ? new TextOptions(AutoWrap.WORDS, pTXTDscf.textmaxwidth, HorizontalAlign.LEFT): new TextOptions(HorizontalAlign.LEFT)), 
@@ -71,23 +74,32 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 				this.setColor(pRM.getColor(colorName));
 		
 		if(pTXTDscf.type == TextObjectDescriptor.TextTypes.RESOURCE){
-			CharSequence message = pRM.getStringResourceByName(pTXTDscf.message);
-			if (message.length() > this.nTextMaxLenght)
-				message = new String(message.subSequence(0, nTextMaxLenght).toString());
+			//get list of available resouces by splitting using , as separator
+			String resourceName[] = pTXTDscf.message.split(",");
+			theMessages = new CharSequence[resourceName.length];   	//create vecor that will contain the messages to display
 			
-			this.setText(message);
+			for(int index = 0; index < resourceName.length; index++){
+				theMessages[index] = pRM.getStringResourceByName(resourceName[index]);
+				if (theMessages[index].length() > this.nTextMaxLenght)
+					theMessages[index]  = new String(theMessages[index].subSequence(0, nTextMaxLenght).toString());
+			}
+			this.setText(theMessages[0]);
 		}
 		
 		//set scale 
+		
 		if(pTXTDscf.scale != 1 ){
 			this.setScaleCenter(0, 0);
 			this.setScale(pTXTDscf.scale);
 			this.scale	= pTXTDscf.scale;
 		}
 		
+		this.standarPx= pTXTDscf.getIPosition().getX();
+		this.standarPy= pTXTDscf.getIPosition().getY();
+		
 		//set position	after having loaded the text	
-		setX(pTXTDscf.getIPosition().getX());
-		setY(pTXTDscf.getIPosition().getY());
+		setX(this.standarPx);
+		setY(this.standarPy);
 		
 	}
 
@@ -99,7 +111,22 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 		mIClicakableImpmementation.setTheComponentParent(this);
 		
 	}
-		
+	// ===========================================================
+	// public member function
+	// ===========================================================		
+	public void setText(int textNb){
+		//check the this ha multiple messages else do nothing
+		if(theMessages!=null){
+			if(textNb < theMessages.length && textNb >= 0)		//check that the id is valid or do nothing
+				this.setScaleCenter(0, 0);
+				this.setScale(1);
+				this.setText(theMessages[textNb]);
+				this.setScale(this.scale);
+				
+				setX(this.standarPx + (this.getWidthScaled()-this.getWidth())/2);
+				setY(this.standarPy + (this.getHeightScaled()- this.getHeight())/2);
+		}
+	}
 	public void configure(TextObjectDescriptor spDsc){
 		setID(spDsc.getID()); 
 		/* Setup Rotation*/
@@ -115,6 +142,7 @@ public class TextComponent extends Text implements IComponent, IComponentClickab
 			float pTouchAreaLocalX, float pTouchAreaLocalY) {
 		return this.onTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
 	}
+	
 	// ===========================================================
 	// Interfaces & Superclass
 	// ===========================================================	

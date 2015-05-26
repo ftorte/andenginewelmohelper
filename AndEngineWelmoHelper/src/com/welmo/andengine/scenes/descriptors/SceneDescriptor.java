@@ -42,6 +42,7 @@ public class SceneDescriptor extends BasicDescriptor {
 	//Persistence variable
 	private String 										sPersistenceFileName	= "DefaulsPreferences";
 	private int 										nPersistenceMode		= Context.MODE_PRIVATE;
+	public String                               		sceneLicenceID  = "default";
 	
 	
 	// ===========================================================
@@ -75,6 +76,10 @@ public class SceneDescriptor extends BasicDescriptor {
 	
 	public SceneType 		getSceneType(){return sceneType;}
 	public void 			setSceneType(SceneType sceneType){this.sceneType = sceneType;}
+	
+
+	public String 			getSceneLicenceID(){return sceneLicenceID;}
+	public void 			setSceneLicenceID(String licenceID){this.sceneLicenceID = new String(licenceID);}
 	
 	public String getPersistenceFileName() {return sPersistenceFileName;}
 	public void setsPersistenceFileName(String sPersistenceName) {this.sPersistenceFileName = sPersistenceName;}
@@ -130,6 +135,8 @@ public class SceneDescriptor extends BasicDescriptor {
 			this.setnPersistenceMode(Integer.parseInt(attributes.getValue(ScnTags.S_A_PERSISTENCE_MODE)));	
 		if(attributes.getValue(ScnTags.S_A_END_SCENE)!= null)
 			this.sEndScene = new String(attributes.getValue(ScnTags.S_A_END_SCENE));
+		if(attributes.getValue(ScnTags.S_A_LICENCE)!= null)
+			this.sceneLicenceID = new String(attributes.getValue(ScnTags.S_A_LICENCE));
 	}
 
 	public String getEndScene() {

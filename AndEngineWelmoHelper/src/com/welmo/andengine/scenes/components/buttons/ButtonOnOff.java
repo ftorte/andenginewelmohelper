@@ -70,6 +70,7 @@ public class ButtonOnOff extends ButtonBasic{
 			this.bON = true;
 			this.insButtonOFF.setVisible(false);
 			this.insButtonON.setVisible(true);
+			doUpdateDisplay();
 		}
 	}
 	public void setOFF(){
@@ -77,6 +78,16 @@ public class ButtonOnOff extends ButtonBasic{
 			this.bON = false;
 			this.insButtonON.setVisible(false);
 			this.insButtonOFF.setVisible(true);
+			doUpdateDisplay();
+		}
+	}
+	@Override
+	public void doUpdateDisplay() {
+		if(this.pValueDisplay != null){
+			if(bON)
+				pValueDisplay.setText(0);
+			else
+				pValueDisplay.setText(1);
 		}
 	}
 	// -----------------------------------------------------------------------------------------------------------------

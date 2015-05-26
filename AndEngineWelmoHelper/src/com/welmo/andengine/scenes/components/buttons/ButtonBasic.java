@@ -20,6 +20,7 @@ import android.util.Log;
 import com.welmo.andengine.managers.ResourcesManager;
 import com.welmo.andengine.managers.SharedPreferenceManager;
 import com.welmo.andengine.scenes.IManageableScene;
+import com.welmo.andengine.scenes.components.TextComponent;
 import com.welmo.andengine.scenes.components.interfaces.IComponent;
 import com.welmo.andengine.scenes.components.interfaces.IPersistent;
 import com.welmo.andengine.scenes.descriptors.BasicDescriptor;
@@ -70,6 +71,10 @@ public abstract class ButtonBasic extends Rectangle implements IComponent, IPers
 	Boolean											bIsPersistent			= false;
 	//EventMessage
 	List<Operation>									mMessages				= null;
+	
+	//Id of textcomponent associated to display a value in function of the button value expressed as integer between 1 to N
+	protected int									nValueDisplayID			= 0;
+	protected TextComponent							pValueDisplay 			= null;
 	
 
 	public ButtonBasic(ButtonDescriptor parameters,VertexBufferObjectManager pVertexBufferObjectManager) {
@@ -145,6 +150,9 @@ public abstract class ButtonBasic extends Rectangle implements IComponent, IPers
 			insButtonON.setPosition(posXY,posXY);
 			insButtonOFF.setPosition(posXY,posXY);
 			
+			
+			nValueDisplayID = mParameters.nDisplayID;
+			
 			// set Z orders
 			if(mParameters.sBackGroundTextureName != null)
 				insButtonBG.setZIndex(1);
@@ -195,6 +203,16 @@ public abstract class ButtonBasic extends Rectangle implements IComponent, IPers
 			//add message to message list
 			this.mMessages.add(theMessage);
 		}
+	}
+	@Override
+	public void attachChild(IEntity pEntity) throws IllegalStateException {
+		super.attachChild(pEntity);
+		if(pEntity instanceof TextComponent && ((TextComponent)pEntity).getID() == this.nValueDisplayID){
+			this.pValueDisplay = (TextComponent)pEntity;
+		doUpdateDisplay();
+		}
+	}
+	public void doUpdateDisplay() {
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 	// Implement Interface ICompnent.

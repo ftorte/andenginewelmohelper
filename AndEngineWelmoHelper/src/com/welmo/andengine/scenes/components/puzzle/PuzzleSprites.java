@@ -17,6 +17,7 @@ import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
+import org.andengine.opengl.texture.region.TextureRegion;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -108,8 +109,10 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	private 	boolean							hasWhiteBackground	= false;		//if true the puzzle pieces have a white background
 	private 	boolean							hasHelperImg		= false;		//if true the puzzle has the helper image as background of puzzle zone
 	private 	String							mHelperImage		= "";			//if <> "" the puzzle zone have as background the final figures in color on withe background with low alpah
+	private 	String							mHelperTextureRegion= "";
 	private 	String 							mTiledTextureName	= "";	
 	private 	String 							mTiledTextureResource = "";	
+	private 	ITiledTextureRegion 			pTiledTexture		= null;
 	private     Sprite 							sHelperImage		= null;	
 	private     Rectangle 						sActiveZone			= null;	
 	
@@ -187,6 +190,8 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		hasHelperImg			= pDescriptor.hasHelperImage();
 		
 		mHelperImage			= new String(pDescriptor.getHelperImage());
+		mHelperTextureRegion 	= new String(pDescriptor.getHelperTextureRegion());
+		
 		mTiledTextureName		= new String(pDescriptor.getTiledTextureName());
 		mTiledTextureResource	= new String(pDescriptor.getTiledTextureResourceName());
 		
@@ -332,7 +337,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		sHelperImage =  null;
 		
 		//clear Active Zone
-		this.sActiveZone.detachChildren();
+		this.detachChildren();
 		this.detachChild(this.sActiveZone);
 		this.sActiveZone = null;
 		
@@ -365,7 +370,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		}
 		
 		//get the texture
-		ITiledTextureRegion theTiledTexture = pRM.getDinamicTiledTextureRegion(mTiledTextureName, 
+		pTiledTexture = pRM.getDinamicTiledTextureRegion(mTiledTextureName, 
 				mTiledTextureResource, nbCols, nbRows);
 
 		//Calculate to zoom factor 
@@ -373,10 +378,10 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		if(mPuzzleZone[WIDTH] != 0 && mPuzzleZone[HEIGHT] != 0 ){
 			mPieceWidth = mPuzzleZone[WIDTH]/nbCols;
 			mPieceHeight = mPuzzleZone[HEIGHT]/nbRows;
-			zoomRatio = Math.min(mPieceWidth/theTiledTexture.getWidth(),mPieceHeight/theTiledTexture.getHeight()) ;
+			zoomRatio = Math.min(mPieceWidth/pTiledTexture.getWidth(),mPieceHeight/pTiledTexture.getHeight()) ;
 		}
-		mPieceWidth  = theTiledTexture.getWidth()*zoomRatio;
-		mPieceHeight = theTiledTexture.getHeight()*zoomRatio;
+		mPieceWidth  = pTiledTexture.getWidth()*zoomRatio;
+		mPieceHeight = pTiledTexture.getHeight()*zoomRatio;
 		
 		//Create vectors of tiled sprite pointers
 		mPieces = new PuzzleElement[nbPieces];
@@ -385,7 +390,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		
 		//create the pieces		
 		for (int i=0; i < nbPieces; i++){
-				mPieces[i] = new PuzzleElement(mPieceWidth, mPieceHeight, hasActiveBorder, this, hasWhiteBackground, theTiledTexture, mTheEngine.getVertexBufferObjectManager());
+				mPieces[i] = new PuzzleElement(mPieceWidth, mPieceHeight, hasActiveBorder, this, hasWhiteBackground, pTiledTexture, mTheEngine.getVertexBufferObjectManager());
 				//Attach the puzzle element to the entity
 				mPieces[i].setCurrentTileIndex(i);
 				mPieces[i].setID(i);
@@ -394,7 +399,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 					pXY[X] = mPuzzleZone[X] + mPieceWidth * (int)(i% nbCols);
 					pXY[Y] = mPuzzleZone[Y] + mPieceHeight * (int)(i/nbCols);
 					mPieces[i].setActiveZoneXY(pXY);
-					mPieces[i].setZIndex(DEFAULT_ZINDEX);
+					mPieces[i].setZIndex(DEFAULT_ZINDEX+i);
 				}
 				mPiecesList.add(mPieces[i]);
 				attachChild(mPieces[i]);
@@ -424,11 +429,11 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	public void setUpHelperImage(){
 		if(hasHelperImg && !mHelperImage.isEmpty()){
 			ResourcesManager pRM = ResourcesManager.getInstance();
-			ITextureRegion theImage=pRM.getTextureRegion(mHelperImage);
 			
-			sHelperImage = new Sprite(mPuzzleZone[PX0],mPuzzleZone[PY0],
-					mPieceWidth * nbCols,mPieceHeight*nbRows,
-					theImage,mTheEngine.getVertexBufferObjectManager());
+			//ITextureRegion theImage=pRM.getTextureRegion(mHelperImage);							//changed with dynamic load
+			ITextureRegion theImage = pRM.loadDynamicTextureRegion(mHelperTextureRegion,mHelperImage);
+			
+			sHelperImage = new Sprite(mPuzzleZone[PX0],mPuzzleZone[PY0], mPieceWidth * nbCols,mPieceHeight*nbRows,theImage,mTheEngine.getVertexBufferObjectManager());
 			
 			this.attachChild(sHelperImage);
 			sHelperImage.setAlpha(mHelperImageAlpha);
@@ -531,7 +536,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		if(nSelectedPiece != SELECTED_NONE){
 			//chack that current index is still in the limit of the array and if yes set Z order to default
 			if(nSelectedPiece <  this.mPiecesList.size())
-				this.mPiecesList.get(nSelectedPiece).setZIndex(DEFAULT_ZINDEX);
+				this.mPiecesList.get(nSelectedPiece).setZIndex(DEFAULT_ZINDEX+nSelectedPiece);
 			nSelectedPiece = SELECTED_NONE;
 			this.sortChildren(true);
 		}
@@ -540,7 +545,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		if(nSelectedContainer != SELECTED_NONE){
 			//chack that current index is still in the limit of the array and if yes set Z order to default
 			if(nSelectedContainer <  this.mContainersList.size())
-				this.mContainersList.get(nSelectedContainer).setZIndex(DEFAULT_ZINDEX);
+				this.mContainersList.get(nSelectedContainer).setZIndex(DEFAULT_ZINDEX+nSelectedContainer);
 			nSelectedContainer = SELECTED_NONE;
 			this.sortChildren(true);
 		}
@@ -564,18 +569,24 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	}
 	
 	public void playSoundTouch(){
-		if(sndTouch == null)
-			return;
+		//if released try to re-load the sound
+		if(sndTouch != null && sndTouch.isReleased()) sndTouch	= ResourcesManager.getInstance().getSound("puzzlepieces_touch").getTheSound();;
+		//if the sound is still null exit
+		if(sndTouch == null) return;
 		sndTouch.play();
 	}
 	public void playSoundEndLeveSuccess(){
-		if(sndEndLeveSuccess == null)
-			return;
+		//if released try to re-load the sound
+		if(sndEndLeveSuccess != null && sndEndLeveSuccess.isReleased()) sndEndLeveSuccess	= ResourcesManager.getInstance().getSound("level_win").getTheSound();;
+		//if the sound is still null exit
+		if(sndEndLeveSuccess == null) return;
 		sndEndLeveSuccess.play();
 	}
 	public void playSoundEndLeveFail(){
-		if(sndEndLeveFail == null)
-			return;
+		//if released try to re-load the sound
+		if(sndEndLeveFail != null && sndEndLeveFail.isReleased()) sndEndLeveFail	= ResourcesManager.getInstance().getSound("puzzlepieces_touch").getTheSound();;		
+		//if the sound is still null exit
+		if(sndEndLeveFail == null)return;
 		sndEndLeveFail.play();
 	}
 	// ------------------------------------------------------------------------------------
@@ -591,7 +602,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 			if(pElement.contains(sceneCoord[0],sceneCoord[1])){
 				//TO DO change the ZINDEX to selected and deselect previous pieces if one TO DO
 				if (nSelectedPiece != i){ 
-					pElement.setZIndex(SELECTED_ZINDEX);
+					pElement.setZIndex(SELECTED_ZINDEX+nSelectedPiece);
 					unSelectPiece();
 					nSelectedPiece = i;
 					this.sortChildren(true);
@@ -604,7 +615,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 			PuzzleElementContainer pElement = mContainersList.get(i);
 			if(mContainersList.get(i).contains(sceneCoord[0],sceneCoord[1])){
 				if (nSelectedContainer != i){ 
-					pElement.setZIndex(SELECTED_ZINDEX);
+					pElement.setZIndex(SELECTED_ZINDEX+nSelectedContainer);
 					unSelectContainer();
 					nSelectedContainer = i;
 					this.sortChildren(true);
