@@ -33,7 +33,9 @@ public class ScoreScene extends ManageableCameraScene implements IConfigurableSc
 		IEntity ent2 = ent1.getFirstChild();
 		((TextComponent)ent2).setText(message);
 		
-		((TextComponent)((IEntity)this.mapOfObjects.get(109)).getFirstChild()).setText(score);
+		ent1 = (IEntity)this.mapOfObjects.get(109);
+		ent2 = ent1.getFirstChild();
+		((TextComponent)ent2).setText(score);
 		
 		//Disable all stars
 		this.mapOfObjects.get(112).setVisible(false);

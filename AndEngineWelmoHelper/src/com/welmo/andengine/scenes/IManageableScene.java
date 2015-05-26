@@ -23,5 +23,6 @@ public interface IManageableScene {
 	public void 	setFatherSceneMessageHandler(IOperationHandler pMgsHnd);
 	public void 	refreshPersistentComponents(SharedPreferenceManager pSPM);
 	public String 	getSceneName();
-	public boolean onFireEvent(Events event);
+	public boolean 	onFireEvent(Events event);
+	public String 	getLicenceID();
 }

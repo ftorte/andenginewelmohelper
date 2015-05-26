@@ -66,6 +66,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 	
 
 	protected SceneDescriptor 								pSCDescriptor;
+	
 	public SceneDescriptor getpSCDescriptor() {
 		return pSCDescriptor;
 	}
@@ -161,10 +162,13 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 	    }
 	}
 
-	@Override
 	public String getSceneName() {
 		// TODO Auto-generated method stub
 		return this.pSCDescriptor.sceneName;
+	}
+	public String getLicenceID() {
+		// TODO Auto-generated method stub
+		return this.pSCDescriptor.sceneLicenceID;
 	}
 	
 	// ===========================================================

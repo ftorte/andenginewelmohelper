@@ -16,8 +16,6 @@ import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
-import org.andengine.entity.particle.SpriteParticleSystem;
-import org.andengine.entity.particle.emitter.BaseParticleEmitter;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.util.FPSLogger;
@@ -32,17 +30,15 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.progress.IProgressListener;
-import org.json.JSONException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -68,7 +64,7 @@ import com.welmo.andengine.utility.inappbilling.IabResult;
 import com.welmo.andengine.utility.inappbilling.Inventory;
 import com.welmo.andengine.utility.inappbilling.Purchase;
 import com.welmo.andengine.utility.inappbilling.PurchasingManager;
-import com.welmo.andengine.utility.inappbilling.Security;
+
 import com.welmo.andengine.utility.inappbilling.PurchasingManager.IAPurchasing;
 
 
@@ -158,8 +154,7 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	
 	//field for the in app purchasing
 	protected PurchasingManager				mPurchMgr 	= null;
-	protected Inventory						mInventory 	= null;
-    static final int 						RC_REQUEST 	= 10001;// (arbitrary) request code for the purchase flow
+	static final int 						RC_REQUEST 	= 10001;// (arbitrary) request code for the purchase flow
 	
 	protected String 						mTheBase64EncodedPublicKey = null;
 	
@@ -297,6 +292,8 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		if (mTheBase64EncodedPublicKey != null){
 			mPurchMgr = new PurchasingManager(this,this);
 			mPurchMgr.connectService(this, this.mTheBase64EncodedPublicKey);
+			initDefaultProduct();
+			mPurchMgr.storeProductOwned(mPreferencesEditor);
 		}
 			
 		//manage particule system call particule class
@@ -586,25 +583,28 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	@Override
 	public void onBackPressed() {
 		Scene currentScene = this.mEngine.getScene();
-		try {
-			executeStartup.acquire();
-			if(currentScene.hasChildScene()){
-				currentScene.clearChildScene();
-			}
-			else{
-				if(currentScene instanceof IManageableScene){
-					String fatherSceneName = ((IManageableScene)currentScene).getFatherScene();
-					if(fatherSceneName.length() == 0)
-						super.onBackPressed();
-					else{
-						this.mEngine.setScene((Scene)mSceneManager.getScene(fatherSceneName));
+		if(currentScene!=null){
+			try {
+				executeStartup.acquire();
+				if(currentScene.hasChildScene()){
+					currentScene.clearChildScene();
+				}
+				else{
+					if(currentScene instanceof IManageableScene){
+						String fatherSceneName = ((IManageableScene)currentScene).getFatherScene();
+						if(fatherSceneName!= null && fatherSceneName.length() == 0)
+							super.onBackPressed();
+						else{
+							this.mEngine.setScene((Scene)mSceneManager.getScene(fatherSceneName));
+						}
 					}
 				}
+				executeStartup.release();
+
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			executeStartup.release();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	@Override
@@ -693,17 +693,21 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 			// Cancel any scroll movements (position the camera center to the origin)
 			this.mSmoothCamera.setCenterDirect(nCameraWidth/2, nCameraHeight/2);
 			this.mSmoothCamera.setZoomFactorDirect(1);
+			
+			
 			//reset the scene to initial state
 			psc.resetScene();
 			// configure the HUD if any
-			if(psc.hasHUD()){
+			if(psc.hasHUD() && mHUD != null){
 				mHUD.config(psc.getHUDDsc(),(psc instanceof IOperationHandler ? (IOperationHandler)psc : null),this.mResourceManager);
 	        	mHUD.setVisible(true);
 	        	mSmoothCamera.setHUD(mHUD);
 	        }
 	        else{	
-	        	mHUD.setVisible(false);
-	        	mSmoothCamera.setHUD(null);
+	        	if(mHUD != null){
+	        		mHUD.setVisible(false);
+	        		mSmoothCamera.setHUD(null);
+	        	}
 	        }
 			//Activate the pinch & zoom and the scroll if any
 			if(psc.hasPinchAndZoomActive()){
@@ -871,6 +875,9 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	}
 	@Override
 	public void onReloadScene() {
+		//test to avoid a null pointer exception if mEngine is null;
+		if(mEngine == null)
+			return;
 		Scene currentScene = this.mEngine.getScene();
 		if(currentScene != null)
 			currentScene.reset();
@@ -895,12 +902,21 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 		//TO DO
 		
 	}
-	@Override
 	public void onIabPurchaseFinished(IabResult result, Purchase info) {
 		Log.d(TAG, "Purchased finished.");
-		mPreferencesEditor.putBoolean(info.getSku(), true);
-		mPreferencesEditor.commit();
-		onReloadScene();
+		
+		if(result.getResponse()<=-1000){
+			onReloadScene();
+			return;
+		}
+		else{
+			if(info != null){
+				mPreferencesEditor.putBoolean(info.getSku(), true);
+				mPreferencesEditor.commit();
+			}
+			gameToast("Unable to performe purchase: check network connection");	
+			return;
+		}
 	}
 	@Override
 	public void onIabSetupFinished(IabResult result) {
@@ -922,29 +938,15 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	public void onQueryInventoryFinished(IabResult result, Inventory inv) {
 		Log.d(TAG, "Query inventory finished.");
 		Log.d(TAG, "Query inventory was successful.");
-
-		mInventory = inv;
-		
-		//add default product available in the game by defaults
-		this.addDefaultProductOwned(mInventory);
-		
+				
 		//clear Catalog
 		this.mPurchMgr.clearStoredInventory(mPreferencesEditor);
 		
-		//store inventory in shared preference
-		List<String> allOwnedSkus = mInventory.getAllOwnedSkus();
-		ListIterator<String> it = allOwnedSkus.listIterator();
+		//update Inventory
+		this.mPurchMgr.updateInventory(inv);
 		
-		
-		boolean hasproduct = false;
-		
-		if(it.hasNext()) hasproduct = true;
-		
-		while(it.hasNext()){
-			String sku = it.next();
-			mPreferencesEditor.putBoolean(sku, true);
-		}
-		if(hasproduct) mPreferencesEditor.commit();
+		//store all products
+		this.mPurchMgr.storeProductOwned(mPreferencesEditor);
 		
 		//reload scene to ensure status are updated following purchased component 
 		onReloadScene();
@@ -1003,6 +1005,12 @@ public class SimpleWelmoActivity extends SimpleBaseGameActivity implements IActi
 	@Override
 	public void onInAppPurchasing(String sProductID) {
 		String payload = "";
-		mPurchMgr.launchPurchaseFlow(this, sProductID, IabHelper.ITEM_TYPE_INAPP, 1001, this, payload);		
+		if(!mPurchMgr.launchPurchaseFlow(this, sProductID, IabHelper.ITEM_TYPE_INAPP, 1001, this, payload)){
+		
+			gameToast("Service Unavailable: check network connection");	
+		}
+	}
+	public void initDefaultProduct(){
+		
 	}
 }

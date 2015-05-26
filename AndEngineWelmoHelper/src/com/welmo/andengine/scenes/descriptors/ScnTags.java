@@ -147,6 +147,7 @@ public class ScnTags {
 	public static final String S_A_ACTIVE_ZONE_BORDERS ="ActiveZoneBorders";
 	public final static String S_A_ACTIVE_ZONE		="ActiveZone";
 	public final static String S_A_HAS_HELPER_IMG	="HasHelperImg";
+	public static final String S_A_HELPER_TEXTURE_REGION = "HelperTextureRegion";
 	public final static String S_A_HELPER_IMAGE		="HelperImage";
 	public final static String S_A_HELPER_IMG_ALPHA	="HIAlpha";
 	public static final String S_A_HAS_WHITE_BACKGROUND = "hasWhiteBackground";

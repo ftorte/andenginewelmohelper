@@ -3,14 +3,19 @@ package com.welmo.andengine.utility.inappbilling;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
+
+import com.welmo.andengine.ui.SimpleWelmoActivity;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
 import android.util.Pair;
+import android.widget.Toast;
 
 
 /**
@@ -95,13 +100,17 @@ public class PurchasingManager {
 	//hnadle sku product list
 	public enum SKUS_TYPES{CONSUMABLE,NOT_CONSUMABLE,SUBSCRIPTION};
 	
+	//inventoris
+	public Inventory 							mInventory					= null;
+	public Inventory 							mDefaultInventory			= null;
+	
 	//constants 
 	ArrayList<String>							catalogueConsumable			= null;
 	ArrayList<String>							catalogueNotConsumable		= null;
 	ArrayList<String>							catalogueSubscription		= null;
 	
 		
-	Map<Pair<SKUS_TYPES,String>, Purchase>		puchasedProducts			= null;
+	//Map<Pair<SKUS_TYPES,String>, Purchase>		puchasedProducts			= null;
 	
 	//The activity that use this purchasing manager
 	protected Activity 							theActivity					= null;
@@ -117,6 +126,8 @@ public class PurchasingManager {
 		catalogueNotConsumable		= new ArrayList<String>();
 		catalogueSubscription		= new ArrayList<String>();
 		mIAPurchasing				= IIAPurchasing;
+		mInventory					= new Inventory();
+		mDefaultInventory			= new Inventory();
 	}
 	
 	//add product to the product list
@@ -142,10 +153,8 @@ public class PurchasingManager {
 		}
 	}
 	
-	public void addPurchasedProduct(SKUS_TYPES theType, String skuID, Purchase pProduct){
-		
-		puchasedProducts.put(new Pair<SKUS_TYPES,String>(theType,skuID), pProduct);
-		
+	public void addPurchasedProduct(Purchase pProduct){
+		mInventory.addPurchase(pProduct);
 	}
 	
 	public void connectService(Activity activity, String strPubblicKey){
@@ -171,34 +180,74 @@ public class PurchasingManager {
 	public void queryInventoryAsync(final boolean querySkuDetails, final IAPurchasing listener) {
 		this.mHelper.queryInventoryAsync(querySkuDetails,listener);
 	}
-	public void launchPurchaseFlow(Activity act, String sku, String itemType, int requestCode,
+	public boolean launchPurchaseFlow(Activity act, String sku, String itemType, int requestCode,
 			IAPurchasing listener, String extraData) {
+		
+		if (!mHelper.mSetupDone){
+			return false;
+	
+		}
 		this.mHelper.launchPurchaseFlow(act, sku, itemType,requestCode,listener,"");
+		return true;
 	}
 	public void  handleActivityResult(int requestCode, int resultCode, Intent data){
 		this.mHelper.handleActivityResult(requestCode, resultCode, data);
 		
 	}
+	/**********************************************************************************
+	 * add a product to the list of products owned by default
+	 **********************************************************************************/
+	public void addDefaultProductOwned(Purchase product){
+		if(mDefaultInventory.hasPurchase(product.getSku()))
+			mDefaultInventory.erasePurchase(product.getSku());
+		mDefaultInventory.addPurchase(product);
+	}
+	/**********************************************************************************
+	 * store the list of owned products in the prefrence file
+	 **********************************************************************************/
+	public void storeProductOwned(Editor mPreferencesEditor){
+		if(mDefaultInventory != null) storeProductOwned(mPreferencesEditor,mDefaultInventory);
+		if(mInventory != null) storeProductOwned(mPreferencesEditor,mInventory);
+	}
+	private void storeProductOwned(Editor mPreferencesEditor, Inventory theInv){
+		
+		//get updated inventory to update share preferences => This includes the default products
+		List<String> allOwnedSkus = theInv.getAllOwnedSkus();
+		//get iterator on product owned
+		ListIterator<String> it = allOwnedSkus.listIterator();
 
+		boolean hasproduct = false;		//by default consider that there are no product owned				
+		if(it.hasNext()) hasproduct = true;
+
+		while(it.hasNext()){
+			String sku = it.next();
+			mPreferencesEditor.putBoolean(sku, true);
+		}
+		if(hasproduct) mPreferencesEditor.commit();
+	}
+	/**********************************************************************************
+	 * ensure that for each product in teh catalog nothing is stored in the preference file
+	 * except for the default products
+	 **********************************************************************************/
 	public void clearStoredInventory(Editor mPreferencesEditor) {
 		
 		boolean prodcatalogue = false;
 		
-		//reset consumables
+		//reset preference file for consumables
 		Iterator<String> it = this.catalogueConsumable.iterator();
 		if (it.hasNext()) prodcatalogue = true;
 		while (it.hasNext()){
 			mPreferencesEditor.putBoolean(it.next(), false);
 		}
 
-		//reset consumables
+		//reset preference file for NON consumables
 		it = this.catalogueNotConsumable.iterator();
 		if (it.hasNext()) prodcatalogue = true;
 		while (it.hasNext()){
 			mPreferencesEditor.putBoolean(it.next(), false);
 		}
 		
-		//reset subscriptions
+		//reset preference file for services
 		it = this.catalogueSubscription.iterator();
 		if (it.hasNext()) prodcatalogue = true;
 		while (it.hasNext()){
@@ -207,5 +256,18 @@ public class PurchasingManager {
 		
 		if(prodcatalogue)
 			mPreferencesEditor.commit();
+		
+		//ensure default product are stored in the preference file
+		storeProductOwned(mPreferencesEditor);	
 	}
+	public void updateInventory(Inventory inv) {
+		mInventory = inv;
+	}
+	public boolean hasPurchase(String sku){
+		if(this.mDefaultInventory.hasPurchase(sku))
+			return true;
+		
+		return this.mInventory.hasPurchase(sku);
+	}
+	
 }

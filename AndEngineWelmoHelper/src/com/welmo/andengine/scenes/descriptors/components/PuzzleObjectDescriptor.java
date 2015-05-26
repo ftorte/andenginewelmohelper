@@ -26,6 +26,7 @@ public class PuzzleObjectDescriptor extends BasicComponentDescriptor {
 	protected boolean		hasWhiteBG			= false;		//if true the puzzle zone is active and pieces are stick to the zone
 	protected boolean		hasHelperImg		= false;
 	protected String		mHelperImage		= "";			//if different from "" the puzzle zone have as background the final figures in color on withe background with low alpah
+	protected String		mHelperTextureRegion= "";
 	protected float			mHelperImageAlpha	= 0.1f;
 	protected boolean 		hasFireworks		= false;
 	protected String 		fireworksName		= "";	
@@ -167,13 +168,22 @@ public class PuzzleObjectDescriptor extends BasicComponentDescriptor {
 		}
 	
 		
-		// Read if has helper image
-		if((value = attr.getValue(ScnTags.S_A_HAS_HELPER_IMG))!= null)
-			this.hasHelperImage(Boolean.parseBoolean(value));
+		// Read if has helper image			==> repalced by the helper imlage texture region
+		//if((value = attr.getValue(ScnTags.S_A_HAS_HELPER_IMG))!= null)
+		//	this.hasHelperImage(Boolean.parseBoolean(value));
 			
-		// Read if helper image on
+		// Read if helper image on	
 		if(attr.getValue(ScnTags.S_A_HELPER_IMAGE)!= null)
 			this.setHelperImage(attr.getValue(ScnTags.S_A_HELPER_IMAGE));
+	
+		// Read if helper image on
+		if((value = attr.getValue(ScnTags.S_A_HELPER_TEXTURE_REGION))!= null){
+				this.hasHelperImage(true);
+				this.setHelperTextureRegion(value);
+		} else{
+			this.hasHelperImage(false);
+		}
+		
 		
 		// Read if white background
 		if(attr.getValue(ScnTags.S_A_HAS_WHITE_BACKGROUND)!= null)
@@ -191,6 +201,8 @@ public class PuzzleObjectDescriptor extends BasicComponentDescriptor {
 		}
 		else
 			this.hasFireworks=false;
+		
+		
 		
 		// Read if firework to used while pieces are linked
 		if((value=attr.getValue(ScnTags.S_A_FIREWORKS_DURATION))!= null) this.fireworksDuration=Long.parseLong(value);
@@ -221,6 +233,12 @@ public class PuzzleObjectDescriptor extends BasicComponentDescriptor {
 	}
 	public long getFireworkDuration() {
 		return this.fireworksDuration;// TODO Auto-generated method stub
+	}
+	public String getHelperTextureRegion() {
+		return mHelperTextureRegion;
+	}
+	public void setHelperTextureRegion(String name) {
+		mHelperTextureRegion = new String (name);
 	}
 	
 }
