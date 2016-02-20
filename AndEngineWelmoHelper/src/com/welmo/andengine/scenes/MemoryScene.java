@@ -265,7 +265,7 @@ public class MemoryScene extends ManageableScene {
 					((SpriteObjectDescriptor) scObjDsc).getIDimension().setHeight(nCardHeight);
 					((SpriteObjectDescriptor) scObjDsc).getIDimension().setWidth(nCardWidth);
 				}
-				IEntity newEntity = loadComponent2((BasicComponentDescriptor) scObjDsc, this);
+				IEntity newEntity = loadComponent((BasicComponentDescriptor) scObjDsc, this);
 				if(newEntity instanceof CardSprite){
 					allCards.put(((CardSprite) newEntity).getID(),newEntity);
 					((CardSprite) newEntity).setSidesTiles(((SpriteObjectDescriptor) scObjDsc).getSidesA(),((SpriteObjectDescriptor) scObjDsc).getSidesB());	

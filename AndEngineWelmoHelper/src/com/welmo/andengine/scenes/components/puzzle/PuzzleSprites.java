@@ -67,6 +67,8 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	public static final int PY0				= 1;
 	public static final int WIDTH			= 2;
 	public static final int HEIGHT			= 3;
+	public static final int DEFAULT_PX0		= 4;
+	public static final int DEFAULT_PY0		= 5;
 	
 	
 	public static final int STATUS_START	= 1;
@@ -101,7 +103,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	
 	protected	float[]							mPuzzle				= {0,0,0,0};
 	protected	float[]							mPiecesBox			= {0,0,0,0};
-	protected	float[]							mPuzzleZone			= {0,0,0,0};
+	protected	float[]							mPuzzleZone			= {0,0,0,0,0,0};
 	
 	private 	boolean							hasActiveBorder		= false;		//if true the pieces and container have borders
 	private 	boolean							hasActiveZone		= false;		//if true the puzzle zone is active and pieces are stick to the zone
@@ -178,8 +180,8 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		mPiecesBox[HEIGHT]		= pDescriptor.getPieceBoxGeometry()[HEIGHT];
 		
 		//read puzzle zone geometry
-		mPuzzleZone[PX0]		= pDescriptor.getPuzzleZoneGeometry()[PX0];
-		mPuzzleZone[PY0]		= pDescriptor.getPuzzleZoneGeometry()[PY0];
+		mPuzzleZone[DEFAULT_PX0]= pDescriptor.getPuzzleZoneGeometry()[PX0];
+		mPuzzleZone[DEFAULT_PY0]= pDescriptor.getPuzzleZoneGeometry()[PY0];
 		mPuzzleZone[WIDTH]		= pDescriptor.getPuzzleZoneGeometry()[WIDTH];
 		mPuzzleZone[HEIGHT]		= pDescriptor.getPuzzleZoneGeometry()[HEIGHT];
 		
@@ -383,6 +385,10 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 		mPieceWidth  = pTiledTexture.getWidth()*zoomRatio;
 		mPieceHeight = pTiledTexture.getHeight()*zoomRatio;
 		
+		//set Origin X and Y for puzzle zone 
+		mPuzzleZone[PX0] = (Float) (mPuzzleZone[WIDTH] 	> mPieceWidth  * nbCols ? mPuzzleZone[DEFAULT_PX0] + ((mPuzzleZone[WIDTH] - (mPieceWidth * nbCols) )/2 ): mPuzzleZone[DEFAULT_PX0]);
+		mPuzzleZone[PY0] = (Float) (mPuzzleZone[HEIGHT] > mPieceHeight * nbRows ? mPuzzleZone[DEFAULT_PY0] + ((mPuzzleZone[HEIGHT] - (mPieceHeight * nbRows) )/2 ): mPuzzleZone[DEFAULT_PY0]);
+		
 		//Create vectors of tiled sprite pointers
 		mPieces = new PuzzleElement[nbPieces];
 		
@@ -443,7 +449,7 @@ public class PuzzleSprites extends Rectangle implements IComponent, IComponentLi
 	public void setUpActiveZone(){
 		
 		if(this.hasActiveZone){
-			sActiveZone = new Rectangle(mPuzzleZone[PX0],mPuzzleZone[PY0],mPieceWidth * nbCols,mPieceHeight*nbRows,mTheEngine.getVertexBufferObjectManager());
+			sActiveZone = new Rectangle(mPuzzleZone[PX0] ,mPuzzleZone[PY0] ,mPieceWidth * nbCols,mPieceHeight*nbRows,mTheEngine.getVertexBufferObjectManager());
 			sActiveZone.setAlpha(ACTIVE_ZONE_TRANSPARANCE);
 			sHelperImage.setZIndex(ACTIVE_ZONE_ZINDEX);
 			this.attachChild(sActiveZone);

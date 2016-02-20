@@ -124,7 +124,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 		//load each components constituting the scene id descriptor is instance of basiccomponentdescriptor
 		for(BasicDescriptor scObjDsc:pSCDescriptor.pChild.values()){
 			if (scObjDsc instanceof BasicComponentDescriptor){
-				loadComponent2((BasicComponentDescriptor) scObjDsc, this);
+				loadComponent((BasicComponentDescriptor) scObjDsc, this);
 			}
 		}
 		this.sortChildren();
@@ -174,7 +174,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 	// ===========================================================
 	// Load components
 	// ===========================================================
-	protected IEntity loadComponent2(BasicComponentDescriptor scObjDsc, IEntity pEntityFather) {
+	protected IEntity loadComponent(BasicComponentDescriptor scObjDsc, IEntity pEntityFather) {
 		IComponent newSceneComponent = null;
 		if (!(scObjDsc instanceof BasicComponentDescriptor)){
 			return null;
@@ -252,7 +252,7 @@ public class ManageableScene extends Scene implements IManageableScene, IActionS
 			//handle children
 			if(newSceneComponent != null)
 				for(BasicDescriptor theChild:scObjDsc.pChild.values())
-					loadComponent2((BasicComponentDescriptor) theChild, (IEntity)newSceneComponent);
+					loadComponent((BasicComponentDescriptor) theChild, (IEntity)newSceneComponent);
 			((IEntity)newSceneComponent).sortChildren(true);
 			return (IEntity)newSceneComponent;
 		}

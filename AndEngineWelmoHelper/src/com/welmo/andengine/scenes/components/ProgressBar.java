@@ -49,7 +49,8 @@ public class ProgressBar extends Rectangle implements IComponent, IPersistent{
 	 *  |	  |   |   |					 |     	 |  |
 	 *  |     |_______|------------------|_______|  -
 	 *   
-	 * 
+	 * This object implement a discrete bar to selece values from a min to a max. 
+	 * THIS VERSION IMPLEMENT ONLY THE DISCRETE VALUES
 	 * 
 	 * 
 	 */
